@@ -18,23 +18,6 @@ const selectRandomField = (obj: any) => {
   return firstKey;
 };
 
-const assignIcon = (node: NodeData) => {
-  const { Type } = node.properties;
-
-  switch (Type) {
-    case 'threat-actor':
-      return threatActor;
-    case 'identity':
-      return identity;
-    case 'attack-goal':
-      return attackGoal;
-    case 'infrastructure':
-      return infrastructure;
-    default:
-      break;
-  }
-};
-
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
   const nodes: Node[] = [];
@@ -53,12 +36,8 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       }
       const labelField = nodeLabelMap[type];
       const label = labelField && labelField in node.properties ? node.properties[labelField] : type;
-      const icon = assignIcon(node);
       const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
-      if (icon) {
-        gNode.image = icon;
-        gNode.shape = 'image';
-      }
+      
       nodes.push(gNode);
 
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label, arrows: { to: { enabled: true, scaleFactor: 0.5 } } })));
