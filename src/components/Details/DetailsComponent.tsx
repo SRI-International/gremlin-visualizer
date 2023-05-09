@@ -9,7 +9,6 @@ import {
   ListItem,
   ListItemText,
   TextField,
-  Fab,
   IconButton,
   Grid,
   Table,
@@ -30,10 +29,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import _ from 'lodash';
 import { JsonToTable } from 'react-json-to-table';
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
-import axios from 'axios';
+import {
+  COMMON_GREMLIN_ERROR,
+  HOST,
+  PORT,
+} from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
-import { stringifyObjectValues } from '../../logics/utils';
 import { refreshNodeLabels, selectGraph } from '../../reducers/graphReducer';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import {
@@ -46,6 +47,7 @@ import {
 } from '../../reducers/optionReducer';
 import { EdgeOptions, IdType } from 'vis-network';
 import { getNetwork } from '../../logics/network';
+import { useQueryMutation } from '../../services/gremlin';
 
 type QueryHistoryProps = {
   list: Array<string>;
@@ -128,10 +130,11 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
-  const { host, port } = useSelector(selectGremlin);
+  const { queryHistory } = useSelector(selectGremlin);
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
-  const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } =
+  const { nodeLabels, nodeLimit, isPhysicsEnabled } =
     useSelector(selectOptions);
+  const [apiSendQuery] = useQueryMutation();
   const network = getNetwork();
 
   function onAddNodeLabel() {
@@ -156,22 +159,12 @@ export const DetailsComponent = () => {
 
   function onTraverse(nodeId: IdType | undefined, direction: string) {
     const query = `g.V('${nodeId}').${direction}()`;
-    axios
-      .post(
-        QUERY_ENDPOINT,
-        {
-          host,
-          port,
-          query,
-          nodeLimit,
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+    apiSendQuery({ host: HOST, port: PORT, query, nodeLimit })
       .then((response) => {
         onFetchQuery(response, query, nodeLabels, dispatch);
       })
-      .catch((error) => {
-        dispatch(setError(COMMON_GREMLIN_ERROR));
+      .catch(() => {
+        setError(COMMON_GREMLIN_ERROR);
       });
   }
 
@@ -237,7 +230,7 @@ export const DetailsComponent = () => {
             </AccordionSummary>
             <AccordionDetails>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={12}>
+                {/* <Grid item xs={12} sm={12} md={12}>
                   <Tooltip
                     title="Automatically stabilize the graph"
                     aria-label="add"
@@ -275,7 +268,7 @@ export const DetailsComponent = () => {
                       }}
                     />
                   </Tooltip>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} sm={12} md={12}>
                   <Divider />
                 </Grid>

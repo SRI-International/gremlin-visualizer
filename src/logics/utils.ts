@@ -35,17 +35,12 @@ export const extractEdgesAndNodes = (
         nodeLabels.push(nodeLabel);
         nodeLabelMap[type] = field;
       }
-      const labelField = nodeLabelMap[type];
-      const label =
-        labelField && labelField in node.properties
-          ? node.properties[labelField]
-          : type;
       const icon = assignIcon(node);
       // console.log(node);
       const gNode: NodeData = {
         id: node.id,
         uniqueId: `${node.properties.layout_id}`,
-        label: String(label),
+        label: `${node.properties.name}`,
         group: node.label,
         properties: node.properties,
         type,

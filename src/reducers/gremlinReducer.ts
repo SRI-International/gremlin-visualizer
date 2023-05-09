@@ -1,10 +1,16 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 
-const initialState = {
-  host: 'localhost',
-  port: '8182',
-  query: 'g.V()',
+
+type GremlinState = {
+  queryHistory: string[];
+  queryBase: string;
+  error?: string | null;
+};
+
+const initialState: GremlinState = {
+  queryBase: 'g',
+  queryHistory: [],
   error: null
 };
 
@@ -12,24 +18,23 @@ const slice = createSlice({
   name: 'gremlin',
   initialState,
   reducers: {
-    setHost: (state, action) => {
-      state.host = action.payload;
+    addQueryHistory: (state, action) => {
+      state.queryHistory = [...state.queryHistory, action.payload];
     },
-    setPort: (state, action) => {
-      state.port = action.payload;
-    },
-    setQuery: (state, action) => {
-      state.query = action.payload;
-      state.error = null;
+    clearQueryHistory: (state) => {
+      state.queryHistory = [];
     },
     setError: (state, action) => {
       console.log(action.payload);
       state.error = action.payload;
-    }
+    },
+    setQueryBase: (state, action) => {
+      state.queryBase = action.payload;
+    },
   }
 });
 
-export const { setHost, setPort, setQuery, setError } = slice.actions;
-const selectSelf = (state: RootState) => state
+export const { addQueryHistory, clearQueryHistory, setError, setQueryBase } = slice.actions;
+const selectSelf = (state: RootState) => state;
 export const selectGremlin = createSelector(selectSelf, (state) => state.gremlin);
 export default slice.reducer;

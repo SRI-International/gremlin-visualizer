@@ -58,43 +58,6 @@ const slice = createSlice({
     addNodes: (state, action) => {
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
-
-      // get the nodes that have the '_layout' property
-      // const layoutNodes = state.nodes
-      //   .filter(node => node.properties.hasOwnProperty('layout'));
-
-      // console.log(layoutNodes);
-
-      // for (let node of layoutNodes) {
-      //   // get the mapping of layout
-      //   // layouts are maps of groups to names
-      //   const layoutMap: LayoutsMap = JSON.parse(node.properties['layout']);
-      //   const layoutByGroup = layoutMap[state.group];
-
-      //   if (layoutByGroup) {
-      //     // get the list of layout names
-      //     const names = Object.keys(layoutByGroup);
-
-      //     for (let name of names) {
-      //       if (node.id) {
-      //         // save the coordinates at layout[group][name] with the node id
-      //         state.layouts[name] = {
-      //           ...state.layouts[name],
-      //           [node.id]: layoutByGroup[name]
-      //         };
-
-      //         // if is selected layout, set the coordinates
-      //         if (name === state.selectedLayout) {
-      //           const nodeIndex = state.nodes.findIndex((n) => n.id === node.id);
-      //           state.nodes[nodeIndex].x = layoutByGroup[name].x;
-      //           state.nodes[nodeIndex].y = layoutByGroup[name].y;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
-
-      // console.log(state.layouts);
     },
     clearGraph: (state) => {
       state.nodes = [];
@@ -117,13 +80,15 @@ const slice = createSlice({
       state.group = action.payload;
     },
     setNodePositions: (state, action) => {
-      const nodes = action.payload;
-      const keys = Object.keys(nodes);
+      if (state.nodes.length > 0) {
+        const nodes = action.payload;
+        const keys = Object.keys(nodes);
 
-      for (let id of keys) {
-        const ndx = state.nodes.findIndex(n => n.uniqueId === id);
-        state.nodes[ndx].x = nodes[id].x;
-        state.nodes[ndx].y = nodes[id].y;
+        for (let id of keys) {
+          const ndx = state.nodes.findIndex(n => n.uniqueId === id);
+          state.nodes[ndx].x = nodes[id].x;
+          state.nodes[ndx].y = nodes[id].y;
+        }
       }
     },
     setSelectedEdge: (state, action) => {
@@ -134,6 +99,7 @@ const slice = createSlice({
       state.selectedNode = {};
     },
     setSelectedLayout: (state, action) => {
+      console.log(action.payload);
       state.selectedLayout = action.payload;
     },
     setSelectedNode: (state, action) => {

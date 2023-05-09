@@ -54,12 +54,12 @@ const defaultOptions = {
 
 export function getNetwork(container?: HTMLElement, data?: Data, layout?: string, callbacks?: CallbackOptions): Network | null {
   const networkOpts = {...defaultOptions};
-  console.log(layout);
   if (layout) {
     networkOpts.physics = false;
   }
 
   if (network) {
+    updateNetwork(data, layout);
     return network;
   }
 
@@ -84,11 +84,11 @@ export function getNetwork(container?: HTMLElement, data?: Data, layout?: string
 
 export function updateNetwork(data?: Data, layout?: string) {
   const networkOpts = {...defaultOptions};
-  console.log(layout);
   if (layout) {
     networkOpts.physics = false;
   }
-  if (network) {
+  if (network && data) {
+    console.log('redo network', layout, networkOpts, data);
     if (data) network.setData(data);
     network.setOptions(networkOpts);
 
@@ -98,6 +98,6 @@ export function updateNetwork(data?: Data, layout?: string) {
 
     setTimeout(() => {
       network?.setOptions({ physics: false });
-    }, 3000);
+    }, 10000);
   }
 }

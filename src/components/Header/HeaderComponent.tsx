@@ -23,7 +23,7 @@ import {
   setNodePositions,
   setSelectedLayout,
 } from '../../reducers/graphReducer';
-import { clearQueryHistory, selectOptions } from '../../reducers/optionReducer';
+import { selectOptions } from '../../reducers/optionReducer';
 import {
   useGetGroupsQuery,
   useGetVersionsQuery,
@@ -35,6 +35,7 @@ import {
 import { useQueryMutation } from '../../services/gremlin';
 import style from './HeaderComponent.module.css';
 import { getNetwork } from '../../logics/network';
+import { clearQueryHistory, selectGremlin, setQueryBase } from '../../reducers/gremlinReducer';
 
 interface LayoutOptionType {
   inputValue?: string;
@@ -58,6 +59,9 @@ export const HeaderComponent = ({}) => {
     readonly string[] | null
   >(null);
   const [group, setGroup] = useState<string | undefined>('');
+  const [groupOptions, setGroupOptions] = useState<
+    readonly string[] | null
+  >(null);
   const [canSave, setCanSave] = useState(false);
   const [q, setQ] = useState('');
   const [layout, setLayout] = useState<LayoutOptionType | null>(null);
@@ -67,6 +71,7 @@ export const HeaderComponent = ({}) => {
   const [error, setError] = useState<string | null>(null);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const { nodes, group: graphGroup, selectedLayout } = useSelector(selectGraph);
+  const { queryBase } = useSelector(selectGremlin);
   const { data: versionData } = useGetVersionsQuery(undefined);
   const { data: groupsData } = useGetGroupsQuery(undefined);
   const [getLayouts, layoutData] = useLazyGetLayoutsQuery();
@@ -103,17 +108,21 @@ export const HeaderComponent = ({}) => {
     if (versionData) {
       // initialize the db
       // TODO: maybe this should be handled backend
-      apiSetVersion('base');
       const keys = Object.keys(versionData);
       const opts: string[] = [];
-  
+
       for (let key of keys) {
         opts.push(key);
       }
-  
+
       setVersionOptions(opts);
     }
-  }, [layoutData, layoutNodePositions.data, versionData]);
+    if (groupsData) {
+      const opts: string[] = [...groupsData];
+      opts.sort();
+      setGroupOptions(opts)
+    }
+  }, [layoutData, layoutNodePositions.data, versionData, groupsData]);
 
   function sendQuery(query: string) {
     setError(null);
@@ -127,17 +136,14 @@ export const HeaderComponent = ({}) => {
   }
 
   const handleVersionChange = (evt: SelectChangeEvent) => {
-    console.log(evt);
     const v = evt.target.value;
 
     setVersion(v);
     setGroup('');
     dispatch(clearGraph());
     dispatch(clearQueryHistory());
-    // apiSetVersion(evt.target.value as string).then(() => {
-    //   sendQuery('g.V()');
-    // });
-    sendQuery(`${versionData[v]}.V()`)
+    dispatch(setQueryBase(versionData[v]))
+    sendQuery(`${versionData[v]}.V()`);
 
     dispatch(setSelectedLayout(null));
     setLayout(null);
@@ -145,25 +151,28 @@ export const HeaderComponent = ({}) => {
   };
 
   const handleGroupChange = (evt: SelectChangeEvent) => {
-    setGroup(evt.target.value as string);
+    const g = evt.target.value;
+    setGroup(g);
     dispatch(clearGraph());
     dispatch(setGraphGroup(group));
 
-    setLayoutOptions(
-      layoutData.data
-        .map((l: string) => {
-          const nameSplit = l.split('-');
-          const name = nameSplit[0];
-          const group = nameSplit[1] || '';
+    if (layoutData.data) {
+      setLayoutOptions(
+        layoutData.data
+          .map((l: string) => {
+            const nameSplit = l.split('-');
+            const name = nameSplit[0];
+            const group = nameSplit[1] || '';
 
-          const newValue = { inputValue: l, title: name, group };
-          console.log(newValue);
-          return newValue;
-        })
-        .filter((o: LayoutOptionType) => o.group === evt.target.value)
-    );
+            const newValue = { inputValue: l, title: name, group };
+            console.log(newValue);
+            return newValue;
+          })
+          .filter((o: LayoutOptionType) => o.group === g)
+      );
+    }
 
-    sendQuery(`g.V().has('groups', '${evt.target.value}')`);
+    sendQuery(`${queryBase}.V().has('groups', '${evt.target.value}')`);
   };
 
   const handleLayoutChange = (
@@ -189,10 +198,9 @@ export const HeaderComponent = ({}) => {
       if (/Add.*/.test(newValue.title)) {
         setCanSave(true);
       } else {
+        dispatch(setSelectedLayout(newValue.inputValue));
         getLayout({ version, name: newValue.inputValue });
       }
-
-      dispatch(setSelectedLayout(newValue.title));
     } else {
       setLayout(newValue);
       dispatch(setSelectedLayout(undefined));
@@ -200,10 +208,10 @@ export const HeaderComponent = ({}) => {
   };
 
   const handleSave = () => {
-    if (selectedLayout) {
+    if (layout && layout.inputValue != null) {
       const positions = network?.getPositions();
       const layoutName =
-        group !== '' ? `${selectedLayout}-${group}` : selectedLayout;
+        group !== '' ? `${layout.inputValue}-${group}` : layout.inputValue;
       const layoutObj: LayoutJson = {
         version,
         group,
@@ -250,7 +258,7 @@ export const HeaderComponent = ({}) => {
             onChange={handleGroupChange}
             disabled={isLoading || version === ''}
           >
-            {groupsData?.map((g: string, ndx: number) => (
+            {groupOptions?.map((g: string, ndx: number) => (
               <MenuItem key={ndx} value={g}>
                 {g}
               </MenuItem>

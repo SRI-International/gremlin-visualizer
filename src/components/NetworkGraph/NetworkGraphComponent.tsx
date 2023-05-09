@@ -51,7 +51,7 @@ export const NetworkGraphComponent = () => {
         }
       );
 
-      console.log(network?.getSeed());
+      // console.log(network?.getSeed());
     }
   }, [nodes, edges, selectedLayout]);
 
