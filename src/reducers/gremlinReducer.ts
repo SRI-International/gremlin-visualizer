@@ -25,7 +25,6 @@ const slice = createSlice({
       state.queryHistory = [];
     },
     setError: (state, action) => {
-      console.log(action.payload);
       state.error = action.payload;
     },
     setQueryBase: (state, action) => {

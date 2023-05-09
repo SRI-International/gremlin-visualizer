@@ -88,7 +88,6 @@ export function updateNetwork(data?: Data, layout?: string) {
     networkOpts.physics = false;
   }
   if (network && data) {
-    console.log('redo network', layout, networkOpts, data);
     if (data) network.setData(data);
     network.setOptions(networkOpts);
 

@@ -20,6 +20,7 @@ import {
   clearGraph,
   selectGraph,
   setGraphGroup,
+  setLayoutChanged,
   setNodePositions,
   setSelectedLayout,
 } from '../../reducers/graphReducer';
@@ -54,24 +55,11 @@ const filter = createFilterOptions<LayoutOptionType>();
 
 export const HeaderComponent = ({}) => {
   const dispatch = useDispatch();
-  const [version, setVersion] = useState('');
-  const [versionOptions, setVersionOptions] = useState<
-    readonly string[] | null
-  >(null);
-  const [group, setGroup] = useState<string | undefined>('');
-  const [groupOptions, setGroupOptions] = useState<
-    readonly string[] | null
-  >(null);
-  const [canSave, setCanSave] = useState(false);
-  const [q, setQ] = useState('');
-  const [layout, setLayout] = useState<LayoutOptionType | null>(null);
-  const [layoutOptions, setLayoutOptions] = useState<
-    readonly LayoutOptionType[]
-  >([]);
-  const [error, setError] = useState<string | null>(null);
+
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
-  const { nodes, group: graphGroup, selectedLayout } = useSelector(selectGraph);
+  const { nodes, layoutChanged } = useSelector(selectGraph);
   const { queryBase } = useSelector(selectGremlin);
+
   const { data: versionData } = useGetVersionsQuery(undefined);
   const { data: groupsData } = useGetGroupsQuery(undefined);
   const [getLayouts, layoutData] = useLazyGetLayoutsQuery();
@@ -80,21 +68,35 @@ export const HeaderComponent = ({}) => {
   const [apiSendQuery] = useQueryMutation();
   const [apiSaveLayout] = useSaveLayoutMutation();
 
+  const [version, setVersion] = useState('');
+  const [versionOptions, setVersionOptions] = useState<
+    readonly string[] | null
+  >(null);
+  const [group, setGroup] = useState<string | undefined>('');
+  const [groupOptions, setGroupOptions] = useState<
+    readonly string[] | null
+  >(null);
+  const [canSave, setCanSave] = useState(layoutChanged);
+  const [q, setQ] = useState('');
+  const [layout, setLayout] = useState<LayoutOptionType | null>(null);
+  const [layoutOptions, setLayoutOptions] = useState<
+    readonly LayoutOptionType[]
+  >([]);
+  const [error, setError] = useState<string | null>(null);
+
   const network = getNetwork();
 
   useEffect(() => {
     if (layoutData && layoutData.isSuccess) {
-      console.log('populate layout data');
       // TODO: check group in the data
       setLayoutOptions(
         layoutData.data
           .map((l: string) => {
-            const nameSplit = l.split('-');
+            const nameSplit = l.split('(');
             const name = nameSplit[0];
-            const group = nameSplit[1] || '';
+            const group = nameSplit[1] ? nameSplit[1].replace(')', '') : '';
 
             const newValue = { inputValue: l, title: name, group };
-            console.log(newValue);
             return newValue;
           })
           .filter((o: LayoutOptionType) => o.group === group)
@@ -102,7 +104,7 @@ export const HeaderComponent = ({}) => {
     } else if (layoutData && layoutData.isError) {
       setLayoutOptions([]);
     }
-    if (layoutNodePositions && layoutNodePositions.data) {
+    if (layout && layoutNodePositions && layoutNodePositions.data) {
       dispatch(setNodePositions(layoutNodePositions.data.nodes));
     }
     if (versionData) {
@@ -122,7 +124,8 @@ export const HeaderComponent = ({}) => {
       opts.sort();
       setGroupOptions(opts)
     }
-  }, [layoutData, layoutNodePositions.data, versionData, groupsData]);
+    setCanSave(layout != null && layoutChanged)
+  }, [layoutData, layoutNodePositions.data, versionData, groupsData, layoutChanged]);
 
   function sendQuery(query: string) {
     setError(null);
@@ -153,6 +156,7 @@ export const HeaderComponent = ({}) => {
   const handleGroupChange = (evt: SelectChangeEvent) => {
     const g = evt.target.value;
     setGroup(g);
+    setLayout(null);
     dispatch(clearGraph());
     dispatch(setGraphGroup(group));
 
@@ -160,12 +164,11 @@ export const HeaderComponent = ({}) => {
       setLayoutOptions(
         layoutData.data
           .map((l: string) => {
-            const nameSplit = l.split('-');
+            const nameSplit = l.split('(');
             const name = nameSplit[0];
-            const group = nameSplit[1] || '';
+            const group = nameSplit[1] ? nameSplit[1].replace(')', '') : '';
 
             const newValue = { inputValue: l, title: name, group };
-            console.log(newValue);
             return newValue;
           })
           .filter((o: LayoutOptionType) => o.group === g)
@@ -185,7 +188,6 @@ export const HeaderComponent = ({}) => {
         inputValue: newValue,
         group: group || '',
       });
-      console.log('set by string');
       dispatch(setSelectedLayout(newValue));
     } else if (newValue && newValue.inputValue) {
       setLayout({
@@ -211,7 +213,7 @@ export const HeaderComponent = ({}) => {
     if (layout && layout.inputValue != null) {
       const positions = network?.getPositions();
       const layoutName =
-        group !== '' ? `${layout.inputValue}-${group}` : layout.inputValue;
+        group !== '' ? `${layout.inputValue}(${group})` : layout.inputValue;
       const layoutObj: LayoutJson = {
         version,
         group,

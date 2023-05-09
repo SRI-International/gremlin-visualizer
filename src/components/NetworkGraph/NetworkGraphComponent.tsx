@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  saveNodePosition,
+  setLayoutChanged,
   selectGraph,
   setSelectedEdge,
   setSelectedNode,
@@ -30,12 +30,7 @@ export const NetworkGraphComponent = () => {
   };
 
   const dragEndCallback = (params?: any) => {
-    const nodeId =
-      params.nodes && params.nodes.length > 0 ? params.nodes[0] : null;
-    const pointer = params.pointer ? params.pointer.canvas : null;
-
-    console.log(nodeId, pointer);
-    dispatch(saveNodePosition({ nodeId, pointer }));
+    dispatch(setLayoutChanged(true));
   };
 
   useEffect(() => {

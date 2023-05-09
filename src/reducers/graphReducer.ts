@@ -18,7 +18,7 @@ type GraphState = {
   selectedLayout?: string;
   group: string;
   layouts: LayoutNames;
-  nodePosChanges: NodePositions;
+  layoutChanged: boolean;
 };
 
 type LayoutsMap = {
@@ -44,7 +44,7 @@ const initialState: GraphState = {
   selectedEdge: {},
   group: 'default',
   layouts: {},
-  nodePosChanges: {},
+  layoutChanged: false,
 };
 
 const slice = createSlice({
@@ -64,20 +64,20 @@ const slice = createSlice({
       state.edges = [];
       state.selectedNode = {};
       state.selectedEdge = {};
-      state.nodePosChanges = {};
       state.group = 'default';
+      state.selectedLayout = undefined;
+      state.layoutChanged = false;
     },
     saveLayout: (state, action) => {
       const { name } = action.payload;
       state.layouts[name] = action.payload;
       // state.layouts(action.payload);
     },
-    saveNodePosition: (state, action) => {
-      const nodeId = action.payload.nodeId;
-      state.nodePosChanges[nodeId] = action.payload.pointer;
-    },
     setGraphGroup: (state, action) => {
       state.group = action.payload;
+    },
+    setLayoutChanged: (state, action) => {
+      state.layoutChanged = action.payload;
     },
     setNodePositions: (state, action) => {
       if (state.nodes.length > 0) {
@@ -128,8 +128,8 @@ export const {
   clearGraph,
   addNodes,
   addEdges,
-  saveNodePosition,
   setGraphGroup,
+  setLayoutChanged,
   setNodePositions,
   setSelectedEdge,
   setSelectedLayout,
