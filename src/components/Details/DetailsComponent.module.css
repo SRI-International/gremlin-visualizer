@@ -1,0 +1,26 @@
+.details {
+  width: 300px;
+}
+
+.details :global(.MuiDrawer-paper) {
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.details-container {
+  padding: 10px;
+}
+
+.details-traversal-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 30px;
+}
+
+.details-traversal-buttons button:first-child {
+  margin-right: 10px;
+}
+
+.table-th {
+  font-weight: bold;
+}

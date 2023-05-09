@@ -1,5 +1,5 @@
 .header {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .header-model-select,
@@ -9,9 +9,8 @@
 }
 
 .header .header-groups-select,
-.header .header-layout-select,
 .header .header-query,
-.header .header-execute {
+.header .header-save {
   margin-left: 10px;
 }
 
@@ -19,6 +18,17 @@
   min-width: 300px;
 }
 
+.header-layout-block,
+.header-model-group-block {
+  display: inline-block;
+  margin: -10px -15px -10px 25px;
+  padding: 10px 15px 10px 15px;
+}
+
+.header-model-group-block {
+  margin-left: 15px;
+  margin-right: 10px;
+}
 
 .header-progress {
   color: #1a90ff;

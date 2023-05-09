@@ -4,10 +4,14 @@ import { NodeLabel } from '../reducers/optionReducer';
 import assignIcon from './icons';
 
 export interface NodeData extends Node {
-  properties: any;
-  type: string;
+  properties?: any;
+  type?: string;
   uniqueId: string;
   edges?: Edge[];
+}
+
+export interface EdgeData extends Edge {
+  properties?: any;
 }
 
 const selectRandomField = (obj: any) => {

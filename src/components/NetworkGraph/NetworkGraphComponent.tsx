@@ -6,8 +6,8 @@ import {
   setSelectedEdge,
   setSelectedNode,
 } from '../../reducers/graphReducer';
-import { selectOptions } from '../../reducers/optionReducer';
 import { getNetwork } from '../../logics/network';
+import style from './NetworkGraphComponent.module.css';
 
 export const NetworkGraphComponent = () => {
   const dispatch = useDispatch();
@@ -50,5 +50,5 @@ export const NetworkGraphComponent = () => {
     }
   }, [nodes, edges, selectedLayout]);
 
-  return <div ref={myRef} className={'mynetwork'} />;
+  return <div ref={myRef} className={style['network-pane']} />;
 };

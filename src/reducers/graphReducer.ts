@@ -3,7 +3,7 @@ import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { Edge, Node } from 'vis-network';
 import { RootState } from '../app/store';
 import _ from 'lodash';
-import { NodeData } from '../logics/utils';
+import { EdgeData, NodeData } from '../logics/utils';
 
 type Coordinates = {
   x: number;
@@ -12,9 +12,9 @@ type Coordinates = {
 
 type GraphState = {
   nodes: NodeData[];
-  edges: Edge[];
-  selectedNode?: Node;
-  selectedEdge?: Edge;
+  edges: EdgeData[];
+  selectedNode?: NodeData;
+  selectedEdge?: EdgeData;
   selectedLayout?: string;
   group: string;
   layouts: LayoutNames;
@@ -40,7 +40,7 @@ type LayoutJson = {
 const initialState: GraphState = {
   nodes: [],
   edges: [],
-  selectedNode: {},
+  selectedNode: {uniqueId: ''},
   selectedEdge: {},
   group: 'default',
   layouts: {},
@@ -62,7 +62,7 @@ const slice = createSlice({
     clearGraph: (state) => {
       state.nodes = [];
       state.edges = [];
-      state.selectedNode = {};
+      state.selectedNode = { uniqueId: ''};
       state.selectedEdge = {};
       state.group = 'default';
       state.selectedLayout = undefined;
@@ -96,10 +96,9 @@ const slice = createSlice({
       if (edgeId !== null) {
         state.selectedEdge = _.find(state.edges, edge => edge.id === edgeId);
       }
-      state.selectedNode = {};
+      state.selectedNode = {uniqueId: ''};
     },
     setSelectedLayout: (state, action) => {
-      console.log(action.payload);
       state.selectedLayout = action.payload;
     },
     setSelectedNode: (state, action) => {

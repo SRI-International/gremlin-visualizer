@@ -8,6 +8,7 @@ import {
   InputLabel,
   LinearProgress,
   MenuItem,
+  Paper,
   Select,
   SelectChangeEvent,
   TextField,
@@ -36,7 +37,11 @@ import {
 import { useQueryMutation } from '../../services/gremlin';
 import style from './HeaderComponent.module.css';
 import { getNetwork } from '../../logics/network';
-import { clearQueryHistory, selectGremlin, setQueryBase } from '../../reducers/gremlinReducer';
+import {
+  clearQueryHistory,
+  selectGremlin,
+  setQueryBase,
+} from '../../reducers/gremlinReducer';
 
 interface LayoutOptionType {
   inputValue?: string;
@@ -73,9 +78,9 @@ export const HeaderComponent = ({}) => {
     readonly string[] | null
   >(null);
   const [group, setGroup] = useState<string | undefined>('');
-  const [groupOptions, setGroupOptions] = useState<
-    readonly string[] | null
-  >(null);
+  const [groupOptions, setGroupOptions] = useState<readonly string[] | null>(
+    null
+  );
   const [canSave, setCanSave] = useState(layoutChanged);
   const [q, setQ] = useState('');
   const [layout, setLayout] = useState<LayoutOptionType | null>(null);
@@ -122,10 +127,16 @@ export const HeaderComponent = ({}) => {
     if (groupsData) {
       const opts: string[] = [...groupsData];
       opts.sort();
-      setGroupOptions(opts)
+      setGroupOptions(opts);
     }
-    setCanSave(layout != null && layoutChanged)
-  }, [layoutData, layoutNodePositions.data, versionData, groupsData, layoutChanged]);
+    setCanSave(layout != null && layoutChanged);
+  }, [
+    layoutData,
+    layoutNodePositions.data,
+    versionData,
+    groupsData,
+    layoutChanged,
+  ]);
 
   function sendQuery(query: string) {
     setError(null);
@@ -145,7 +156,7 @@ export const HeaderComponent = ({}) => {
     setGroup('');
     dispatch(clearGraph());
     dispatch(clearQueryHistory());
-    dispatch(setQueryBase(versionData[v]))
+    dispatch(setQueryBase(versionData[v]));
     sendQuery(`${versionData[v]}.V()`);
 
     dispatch(setSelectedLayout(null));
@@ -235,94 +246,100 @@ export const HeaderComponent = ({}) => {
   return (
     <div className={style['header']}>
       <form noValidate autoComplete="off">
-        <FormControl size="small" className={style['header-model-select']}>
-          <InputLabel id="model-version">Model</InputLabel>
-          <Select
-            labelId="model-version"
-            label="Model"
-            value={version}
-            onChange={handleVersionChange}
-            disabled={isLoading}
-          >
-            {versionOptions?.map((version: string, ndx: number) => (
-              <MenuItem key={ndx} value={version}>
-                {version}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" className={style['header-groups-select']}>
-          <InputLabel id="model-group">Group</InputLabel>
-          <Select
-            labelId="model-group"
-            label="Group"
-            value={group}
-            onChange={handleGroupChange}
-            disabled={isLoading || version === ''}
-          >
-            {groupOptions?.map((g: string, ndx: number) => (
-              <MenuItem key={ndx} value={g}>
-                {g}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" className={style['header-layout-select']}>
-          <Autocomplete
-            id="model-layouts"
-            selectOnFocus
-            clearOnBlur
-            handleHomeEndKeys
-            freeSolo
-            value={layout}
-            options={layoutOptions}
-            renderOption={(props, option) => <li {...props}>{option.title}</li>}
-            onChange={handleLayoutChange}
-            filterOptions={(options, params) => {
-              const filtered = filter(options, params);
+        <Paper elevation={3} className={style['header-model-group-block']}>
+          <FormControl size="small" className={style['header-model-select']}>
+            <InputLabel id="model-version">Model</InputLabel>
+            <Select
+              labelId="model-version"
+              label="Model"
+              value={version}
+              onChange={handleVersionChange}
+              disabled={isLoading}
+            >
+              {versionOptions?.map((version: string, ndx: number) => (
+                <MenuItem key={ndx} value={version}>
+                  {version}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" className={style['header-groups-select']}>
+            <InputLabel id="model-group">Group</InputLabel>
+            <Select
+              labelId="model-group"
+              label="Group"
+              value={group}
+              onChange={handleGroupChange}
+              disabled={isLoading || version === ''}
+            >
+              {groupOptions?.map((g: string, ndx: number) => (
+                <MenuItem key={ndx} value={g}>
+                  {g}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Paper>
+        <Paper elevation={3} className={style['header-layout-block']}>
+          <FormControl size="small" className={style['header-layout-select']}>
+            <Autocomplete
+              id="model-layouts"
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              freeSolo
+              value={layout}
+              options={layoutOptions}
+              renderOption={(props, option) => (
+                <li {...props}>{option.title}</li>
+              )}
+              onChange={handleLayoutChange}
+              filterOptions={(options, params) => {
+                const filtered = filter(options, params);
 
-              const { inputValue } = params;
-              // Suggest the creation of a new value
-              const isExisting = options.some(
-                (option) => inputValue === option.inputValue
-              );
-              if (inputValue !== '' && !isExisting) {
-                filtered.push({
-                  inputValue,
-                  title: `Add "${inputValue}"`,
-                  group: group || '',
-                });
-              }
+                const { inputValue } = params;
+                // Suggest the creation of a new value
+                const isExisting = options.some(
+                  (option) => inputValue === option.inputValue
+                );
+                if (inputValue !== '' && !isExisting) {
+                  filtered.push({
+                    inputValue,
+                    title: `Add "${inputValue}"`,
+                    group: group || '',
+                  });
+                }
 
-              return filtered;
-            }}
-            getOptionLabel={(option) => {
-              // Value selected with enter, right from the input
-              if (typeof option === 'string') {
-                return option;
-              }
-              // Add "xxx" option created dynamically
-              if (option.inputValue) {
-                return option.inputValue;
-              }
-              // Regular option
-              return option.title;
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Layout" size="small" />
-            )}
-          />
-        </FormControl>
-        <FormControl size="small" className={style['header-save']}>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={!canSave}
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-        </FormControl>
+                return filtered;
+              }}
+              getOptionLabel={(option) => {
+                // Value selected with enter, right from the input
+                if (typeof option === 'string') {
+                  return option;
+                }
+                // Add "xxx" option created dynamically
+                if (option.inputValue) {
+                  return option.inputValue;
+                }
+                // Regular option
+                return option.title;
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Layout" size="small" />
+              )}
+            />
+          </FormControl>
+          <FormControl size="small" className={style['header-save']}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={!canSave}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </FormControl>
+        </Paper>
         {/* <FormControl size="small" className={style['header-query']}>
           <TextField
             value={q}

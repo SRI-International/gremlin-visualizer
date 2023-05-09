@@ -1,0 +1,4 @@
+.network-pane {
+  width: calc(100vw - 310px);
+  height: calc(100vh - 91px);
+}

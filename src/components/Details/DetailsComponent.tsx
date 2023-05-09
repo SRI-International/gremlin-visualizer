@@ -15,11 +15,11 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  FormControlLabel,
-  Switch,
   Divider,
-  Tooltip,
   Button,
+  Drawer,
+  TableContainer,
+  Paper,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
@@ -28,12 +28,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import _ from 'lodash';
-import { JsonToTable } from 'react-json-to-table';
-import {
-  COMMON_GREMLIN_ERROR,
-  HOST,
-  PORT,
-} from '../../constants';
+import { COMMON_GREMLIN_ERROR, HOST, PORT } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
 import { refreshNodeLabels, selectGraph } from '../../reducers/graphReducer';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
@@ -48,6 +43,7 @@ import {
 import { EdgeOptions, IdType } from 'vis-network';
 import { getNetwork } from '../../logics/network';
 import { useQueryMutation } from '../../services/gremlin';
+import style from './DetailsComponent.module.css';
 
 type QueryHistoryProps = {
   list: Array<string>;
@@ -56,6 +52,10 @@ type QueryHistoryProps = {
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
 };
+
+type JsonProperties = {
+  [key: string] : string;
+}
 
 const QueryHistoryList = ({ list }: QueryHistoryProps) => (
   <List dense={true}>
@@ -186,170 +186,121 @@ export const DetailsComponent = () => {
   let hasSelected = false;
   let selectedType = null;
   let selectedId: IdType | undefined = undefined;
-  let selectedProperties = null;
+  let selectedProperties: JsonProperties = {};
   let selectedHeader = null;
   if (!_.isEmpty(selectedNode)) {
     hasSelected = true;
     selectedType = _.get(selectedNode, 'type');
     selectedId = _.get(selectedNode, 'id');
-    selectedProperties = _.get(selectedNode, 'properties');
+    selectedProperties = selectedNode.properties;
     // stringifyObjectValues(selectedProperties);
     selectedHeader = 'Node';
   } else if (!_.isEmpty(selectedEdge)) {
     hasSelected = true;
     selectedType = _.get(selectedEdge, 'type');
     selectedId = _.get(selectedEdge, 'id');
-    selectedProperties = _.get(selectedEdge, 'properties');
+    selectedProperties = selectedEdge.properties;
     selectedHeader = 'Edge';
     // stringifyObjectValues(selectedProperties);
   }
 
+  console.log(selectedProperties);
+
   return (
-    <div className={'details'}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={12} md={12}>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Query History</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <QueryHistoryList list={queryHistory} />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Settings</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={2}>
-                {/* <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Automatically stabilize the graph"
-                    aria-label="add"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={isPhysicsEnabled}
-                          onChange={() => {
-                            onTogglePhysics(!isPhysicsEnabled);
-                          }}
-                          value="physics"
-                          color="primary"
-                        />
-                      }
-                      label="Enable Physics"
-                    />
-                  </Tooltip>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions."
-                    aria-label="add"
-                  >
-                    <TextField
-                      label="Node Limit"
-                      type="Number"
-                      variant="standard"
-                      size="small"
-                      value={nodeLimit}
-                      onChange={(event) => {
-                        const limit = event.target.value;
-                        onEditNodeLimit(limit);
-                      }}
-                    />
-                  </Tooltip>
-                </Grid> */}
-                <Grid item xs={12} sm={12} md={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Typography>Node Labels</Typography>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <NodeLabelList nodeLabels={nodeLabels} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    size="small"
-                    onClick={onRefresh.bind(this)}
-                    startIcon={<RefreshIcon />}
-                  >
-                    Refresh
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={onAddNodeLabel.bind(this)}
-                    startIcon={<AddIcon />}
-                  >
-                    Add Node Label
-                  </Button>
-                </Grid>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
-        {hasSelected && (
-          <Grid item xs={12} sm={12} md={12}>
-            <Typography variant="h5">Information: {selectedHeader}</Typography>
-            {selectedHeader === 'Node' && (
-              <Grid item xs={12} sm={12} md={12}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'out')}
-                      endIcon={<ArrowForwardIcon />}
-                    >
-                      Traverse Out Edges
-                    </Button>
-                  </Grid>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'in')}
-                      startIcon={<ArrowBackIcon />}
-                    >
-                      Traverse In Edges
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-            )}
+    <Drawer anchor="right" variant="permanent" className={style['details']}>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>Query History</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <QueryHistoryList list={queryHistory} />
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={12}>
-              <Grid container>
-                <Table aria-label="simple table">
-                  <TableBody>
-                    <TableRow key={'type'}>
-                      <TableCell scope="row">Type</TableCell>
-                      <TableCell align="left">{String(selectedType)}</TableCell>
-                    </TableRow>
-                    <TableRow key={'id'}>
-                      <TableCell scope="row">ID</TableCell>
-                      <TableCell align="left">{String(selectedId)}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                <JsonToTable json={selectedProperties} />
-              </Grid>
+              <Divider />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+              <Typography>Node Labels</Typography>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+              <NodeLabelList nodeLabels={nodeLabels} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={onRefresh.bind(this)}
+                startIcon={<RefreshIcon />}
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={onAddNodeLabel.bind(this)}
+                startIcon={<AddIcon />}
+              >
+                Add Node Label
+              </Button>
             </Grid>
           </Grid>
-        )}
-      </Grid>
-    </div>
+        </AccordionDetails>
+      </Accordion>
+      {hasSelected && (
+        <div className={style['details-container']}>
+          <Typography variant="h6">Information: {selectedHeader} {selectedId} </Typography>
+          {selectedHeader === 'Node' && (
+            <div className={style['details-traversal-buttons']}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => onTraverse(selectedId, 'out')}
+                endIcon={<ArrowForwardIcon />}
+              >
+                Traverse Out Edges
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => onTraverse(selectedId, 'in')}
+                startIcon={<ArrowBackIcon />}
+              >
+                Traverse In Edges
+              </Button>
+            </div>
+          )}
+          {selectedProperties && <TableContainer component={Paper} elevation={3}>
+            <Table size="small">
+              <TableBody>
+                {Object.keys(selectedProperties).map((key: string, ndx: number) => (
+                  <TableRow key={key}>
+                    <TableCell className={style['table-th']}>{key}</TableCell>
+                    <TableCell>{selectedProperties[key]}</TableCell>
+                  </TableRow>
+                ))
+
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>}
+          {/* <JsonToTable json={selectedProperties} /> */}
+        </div>
+      )}
+    </Drawer>
   );
 };
