@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import _ from 'lodash';
 import { Options } from 'vis-network';
@@ -20,7 +20,7 @@ const initialState: OptionState = {
   nodeLabels: [],
   queryHistory: [],
   isPhysicsEnabled: true,
-  nodeLimit: 100,
+  nodeLimit: 500,
   networkOptions: {
     physics: {
       forceAtlas2Based: {
@@ -33,11 +33,27 @@ const initialState: OptionState = {
       maxVelocity: 40,
       solver: 'forceAtlas2Based',
       timestep: 0.35,
-      stabilization: {
-        enabled: true,
-        iterations: 50,
-        updateInterval: 25,
-      },
+      stabilization: false,
+      // stabilization: {
+      //   enabled: true,
+      //   iterations: 500,
+      //   updateInterval: 5,
+      // },
+    },
+    // physics: {
+    //   stabilization: false,
+    //   barnesHut: {
+    //     // gravitationalConstant: -80000,
+    //     springConstant: 0.001,
+    //     // springLength: 200,
+    //   },
+    // },
+    layout: {
+      randomSeed: '0.1030370700134704:1683151406408',
+      improvedLayout: false,
+    },
+    interaction: {
+      hideEdgesOnZoom: true,
     },
     // layout: {
     //   hierarchical: {
@@ -123,52 +139,6 @@ export const {
   setNodeLimit,
 } = slice.actions;
 
-export const selectOptions = (state: RootState) => state.options;
+const selectSelf = (state: RootState) => state
+export const selectOptions = createSelector(selectSelf, (state) => state.options);
 export default slice.reducer;
-
-// export const reducer =  (state=initialState, action)=>{
-//   switch (action.type){
-//     case ACTIONS.SET_IS_PHYSICS_ENABLED: {
-//       const isPhysicsEnabled = _.get(action, 'payload', true);
-//       return { ...state, isPhysicsEnabled };
-//     }
-//     case ACTIONS.ADD_QUERY_HISTORY: {
-//       return { ...state, queryHistory: [ ...state.queryHistory, action.payload] }
-//     }
-//     case ACTIONS.CLEAR_QUERY_HISTORY: {
-//       return { ...state, queryHistory: [] }
-//     }
-//     case ACTIONS.SET_NODE_LABELS: {
-//       const nodeLabels = _.get(action, 'payload', []);
-//       return { ...state, nodeLabels };
-//     }
-//     case ACTIONS.ADD_NODE_LABEL: {
-//       const nodeLabels = [...state.nodeLabels, {}];
-//       return { ...state, nodeLabels };
-//     }
-//     case ACTIONS.EDIT_NODE_LABEL: {
-//       const editIndex = action.payload.id;
-//       const editedNodeLabel = action.payload.nodeLabel;
-
-//       if (state.nodeLabels[editIndex]) {
-//         const nodeLabels = [...state.nodeLabels.slice(0, editIndex), editedNodeLabel, ...state.nodeLabels.slice(editIndex+1)];
-//         return { ...state, nodeLabels };
-//       }
-//       return state;
-//     }
-//     case ACTIONS.REMOVE_NODE_LABEL: {
-//       const removeIndex = action.payload;
-//       if (removeIndex < state.nodeLabels.length) {
-//         const nodeLabels = [...state.nodeLabels.slice(0, removeIndex), ...state.nodeLabels.slice(removeIndex+1)];
-//         return { ...state, nodeLabels };
-//       }
-//       return state;
-//     }
-//     case ACTIONS.SET_NODE_LIMIT: {
-//       const nodeLimit = action.payload;
-//       return { ...state, nodeLimit };
-//     }
-//     default:
-//       return state;
-//   }
-// };

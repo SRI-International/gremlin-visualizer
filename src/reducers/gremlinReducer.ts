@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 
 const initialState = {
@@ -30,5 +30,6 @@ const slice = createSlice({
 });
 
 export const { setHost, setPort, setQuery, setError } = slice.actions;
-export const selectGremlin = (state: RootState) => state.gremlin;
+const selectSelf = (state: RootState) => state
+export const selectGremlin = createSelector(selectSelf, (state) => state.gremlin);
 export default slice.reducer;

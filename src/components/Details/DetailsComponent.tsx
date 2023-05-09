@@ -20,6 +20,7 @@ import {
   Switch,
   Divider,
   Tooltip,
+  Button,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
@@ -84,10 +85,13 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   return (
     <List dense={true}>
       {indexedLabels.map((nodeLabel: any, ndx: number) => (
-        <ListItem key={ndx}>
+        <ListItem key={ndx} sx={{ paddingLeft: 0, paddingRight: 0 }}>
           <TextField
             id="standard-basic"
             label="Node Type"
+            variant="standard"
+            size="small"
+            sx={{ marginRight: '5px' }}
             InputLabelProps={{ shrink: true }}
             value={nodeLabel.type}
             onChange={(event) => {
@@ -99,6 +103,8 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
           <TextField
             id="standard-basic"
             label="Label Field"
+            variant="standard"
+            size="small"
             InputLabelProps={{ shrink: true }}
             value={nodeLabel.field}
             onChange={(event) => {
@@ -171,12 +177,12 @@ export const DetailsComponent = () => {
 
   function onTogglePhysics(enabled: boolean) {
     dispatch(setIsPhysicsEnabled(enabled));
-    
+
     if (network) {
-      const edges : EdgeOptions = {
+      const edges: EdgeOptions = {
         smooth: {
           enabled,
-          roundness: 10, 
+          roundness: 10,
           type: enabled ? 'dynamic' : 'continuous',
         },
       };
@@ -194,7 +200,7 @@ export const DetailsComponent = () => {
     selectedType = _.get(selectedNode, 'type');
     selectedId = _.get(selectedNode, 'id');
     selectedProperties = _.get(selectedNode, 'properties');
-    stringifyObjectValues(selectedProperties);
+    // stringifyObjectValues(selectedProperties);
     selectedHeader = 'Node';
   } else if (!_.isEmpty(selectedEdge)) {
     hasSelected = true;
@@ -202,7 +208,7 @@ export const DetailsComponent = () => {
     selectedId = _.get(selectedEdge, 'id');
     selectedProperties = _.get(selectedEdge, 'properties');
     selectedHeader = 'Edge';
-    stringifyObjectValues(selectedProperties);
+    // stringifyObjectValues(selectedProperties);
   }
 
   return (
@@ -260,7 +266,8 @@ export const DetailsComponent = () => {
                     <TextField
                       label="Node Limit"
                       type="Number"
-                      variant="outlined"
+                      variant="standard"
+                      size="small"
                       value={nodeLimit}
                       onChange={(event) => {
                         const limit = event.target.value;
@@ -279,23 +286,23 @@ export const DetailsComponent = () => {
                   <NodeLabelList nodeLabels={nodeLabels} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
-                  <Fab
-                    variant="extended"
+                  <Button
+                    variant="outlined"
                     color="primary"
                     size="small"
                     onClick={onRefresh.bind(this)}
+                    startIcon={<RefreshIcon />}
                   >
-                    <RefreshIcon />
                     Refresh
-                  </Fab>
-                  <Fab
-                    variant="extended"
+                  </Button>
+                  <Button
+                    variant="outlined"
                     size="small"
                     onClick={onAddNodeLabel.bind(this)}
+                    startIcon={<AddIcon />}
                   >
-                    <AddIcon />
                     Add Node Label
-                  </Fab>
+                  </Button>
                 </Grid>
               </Grid>
             </AccordionDetails>
@@ -303,29 +310,29 @@ export const DetailsComponent = () => {
         </Grid>
         {hasSelected && (
           <Grid item xs={12} sm={12} md={12}>
-            <h2>Information: {selectedHeader}</h2>
+            <Typography variant="h5">Information: {selectedHeader}</Typography>
             {selectedHeader === 'Node' && (
               <Grid item xs={12} sm={12} md={12}>
                 <Grid container spacing={2}>
                   <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
+                    <Button
+                      variant="outlined"
                       size="small"
                       onClick={() => onTraverse(selectedId, 'out')}
+                      endIcon={<ArrowForwardIcon />}
                     >
                       Traverse Out Edges
-                      <ArrowForwardIcon />
-                    </Fab>
+                    </Button>
                   </Grid>
                   <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
+                    <Button
+                      variant="outlined"
                       size="small"
                       onClick={() => onTraverse(selectedId, 'in')}
+                      startIcon={<ArrowBackIcon />}
                     >
                       Traverse In Edges
-                      <ArrowBackIcon />
-                    </Fab>
+                    </Button>
                   </Grid>
                 </Grid>
               </Grid>

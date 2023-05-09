@@ -1,0 +1,28 @@
+.header {
+  margin-top: 10px;
+}
+
+.header-model-select,
+.header-groups-select,
+.header-layout-select {
+  min-width: 200px !important;
+}
+
+.header .header-groups-select,
+.header .header-layout-select,
+.header .header-query,
+.header .header-execute {
+  margin-left: 10px;
+}
+
+.header-query {
+  min-width: 300px;
+}
+
+
+.header-progress {
+  color: #1a90ff;
+  position: absolute;
+  width: 100%;
+  top: 60px;
+}

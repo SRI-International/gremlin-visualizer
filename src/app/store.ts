@@ -3,14 +3,19 @@ import gremlinReducer from '../reducers/gremlinReducer';
 import graphReducer from '../reducers/graphReducer';
 import optionReducer from '../reducers/optionReducer';
 import { useDispatch } from "react-redux";
-
-
-
-// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+import { cam4dmApi } from "../services/cam4dm";
+import { gremlinApi } from "../services/gremlin";
 
 const store = configureStore({
-  reducer: { gremlin: gremlinReducer, graph: graphReducer, options: optionReducer },
-  // composeEnhancers(applyMiddleware(createLogger()))
+  reducer: {
+    gremlin: gremlinReducer,
+    graph: graphReducer,
+    options: optionReducer,
+    [cam4dmApi.reducerPath]: cam4dmApi.reducer,
+    [gremlinApi.reducerPath]: gremlinApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(cam4dmApi.middleware, gremlinApi.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
