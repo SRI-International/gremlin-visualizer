@@ -18,7 +18,10 @@ import { HOST, PORT, COMMON_GREMLIN_ERROR } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
 import { useDispatch } from 'react-redux';
 import {
+  addLayoutPositions,
+  changeLayout,
   clearGraph,
+  clearLayouts,
   selectGraph,
   setGraphGroup,
   setLayoutChanged,
@@ -42,16 +45,16 @@ import {
   selectGremlin,
   setQueryBase,
 } from '../../reducers/gremlinReducer';
+import { useAppDispatch } from '../../app/store';
 
 interface LayoutOptionType {
   inputValue?: string;
-  group: string;
   title: string;
 }
 
 type LayoutJson = {
   version: string;
-  group?: string;
+  groups: string[];
   name: string;
   nodes: { [key: string]: { x: number; y: number } };
 };
@@ -59,10 +62,10 @@ type LayoutJson = {
 const filter = createFilterOptions<LayoutOptionType>();
 
 export const HeaderComponent = ({}) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
-  const { nodes, layoutChanged } = useSelector(selectGraph);
+  const { nodes, groups, layoutChanged } = useSelector(selectGraph);
   const { queryBase } = useSelector(selectGremlin);
 
   const { data: versionData } = useGetVersionsQuery(undefined);
@@ -77,7 +80,7 @@ export const HeaderComponent = ({}) => {
   const [versionOptions, setVersionOptions] = useState<
     readonly string[] | null
   >(null);
-  const [group, setGroup] = useState<string | undefined>('');
+  // const [groups, setGroups] = useState<string[]>([]);
   const [groupOptions, setGroupOptions] = useState<readonly string[] | null>(
     null
   );
@@ -93,24 +96,21 @@ export const HeaderComponent = ({}) => {
 
   useEffect(() => {
     if (layoutData && layoutData.isSuccess) {
-      // TODO: check group in the data
       setLayoutOptions(
-        layoutData.data
-          .map((l: string) => {
-            const nameSplit = l.split('(');
-            const name = nameSplit[0];
-            const group = nameSplit[1] ? nameSplit[1].replace(')', '') : '';
-
-            const newValue = { inputValue: l, title: name, group };
-            return newValue;
-          })
-          .filter((o: LayoutOptionType) => o.group === group)
+        layoutData.data.map((l: string) => {
+          const newValue = { inputValue: l, title: l };
+          return newValue;
+        })
       );
+
+      for (let l of layoutData.data) {
+        getLayout({ version, name: l }).then((response) => {
+          const { data } = response;
+          dispatch(addLayoutPositions(data));
+        });
+      }
     } else if (layoutData && layoutData.isError) {
       setLayoutOptions([]);
-    }
-    if (layout && layoutNodePositions && layoutNodePositions.data) {
-      dispatch(setNodePositions(layoutNodePositions.data.nodes));
     }
     if (versionData) {
       // initialize the db
@@ -138,11 +138,12 @@ export const HeaderComponent = ({}) => {
     layoutChanged,
   ]);
 
-  function sendQuery(query: string) {
+  function sendQuery(query: string, callback?: () => void | null) {
     setError(null);
     apiSendQuery({ host: HOST, port: PORT, query, nodeLimit })
       .then((response) => {
         onFetchQuery(response, query, nodeLabels, dispatch);
+        if (callback) callback();
       })
       .catch(() => {
         setError(COMMON_GREMLIN_ERROR);
@@ -153,8 +154,8 @@ export const HeaderComponent = ({}) => {
     const v = evt.target.value;
 
     setVersion(v);
-    setGroup('');
     dispatch(clearGraph());
+    dispatch(clearLayouts());
     dispatch(clearQueryHistory());
     dispatch(setQueryBase(versionData[v]));
     sendQuery(`${versionData[v]}.V()`);
@@ -164,29 +165,23 @@ export const HeaderComponent = ({}) => {
     getLayouts(v);
   };
 
-  const handleGroupChange = (evt: SelectChangeEvent) => {
-    const g = evt.target.value;
-    setGroup(g);
-    setLayout(null);
-    dispatch(clearGraph());
-    dispatch(setGraphGroup(group));
+  const handleGroupChange = (evt: SelectChangeEvent<typeof groups>) => {
+    const {
+      target: { value },
+    } = evt;
 
-    if (layoutData.data) {
-      setLayoutOptions(
-        layoutData.data
-          .map((l: string) => {
-            const nameSplit = l.split('(');
-            const name = nameSplit[0];
-            const group = nameSplit[1] ? nameSplit[1].replace(')', '') : '';
+    dispatch(setGraphGroup(typeof value === 'string' ? value.split(',') : value));
+  };
 
-            const newValue = { inputValue: l, title: name, group };
-            return newValue;
-          })
-          .filter((o: LayoutOptionType) => o.group === g)
-      );
+  const handleLoadGroup = () => {
+    if (groups) {
+      setLayout(null);
+      dispatch(clearGraph());
+      dispatch(setGraphGroup(groups));
+
+      const str = groups.map((gr) => `'${gr}'`).join(',');
+      sendQuery(`${queryBase}.V().has('groups', within(${str}))`);
     }
-
-    sendQuery(`${queryBase}.V().has('groups', '${evt.target.value}')`);
   };
 
   const handleLayoutChange = (
@@ -197,22 +192,21 @@ export const HeaderComponent = ({}) => {
       setLayout({
         title: newValue,
         inputValue: newValue,
-        group: group || '',
       });
       dispatch(setSelectedLayout(newValue));
     } else if (newValue && newValue.inputValue) {
       setLayout({
         inputValue: newValue.inputValue,
         title: newValue.title,
-        group: group || '',
       });
 
       // check if it's adding a new layout
       if (/Add.*/.test(newValue.title)) {
         setCanSave(true);
       } else {
-        dispatch(setSelectedLayout(newValue.inputValue));
-        getLayout({ version, name: newValue.inputValue });
+        // dispatch(setSelectedLayout(newValue.inputValue));
+        dispatch(changeLayout(newValue.inputValue, sendQuery));
+        // getLayout({ version, name: newValue.inputValue });
       }
     } else {
       setLayout(newValue);
@@ -223,17 +217,16 @@ export const HeaderComponent = ({}) => {
   const handleSave = () => {
     if (layout && layout.inputValue != null) {
       const positions = network?.getPositions();
-      const layoutName =
-        group !== '' ? `${layout.inputValue}(${group})` : layout.inputValue;
+      const layoutName = layout.inputValue;
       const layoutObj: LayoutJson = {
         version,
-        group,
+        groups,
         name: layoutName,
         nodes: {},
       };
 
       for (let node of nodes) {
-        if (node.id && positions) {
+        if (node.id && node.uniqueId && positions) {
           layoutObj.nodes[node.uniqueId] = positions[node.id];
         }
       }
@@ -246,7 +239,7 @@ export const HeaderComponent = ({}) => {
   return (
     <div className={style['header']}>
       <form noValidate autoComplete="off">
-        <Paper elevation={3} className={style['header-model-group-block']}>
+        <Paper elevation={10} className={style['header-model-block']}>
           <FormControl size="small" className={style['header-model-select']}>
             <InputLabel id="model-version">Model</InputLabel>
             <Select
@@ -263,12 +256,15 @@ export const HeaderComponent = ({}) => {
               ))}
             </Select>
           </FormControl>
+        </Paper>
+        <Paper elevation={10} className={style['header-group-block']}>
           <FormControl size="small" className={style['header-groups-select']}>
             <InputLabel id="model-group">Group</InputLabel>
             <Select
               labelId="model-group"
               label="Group"
-              value={group}
+              value={groups}
+              multiple
               onChange={handleGroupChange}
               disabled={isLoading || version === ''}
             >
@@ -279,8 +275,18 @@ export const HeaderComponent = ({}) => {
               ))}
             </Select>
           </FormControl>
+          <FormControl size="small" className={style['header-groups-load']}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={groups.length === 0}
+              onClick={handleLoadGroup}
+            >
+              Load
+            </Button>
+          </FormControl>
         </Paper>
-        <Paper elevation={3} className={style['header-layout-block']}>
+        <Paper elevation={10} className={style['header-layout-block']}>
           <FormControl size="small" className={style['header-layout-select']}>
             <Autocomplete
               id="model-layouts"
@@ -306,7 +312,6 @@ export const HeaderComponent = ({}) => {
                   filtered.push({
                     inputValue,
                     title: `Add "${inputValue}"`,
-                    group: group || '',
                   });
                 }
 

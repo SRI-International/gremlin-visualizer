@@ -1,9 +1,10 @@
 // import vis from 'vis-network';
-import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, ThunkAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { Edge, Node } from 'vis-network';
 import { RootState } from '../app/store';
 import _ from 'lodash';
 import { EdgeData, NodeData } from '../logics/utils';
+import { MutationActionCreatorResult } from '@reduxjs/toolkit/dist/query/core/buildInitiate';
 
 type Coordinates = {
   x: number;
@@ -16,8 +17,8 @@ type GraphState = {
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   selectedLayout?: string;
-  group: string;
-  layouts: LayoutNames;
+  groups: string[];
+  layouts: { [key: string]: LayoutJson; };
   layoutChanged: boolean;
 };
 
@@ -34,15 +35,16 @@ type LayoutNames = {
 };
 
 type LayoutJson = {
-  [name: string]: Coordinates;
+  groups: string[];
+  nodes: NodePositions;
 };
 
 const initialState: GraphState = {
   nodes: [],
   edges: [],
-  selectedNode: {uniqueId: ''},
+  selectedNode: { uniqueId: '' },
   selectedEdge: {},
-  group: 'default',
+  groups: [],
   layouts: {},
   layoutChanged: false,
 };
@@ -59,12 +61,19 @@ const slice = createSlice({
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
     },
+    addLayoutPositions: (state, action) => {
+      const { name, groups, nodes } = action.payload;
+      state.layouts[name] = { groups, nodes };
+    },
+    clearLayouts: (state) => {
+      state.layouts = {};
+    },
     clearGraph: (state) => {
       state.nodes = [];
       state.edges = [];
-      state.selectedNode = { uniqueId: ''};
+      state.selectedNode = {};
       state.selectedEdge = {};
-      state.group = 'default';
+      state.groups = [];
       state.selectedLayout = undefined;
       state.layoutChanged = false;
     },
@@ -74,7 +83,7 @@ const slice = createSlice({
       // state.layouts(action.payload);
     },
     setGraphGroup: (state, action) => {
-      state.group = action.payload;
+      state.groups = action.payload;
     },
     setLayoutChanged: (state, action) => {
       state.layoutChanged = action.payload;
@@ -96,7 +105,7 @@ const slice = createSlice({
       if (edgeId !== null) {
         state.selectedEdge = _.find(state.edges, edge => edge.id === edgeId);
       }
-      state.selectedNode = {uniqueId: ''};
+      state.selectedNode = {};
     },
     setSelectedLayout: (state, action) => {
       state.selectedLayout = action.payload;
@@ -125,8 +134,10 @@ const slice = createSlice({
 
 export const {
   clearGraph,
+  clearLayouts,
   addNodes,
   addEdges,
+  addLayoutPositions,
   setGraphGroup,
   setLayoutChanged,
   setNodePositions,
@@ -135,6 +146,26 @@ export const {
   setSelectedNode,
   refreshNodeLabels,
 } = slice.actions;
+
+
+export const changeLayout =
+  (layoutName: string, sendQuery: (query: string, callback: () => void) => void): ThunkAction<void, RootState, unknown, AnyAction> =>
+    (dispatch, getState) => {
+      const { graph, gremlin } = getState();
+      const { layouts } = graph;
+      const { nodes, groups } = layouts[layoutName]
+
+      dispatch(clearGraph());
+      dispatch(setSelectedLayout(layoutName));
+      dispatch(setGraphGroup(groups));
+
+      const str = groups.map((gr) => `'${gr}'`).join(',');
+      const query = `${gremlin.queryBase}.V()`;
+      const groupQuery = groups.length > 0 ? `.has('groups', within(${str}))` : '';
+      sendQuery(`${query}${groupQuery}`, () => {
+        dispatch(setNodePositions(nodes));
+      });
+    };
 
 const selectSelf = (state: RootState) => state;
 export const selectGraph = createSelector(selectSelf, (state) => state.graph);

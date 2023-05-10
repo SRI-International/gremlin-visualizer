@@ -6,7 +6,7 @@ import assignIcon from './icons';
 export interface NodeData extends Node {
   properties?: any;
   type?: string;
-  uniqueId: string;
+  uniqueId?: string;
   edges?: Edge[];
 }
 

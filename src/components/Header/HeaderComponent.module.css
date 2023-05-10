@@ -5,12 +5,13 @@
 .header-model-select,
 .header-groups-select,
 .header-layout-select {
-  min-width: 200px !important;
+  width: 200px !important;
 }
 
 .header .header-groups-select,
 .header .header-query,
-.header .header-save {
+.header .header-save,
+.header .header-groups-load {
   margin-left: 10px;
 }
 
@@ -19,15 +20,20 @@
 }
 
 .header-layout-block,
-.header-model-group-block {
+.header-model-block,
+.header-group-block {
   display: inline-block;
-  margin: -10px -15px -10px 25px;
+  margin: -10px -15px -10px 15px;
   padding: 10px 15px 10px 15px;
 }
 
-.header-model-group-block {
+.header-model-block {
   margin-left: 15px;
-  margin-right: 10px;
+}
+
+.header-group-block {
+  margin-left: 30px;
+  margin-right: 0;
 }
 
 .header-progress {

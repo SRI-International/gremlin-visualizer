@@ -204,11 +204,9 @@ export const DetailsComponent = () => {
     // stringifyObjectValues(selectedProperties);
   }
 
-  console.log(selectedProperties);
-
   return (
     <Drawer anchor="right" variant="permanent" className={style['details']}>
-      <Accordion>
+      <Accordion disableGutters={true} square={true}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -220,7 +218,7 @@ export const DetailsComponent = () => {
           <QueryHistoryList list={queryHistory} />
         </AccordionDetails>
       </Accordion>
-      <Accordion>
+      <Accordion disableGutters={true} square={true}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -284,7 +282,7 @@ export const DetailsComponent = () => {
               </Button>
             </div>
           )}
-          {selectedProperties && <TableContainer component={Paper} elevation={3}>
+          {selectedProperties && <TableContainer component={Paper} elevation={0} variant='outlined'>
             <Table size="small">
               <TableBody>
                 {Object.keys(selectedProperties).map((key: string, ndx: number) => (
