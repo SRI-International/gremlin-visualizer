@@ -47,7 +47,7 @@ const defaultOptions = {
       size: 11,
     },
     smooth: {
-      type: 'dynamic',
+      type: 'continuous',
     },
   },
 } as Options
@@ -96,7 +96,9 @@ export function updateNetwork(data?: Data, layout?: string) {
     });
 
     setTimeout(() => {
-      network?.setOptions({ physics: false });
+      const newOpts = {...defaultOptions}
+      newOpts.physics = false;
+      network?.setOptions(newOpts);
     }, 10000);
   }
 }
