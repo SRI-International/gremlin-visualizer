@@ -1,4 +1,35 @@
-.network-pane {
+.graph-container {
+}
+
+.graph-pane {
+  position: absolute;
+  height: 100vh;
+  top: 0;
   width: calc(100vw - 310px);
-  height: calc(100vh - 91px);
+  z-index: -1;
+}
+
+.graph-container .graph-controls {
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0px 6px 6px -3px rgba(0, 0, 0, 0.2),
+    0px 10px 14px 1px rgba(0, 0, 0, 0.09), 0px 4px 18px 3px rgba(0, 0, 0, 0.07);
+  position: absolute;
+  right: 320px;
+  top: calc(50% - 60px);
+  z-index: 100;
+}
+
+.graph-controls :global(.MuiIconButton-root) {
+}
+
+.graph-controls :global(.MuiIconButton-root):not(:last-of-type) {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.graph-controls :global(.MuiIconButton-root):not(:first-of-type) {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  margin-top: -1px;
 }
