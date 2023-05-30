@@ -62,8 +62,12 @@ const slice = createSlice({
       state.nodes = [...state.nodes, ...newNodes];
     },
     addLayoutPositions: (state, action) => {
-      const { name, groups, nodes } = action.payload;
-      state.layouts[name] = { groups, nodes };
+      try {
+        const { name, groups, nodes } = action.payload;
+        state.layouts[name] = { groups, nodes };
+      } catch (err) {
+        console.log(err);
+      }
     },
     clearLayouts: (state) => {
       state.layouts = {};

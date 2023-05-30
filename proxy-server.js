@@ -56,7 +56,7 @@ app.post('/query', (req, res, next) => {
   const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
 
-  console.log(query);
+  console.log(gremlinHost, gremlinPort, query);
 
   const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
 
