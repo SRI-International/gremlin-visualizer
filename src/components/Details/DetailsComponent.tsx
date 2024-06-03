@@ -28,7 +28,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import _ from 'lodash';
-import { JsonToTable } from 'react-json-to-table';
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from 'axios';
 import { onFetchQuery } from '../../logics/actionHelper';
@@ -147,6 +146,29 @@ export const DetailsComponent = () => {
   function onRefresh() {
     dispatch(refreshNodeLabels(nodeLabels));
   }
+
+/**
+ * Return a number of table rows with key-value cells for object properties
+ * @param data 
+ * @returns 
+ */
+function getRows(data: any) {
+  if(data == null) return;
+  return Object.entries(data).map(e => {
+    return <TableRow><TableCell><strong>{String(e[0])}</strong></TableCell><TableCell>{String(e[1])}</TableCell></TableRow>;
+  });
+}
+
+// Return an array of cell data using the
+// values of each object
+function getCells(obj: any) {
+}
+
+// Simple component that gets the
+// headers and then the rows
+function Example({ data }: any) {
+  return getRows(data);
+}
 
   function onTraverse(nodeId: IdType | undefined, direction: string) {
     const query = `g.V('${nodeId}').${direction}()`;
@@ -335,16 +357,16 @@ export const DetailsComponent = () => {
                 <Table aria-label="simple table">
                   <TableBody>
                     <TableRow key={'type'}>
-                      <TableCell scope="row">Type</TableCell>
+                      <TableCell scope="row"><strong>Type</strong></TableCell>
                       <TableCell align="left">{String(selectedType)}</TableCell>
                     </TableRow>
                     <TableRow key={'id'}>
-                      <TableCell scope="row">ID</TableCell>
+                      <TableCell scope="row"><strong>ID</strong></TableCell>
                       <TableCell align="left">{String(selectedId)}</TableCell>
                     </TableRow>
+                    {getRows(selectedProperties)}
                   </TableBody>
                 </Table>
-                <JsonToTable json={selectedProperties} />
               </Grid>
             </Grid>
           </Grid>
