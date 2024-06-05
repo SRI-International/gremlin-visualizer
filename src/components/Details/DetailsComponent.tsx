@@ -1,123 +1,17 @@
-import React from 'react';
+import { Fab, Grid, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import React from "react";
+import { IdType } from "vis-network";
+import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Accordion,
-  AccordionSummary,
-  Typography,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Fab,
-  IconButton,
-  Grid,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  FormControlLabel,
-  Switch,
-  Divider,
-  Tooltip,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import _ from 'lodash';
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
-import axios from 'axios';
-import { onFetchQuery } from '../../logics/actionHelper';
-import { stringifyObjectValues } from '../../logics/utils';
-import { refreshNodeLabels, selectGraph } from '../../reducers/graphReducer';
-import { selectGremlin, setError } from '../../reducers/gremlinReducer';
-import {
-  addNodeLabel,
-  editNodeLabel,
-  removeNodeLabel,
-  selectOptions,
-  setIsPhysicsEnabled,
-  setNodeLimit,
-} from '../../reducers/optionReducer';
-import { EdgeOptions, IdType } from 'vis-network';
-import { getNetwork } from '../../logics/network';
-
-type QueryHistoryProps = {
-  list: Array<string>;
-};
-
-type NodeLabelListProps = {
-  nodeLabels: Array<any>;
-};
-
-const QueryHistoryList = ({ list }: QueryHistoryProps) => (
-  <List dense={true}>
-    {list.map((value: string, ndx: number) => (
-      <ListItem key={ndx}>
-        <ListItemText primary={value} />
-      </ListItem>
-    ))}
-  </List>
-);
-
-const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
-  const dispatch = useDispatch();
-  const indexedLabels = nodeLabels.map((nodeLabel: any, ndx: number) => {
-    return {
-      ...nodeLabel,
-      index: ndx,
-    };
-  });
-
-  const onRemoveNodeLabel = (index: number) => {
-    dispatch(removeNodeLabel(index));
-  };
-
-  function onEditNodeLabel(index: number, nodeLabel: any) {
-    dispatch(editNodeLabel({ id: index, nodeLabel }));
-  }
-
-  return (
-    <List dense={true}>
-      {indexedLabels.map((nodeLabel: any, ndx: number) => (
-        <ListItem key={ndx}>
-          <TextField
-            id="standard-basic"
-            label="Node Type"
-            InputLabelProps={{ shrink: true }}
-            value={nodeLabel.type}
-            onChange={(event) => {
-              const type = event.target.value;
-              const field = nodeLabel.field;
-              onEditNodeLabel(nodeLabel.index, { type, field });
-            }}
-          />
-          <TextField
-            id="standard-basic"
-            label="Label Field"
-            InputLabelProps={{ shrink: true }}
-            value={nodeLabel.field}
-            onChange={(event) => {
-              const field = event.target.value;
-              const type = nodeLabel.type;
-              onEditNodeLabel(nodeLabel.index, { type, field });
-            }}
-          />
-          <IconButton
-            aria-label="delete"
-            size="small"
-            onClick={() => onRemoveNodeLabel(nodeLabel.index)}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </ListItem>
-      ))}
-    </List>
-  );
-};
+import { selectGremlin, setError } from "../../reducers/gremlinReducer";
+import { selectGraph } from "../../reducers/graphReducer";
+import { selectOptions } from "../../reducers/optionReducer";
+import _ from "lodash";
+import { stringifyObjectValues } from "../../logics/utils";
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
+import { onFetchQuery } from "../../logics/actionHelper";
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
@@ -125,50 +19,43 @@ export const DetailsComponent = () => {
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
   const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } =
     useSelector(selectOptions);
-  const network = getNetwork();
 
-  function onAddNodeLabel() {
-    dispatch(addNodeLabel());
+  let hasSelected = false;
+  let selectedType = null;
+  let selectedId: IdType | undefined = undefined;
+  let selectedProperties = null;
+  let selectedHeader = null;
+  if (!_.isEmpty(selectedNode)) {
+    hasSelected = true;
+    selectedType = _.get(selectedNode, 'type');
+    selectedId = _.get(selectedNode, 'id');
+    selectedProperties = _.get(selectedNode, 'properties');
+    stringifyObjectValues(selectedProperties);
+    selectedHeader = 'Node';
+  } else if (!_.isEmpty(selectedEdge)) {
+    hasSelected = true;
+    selectedType = _.get(selectedEdge, 'type');
+    selectedId = _.get(selectedEdge, 'id');
+    selectedProperties = _.get(selectedEdge, 'properties');
+    selectedHeader = 'Edge';
+    stringifyObjectValues(selectedProperties);
   }
+  const [value, setValue] = React.useState(0);
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
 
-  function onEditNodeLabel(index: number, nodeLabel: string) {
-    dispatch(editNodeLabel({ id: index, nodeLabel }));
+  /**
+   * Return a number of table rows with key-value cells for object properties
+   * @param data
+   * @returns
+   */
+  function getRows(data: any) {
+    if (data == null) return;
+    return Object.entries(data).map(e => {
+      return <TableRow><TableCell><strong>{String(e[0])}</strong></TableCell><TableCell>{String(e[1])}</TableCell></TableRow>;
+    });
   }
-
-  function onRemoveNodeLabel(index: number) {
-    dispatch(removeNodeLabel(index));
-  }
-
-  function onEditNodeLimit(limit: string) {
-    dispatch(setNodeLimit(limit));
-  }
-
-  function onRefresh() {
-    dispatch(refreshNodeLabels(nodeLabels));
-  }
-
-/**
- * Return a number of table rows with key-value cells for object properties
- * @param data 
- * @returns 
- */
-function getRows(data: any) {
-  if(data == null) return;
-  return Object.entries(data).map(e => {
-    return <TableRow><TableCell><strong>{String(e[0])}</strong></TableCell><TableCell>{String(e[1])}</TableCell></TableRow>;
-  });
-}
-
-// Return an array of cell data using the
-// values of each object
-function getCells(obj: any) {
-}
-
-// Simple component that gets the
-// headers and then the rows
-function Example({ data }: any) {
-  return getRows(data);
-}
 
   function onTraverse(nodeId: IdType | undefined, direction: string) {
     const query = `g.V('${nodeId}').${direction}()`;
@@ -191,187 +78,56 @@ function Example({ data }: any) {
       });
   }
 
-  function onTogglePhysics(enabled: boolean) {
-    dispatch(setIsPhysicsEnabled(enabled));
-    
-    if (network) {
-      const edges : EdgeOptions = {
-        smooth: {
-          enabled,
-          roundness: 10, 
-          type: enabled ? 'dynamic' : 'continuous',
-        },
-      };
-      network.setOptions({ physics: enabled, edges });
-    }
-  }
-
-  let hasSelected = false;
-  let selectedType = null;
-  let selectedId: IdType | undefined = undefined;
-  let selectedProperties = null;
-  let selectedHeader = null;
-  if (!_.isEmpty(selectedNode)) {
-    hasSelected = true;
-    selectedType = _.get(selectedNode, 'type');
-    selectedId = _.get(selectedNode, 'id');
-    selectedProperties = _.get(selectedNode, 'properties');
-    stringifyObjectValues(selectedProperties);
-    selectedHeader = 'Node';
-  } else if (!_.isEmpty(selectedEdge)) {
-    hasSelected = true;
-    selectedType = _.get(selectedEdge, 'type');
-    selectedId = _.get(selectedEdge, 'id');
-    selectedProperties = _.get(selectedEdge, 'properties');
-    selectedHeader = 'Edge';
-    stringifyObjectValues(selectedProperties);
-  }
-
-  return (
-    <div className={'details'}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={12} md={12}>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Query History</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <QueryHistoryList list={queryHistory} />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Settings</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Automatically stabilize the graph"
-                    aria-label="add"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={isPhysicsEnabled}
-                          onChange={() => {
-                            onTogglePhysics(!isPhysicsEnabled);
-                          }}
-                          value="physics"
-                          color="primary"
-                        />
-                      }
-                      label="Enable Physics"
-                    />
-                  </Tooltip>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions."
-                    aria-label="add"
-                  >
-                    <TextField
-                      label="Node Limit"
-                      type="Number"
-                      variant="outlined"
-                      value={nodeLimit}
-                      onChange={(event) => {
-                        const limit = event.target.value;
-                        onEditNodeLimit(limit);
-                      }}
-                    />
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Typography>Node Labels</Typography>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <NodeLabelList nodeLabels={nodeLabels} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Fab
-                    variant="extended"
-                    color="primary"
-                    size="small"
-                    onClick={onRefresh.bind(this)}
-                  >
-                    <RefreshIcon />
-                    Refresh
-                  </Fab>
-                  <Fab
-                    variant="extended"
-                    size="small"
-                    onClick={onAddNodeLabel.bind(this)}
-                  >
-                    <AddIcon />
-                    Add Node Label
-                  </Fab>
-                </Grid>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
-        {hasSelected && (
-          <Grid item xs={12} sm={12} md={12}>
-            <h2>Information: {selectedHeader}</h2>
-            {selectedHeader === 'Node' && (
-              <Grid item xs={12} sm={12} md={12}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'out')}
-                    >
-                      Traverse Out Edges
-                      <ArrowForwardIcon />
-                    </Fab>
-                  </Grid>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'in')}
-                    >
-                      Traverse In Edges
-                      <ArrowBackIcon />
-                    </Fab>
-                  </Grid>
-                </Grid>
-              </Grid>
-            )}
-            <Grid item xs={12} sm={12} md={12}>
-              <Grid container>
-                <Table aria-label="simple table">
-                  <TableBody>
-                    <TableRow key={'type'}>
-                      <TableCell scope="row"><strong>Type</strong></TableCell>
-                      <TableCell align="left">{String(selectedType)}</TableCell>
-                    </TableRow>
-                    <TableRow key={'id'}>
-                      <TableCell scope="row"><strong>ID</strong></TableCell>
-                      <TableCell align="left">{String(selectedId)}</TableCell>
-                    </TableRow>
-                    {getRows(selectedProperties)}
-                  </TableBody>
-                </Table>
-              </Grid>
+  return hasSelected && (<>
+        <h2>Information: {selectedHeader}</h2>
+        {selectedHeader === 'Node' && (
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={6} md={6}>
+              <Fab
+                variant="extended"
+                size="small"
+                onClick={() => onTraverse(selectedId, 'out')}
+              >
+                Traverse Out Edges
+                <ArrowForwardIcon />
+              </Fab>
+            </Grid>
+            <Grid item xs={6} sm={6} md={6}>
+              <Fab
+                variant="extended"
+                size="small"
+                onClick={() => onTraverse(selectedId, 'in')}
+              >
+                Traverse In Edges
+                <ArrowBackIcon />
+              </Fab>
             </Grid>
           </Grid>
         )}
+        <Grid item xs={12} sm={12} md={12}>
+          <Grid container>
+            <Table aria-label="simple table">
+              <TableBody>
+                <TableRow key={'type'}>
+                  <TableCell scope="row"><strong>Type</strong></TableCell>
+                  <TableCell align="left">{String(selectedType)}</TableCell>
+                </TableRow>
+                <TableRow key={'id'}>
+                  <TableCell scope="row"><strong>ID</strong></TableCell>
+                  <TableCell align="left">{String(selectedId)}</TableCell>
+                </TableRow>
+                {getRows(selectedProperties)}
+              </TableBody>
+            </Table>
+          </Grid>
+        </Grid>
+      </>
+    ) ||
+    (<Grid item xs={12} sm={12} md={12}>
+      <Grid container>
+
+        <Typography>No Nodes Selected</Typography>
       </Grid>
-    </div>
-  );
-};
+    </Grid>)
+
+}

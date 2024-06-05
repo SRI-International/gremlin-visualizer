@@ -7,6 +7,7 @@ import {
 } from '../../reducers/graphReducer';
 import { selectOptions } from '../../reducers/optionReducer';
 import { getNetwork } from '../../logics/network';
+import { Box } from "@mui/material";
 
 export const NetworkGraphComponent = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ export const NetworkGraphComponent = () => {
       );
     }
   });
-
-  return <div ref={myRef} className={'mynetwork'} />;
+  return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
+    <div ref={myRef} className={'mynetwork'} />
+  </Box>;
 };
