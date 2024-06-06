@@ -3,6 +3,7 @@ import threatActor from '../assets/icons/stix2_threat_actor_icon_tiny_round_v1.p
 import identity from '../assets/icons/stix2_identity_icon_tiny_round_v1.png';
 import attackGoal from '../assets/icons/stix2_attack_goal_icon_tiny_round_v1.png';
 import infrastructure from '../assets/icons/stix2_infrastructure_icon_tiny_round_v1.png';
+import icons from '../assets/iconsMapping';
 import { Edge, Node } from 'vis-network';
 import { NodeLabel } from '../reducers/optionReducer';
 
@@ -17,6 +18,15 @@ const selectRandomField = (obj: any) => {
   for (firstKey in obj) break;
   return firstKey;
 };
+
+const getIcon = (label: string) => {
+  const icon = icons["man_37x37_icon"];
+  console.log(icon);
+  if (icon) {
+    return icon;
+  }
+  return null;
+}
 
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
@@ -37,7 +47,14 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       const labelField = nodeLabelMap[type];
       const label = labelField && labelField in node.properties ? node.properties[labelField] : type;
       const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
-      
+      console.log(type);
+      let icon = getIcon(type);
+      console.log(icon);
+      if (icon) {
+        gNode.image = icon;
+        gNode.shape = 'image';
+      }
+
       nodes.push(gNode);
 
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label, arrows: { to: { enabled: true, scaleFactor: 0.5 } } })));
