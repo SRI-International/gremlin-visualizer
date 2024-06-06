@@ -1,19 +1,10 @@
 
-import icons from './icons/icons.json';
-import man_37x37_icon from './icons/man_37x37_icon.png';
+import person_icon from './icons/person_icon.png';
+import software_icon from './icons/software_icon.png';
 
-const icons = {
-  'icons': icons,
-  'man_37x37_icon': man_37x37_icon,
+const icons: Record<string, string> = {
+  'person_icon': person_icon,
+  'software_icon': software_icon,
 };
 
 export default icons;
-
-
-// import man_37x37_icon from './icons/man_37x37_icon.png';
-
-// const icons: Record<string, string> = {
-//   'man_37x37_icon': man_37x37_icon,
-// };
-
-// export default icons;

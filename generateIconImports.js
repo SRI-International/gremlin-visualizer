@@ -14,9 +14,12 @@ fs.readdir(iconsDir, (err, files) => {
   const mappings = [];
 
   files.forEach((file) => {
+    if (path.extname(file) === '.json') {
+      return; 
+    }
     const label = path.basename(file, path.extname(file));
     const importName = label.replace(/[^a-zA-Z0-9]/g, '_');
-    imports.push(`import ${importName} from './${file}';`);
+    imports.push(`import ${importName} from './icons/${file}';`);
     mappings.push(`  '${label}': ${importName},`);
   });
 

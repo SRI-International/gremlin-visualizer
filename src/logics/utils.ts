@@ -20,7 +20,9 @@ const selectRandomField = (obj: any) => {
 };
 
 const getIcon = (label: string) => {
-  const icon = icons["man_37x37_icon"];
+  console.log(label)
+  console.log(label + "_icon")
+  const icon = icons[label + "_icon"];
   console.log(icon);
   if (icon) {
     return icon;
@@ -47,9 +49,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       const labelField = nodeLabelMap[type];
       const label = labelField && labelField in node.properties ? node.properties[labelField] : type;
       const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
-      console.log(type);
       let icon = getIcon(type);
-      console.log(icon);
       if (icon) {
         gNode.image = icon;
         gNode.shape = 'image';
