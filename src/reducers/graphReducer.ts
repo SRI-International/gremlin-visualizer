@@ -49,17 +49,26 @@ const slice = createSlice({
       }
       state.selectedNode = {};
     },
+    /** I wonder why there are returns in this function? It doesn't seem to be doing anything */
     refreshNodeLabels: (state, action) => {
+      console.log("refreshNodeLabels reducer entered");
+      console.log(state);
+      console.log(action);
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
       state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
-          return { ...node, label };
+          console.log('field :' + field +  "label: " + label);
+          console.log(node)
+          node.label = label;
+          // return { ...node, label }; 
         }
-        return node;
+        console.log("return node");
+        // return node;
       });
-      return state;
+      console.log("return state");
+      // return state;
     },
   },
 });

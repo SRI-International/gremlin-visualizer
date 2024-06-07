@@ -8,6 +8,7 @@ import {
 import { selectOptions } from '../../reducers/optionReducer';
 import { getNetwork } from '../../logics/network';
 import { Box } from "@mui/material";
+import { PanoramaSharp } from '@mui/icons-material';
 
 export const NetworkGraphComponent = () => {
   const dispatch = useDispatch();
