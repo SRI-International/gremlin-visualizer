@@ -22,3 +22,5 @@ export const ACTIONS = {
   REFRESH_NODE_LABELS: 'REFRESH_NODE_LABELS',
   SET_NODE_LIMIT: 'SET_NODE_LIMIT'
 };
+//To set initial label for type 'person' create an entry named "PERSON_LABEL"
+export const INITIAL_LABEL_MAPPINGS = { SOFTWARE_LABEL: 'lang' }
