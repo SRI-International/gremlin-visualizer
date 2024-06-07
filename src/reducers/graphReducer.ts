@@ -55,6 +55,7 @@ const slice = createSlice({
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
+          node.label = label;
           return { ...node, label };
         }
         return node;
