@@ -40,7 +40,7 @@ export const NetworkGraphComponent = () => {
         { selectNodeCallback, selectEdgeCallback }
       );
     }
-  });
+  }, [nodes, edges, networkOptions]);
   return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
     <div ref={myRef} className={'mynetwork'} />
   </Box>;
