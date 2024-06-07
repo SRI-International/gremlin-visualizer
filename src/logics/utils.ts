@@ -3,9 +3,10 @@ import threatActor from '../assets/icons/stix2_threat_actor_icon_tiny_round_v1.p
 import identity from '../assets/icons/stix2_identity_icon_tiny_round_v1.png';
 import attackGoal from '../assets/icons/stix2_attack_goal_icon_tiny_round_v1.png';
 import infrastructure from '../assets/icons/stix2_infrastructure_icon_tiny_round_v1.png';
-import icons from '../assets/iconsMapping';
+import icons from '../assets/icons';
 import { Edge, Node } from 'vis-network';
 import { NodeLabel } from '../reducers/optionReducer';
+import getIcon from "../assets/icons";
 
 interface NodeData extends Node {
   properties: any;
@@ -18,17 +19,6 @@ const selectRandomField = (obj: any) => {
   for (firstKey in obj) break;
   return firstKey;
 };
-
-const getIcon = (label: string) => {
-  console.log(label)
-  console.log(label + "_icon")
-  const icon = icons[label + "_icon"];
-  console.log(icon);
-  if (icon) {
-    return icon;
-  }
-  return null;
-}
 
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
