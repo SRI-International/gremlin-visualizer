@@ -51,16 +51,16 @@ const slice = createSlice({
     },
     refreshNodeLabels: (state, action) => {
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
-      state.nodes.map((node: any) => {
+      const newState = Object.assign({}, state);
+      newState.nodes = newState.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
-          node.label = label;
           return { ...node, label };
         }
         return node;
       });
-      return state;
+      return newState;
     },
   },
 });
