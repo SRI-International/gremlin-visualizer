@@ -31,6 +31,14 @@ const slice = createSlice({
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
     },
+    updateNode: (state, action) => {
+      const {nodeId, updatedNodes} = action.payload;
+      const stateNodeIndex = state.nodes.findIndex(node => node.id === nodeId);
+      const updatedNodeIndex = updatedNodes.findIndex((node: { id: any; }) => node.id === nodeId);
+      if (stateNodeIndex !== -1) {
+        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updatedNodes[updatedNodeIndex] };
+      }
+    },
     addEdges: (state, action) => {
       const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.from},${edge.to}`);
       state.edges = [...state.edges, ...newEdges];
@@ -67,6 +75,7 @@ const slice = createSlice({
 
 export const {
   clearGraph,
+  updateNode,
   addNodes,
   addEdges,
   setSelectedEdge,

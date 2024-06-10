@@ -32,6 +32,7 @@ export const NetworkGraphComponent = () => {
 
   useEffect(() => {
     if (myRef.current != null) {
+      console.log("getNetwork run = \nnodes = " + nodes);
       getNetwork(
         myRef.current,
         { nodes, edges },
