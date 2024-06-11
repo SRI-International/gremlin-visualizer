@@ -4,8 +4,8 @@ import {
   selectGraph,
 } from '../../reducers/graphReducer';
 import { selectOptions } from '../../reducers/optionReducer';
-import { getNetwork } from '../../logics/network';
 import { Box } from "@mui/material";
+import { getGraph } from "../../logics/graph";
 
 export const NetworkGraphComponent = () => {
   const { nodes, edges } = useSelector(selectGraph);
@@ -14,7 +14,7 @@ export const NetworkGraphComponent = () => {
 
   useEffect(() => {
     if (myRef.current != null) {
-      getNetwork(
+      getGraph(
         myRef.current,
         { nodes, edges },
         networkOptions

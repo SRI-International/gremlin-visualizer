@@ -9,6 +9,11 @@ interface NodeData extends Node {
   edges?: Edge[];
 }
 
+export interface GraphData {
+  nodes: Node[],
+  edges: Edge[]
+}
+
 const selectRandomField = (obj: any) => {
   let firstKey;
   for (firstKey in obj) break;
@@ -25,7 +30,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
   _.forEach(nodeList, (node) => {
     const type = node.label;
     if (type) {
-      if (!nodeLabelMap[type]) {
+      if (!(type in nodeLabelMap)) {
         const field = selectRandomField(node.properties);
         const nodeLabel: NodeLabel = { type, field };
         nodeLabels.push(nodeLabel);
