@@ -18,7 +18,7 @@ type OptionState = {
 };
 
 const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).map(([type, field]) => 
-  ({ type: type.split('_')[0].toLowerCase(), field }));
+  ({ type, field }));
 
 const initialState: OptionState = {
   nodeLabels: initialNodeLabels,
