@@ -23,3 +23,12 @@ export const ACTIONS = {
   REFRESH_NODE_LABELS: 'REFRESH_NODE_LABELS',
   SET_NODE_LIMIT: 'SET_NODE_LIMIT'
 };
+
+/**
+ * To set initial labels to override the default labels, create an entry in the mapping
+ * below as per the example. 
+ */
+ export const INITIAL_LABEL_MAPPINGS = {
+  //  software: 'lang' 
+  }
+
