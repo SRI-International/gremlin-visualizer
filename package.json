@@ -13,6 +13,8 @@
     "axios": "^1.7.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "cytoscape": "^3.29.2",
+    "cytoscape-cola": "^2.5.1",
     "express": "^4.17.1",
     "gremlin": "^3.4.4",
     "lodash": "^4.17.15",
@@ -34,6 +36,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.21.2",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.14.1",
     "@types/properties-reader": "^2.1.3",

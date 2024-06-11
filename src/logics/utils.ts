@@ -32,7 +32,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
         nodeLabelMap[type] = field;
       }
       const labelField = nodeLabelMap[type];
-      const label = labelField && labelField in node.properties ? node.properties[labelField] : type;
+      const label = labelField && labelField in node.properties ? node.properties[labelField] : `${type}:${node.id}`;
       const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
       let icon = getIcon(type);
       if (icon) {
@@ -50,9 +50,11 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
 };
 
 export const stringifyObjectValues = (obj: any) => {
+  obj = Object.assign({}, obj)
   _.forOwn(obj, (value, key) => {
     if (!_.isString(value)) {
       obj[key] = JSON.stringify(value);
     }
   });
+  return obj;
 };

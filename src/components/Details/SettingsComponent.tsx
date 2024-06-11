@@ -134,7 +134,7 @@ export const Settings = () => {
           type: enabled ? 'dynamic' : 'continuous',
         },
       };
-      network.setOptions({ physics: enabled, edges });
+      // network.setOptions({ physics: enabled, edges });
     }
   }
 
