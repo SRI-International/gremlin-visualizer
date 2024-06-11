@@ -10,23 +10,19 @@ export const onFetchQuery = (result: any, query: string, oldNodeLabels: NodeLabe
     result.data,
     oldNodeLabels
   );
-  console.log(nodes);
   dispatch(addNodes(nodes));
   dispatch(addEdges(edges));
   dispatch(setNodeLabels(nodeLabels));
   dispatch(addQueryHistory(query));
 };
 
-export const updateOnFetchQuery = (updateNodeId: IdType | undefined, result: any, query: string, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
-  const { nodes, edges, nodeLabels } = extractEdgesAndNodes(
+export const updateOnConfirm = (updateNodeId: IdType | undefined, result: any, query: string, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
+  const { nodes, nodeLabels } = extractEdgesAndNodes(
     result.data,
     oldNodeLabels
   );
-
-  dispatch(updateNode({updateNodeId, nodes}));
-  dispatch(addNodes(nodes));
-  dispatch(addEdges(edges));
-  dispatch(setNodeLabels(nodeLabels));
+  let updated = nodes[0];
+  dispatch(updateNode({updateNodeId, updated}));
   dispatch(addQueryHistory(query));
 };
 

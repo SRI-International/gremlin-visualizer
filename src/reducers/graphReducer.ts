@@ -32,11 +32,13 @@ const slice = createSlice({
       state.nodes = [...state.nodes, ...newNodes];
     },
     updateNode: (state, action) => {
-      const {nodeId, updatedNodes} = action.payload;
-      const stateNodeIndex = state.nodes.findIndex(node => node.id === nodeId);
-      const updatedNodeIndex = updatedNodes.findIndex((node: { id: any; }) => node.id === nodeId);
+      const { updateNodeId, updated } = action.payload;
+      const stateNodeIndex = state.nodes.findIndex(node => node.id === updateNodeId);
       if (stateNodeIndex !== -1) {
-        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updatedNodes[updatedNodeIndex] };
+        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updated};
+        state.selectedNode = updated;
+      } else {
+        console.error("Node not found in state or updatedNodes");
       }
     },
     addEdges: (state, action) => {

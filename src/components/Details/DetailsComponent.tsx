@@ -11,7 +11,7 @@ import { selectOptions } from "../../reducers/optionReducer";
 import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, DISABLE_NODE_EDIT} from "../../constants";
-import { updateOnFetchQuery, onFetchQuery } from "../../logics/actionHelper";
+import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,6 @@ export const DetailsComponent = () => {
 
   const [editField, setEditField] = useState<null | string>(null);
   const [editValue, setEditValue] = useState<null | string>(null);
-  const [toggleRefresh, setToggleRefresh] = useState(false);
 
   let hasSelected = false;
   let selectedType: null | undefined = null;
@@ -48,8 +47,7 @@ export const DetailsComponent = () => {
   useEffect(() => {
     setEditField(null);
     setEditValue(null);
-    console.log("refreshed");
-  }, [selectedNode, selectedEdge, toggleRefresh]);
+  }, [selectedNode, selectedEdge]);
 
   const [value, setValue] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -62,10 +60,8 @@ export const DetailsComponent = () => {
    * @returns
    */
   function getRows(data: any) {
-    console.log("rows rerun")
     if (data == null) return;
     return Object.entries(data).map(e => {
-      console.log("field = " + e[0] + ", value = " + e[1]);
       return <TableRow>
                 <TableCell><strong>{String(e[0])}</strong></TableCell>
                 
@@ -129,7 +125,6 @@ export const DetailsComponent = () => {
     setEditField(null);
     setEditValue(null);
     const query = `g.V('${nodeId}').property('${field}', '${newValue}')`;
-    console.log(query);
     axios
       .post(
         QUERY_ENDPOINT,
@@ -142,13 +137,12 @@ export const DetailsComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        updateOnFetchQuery(nodeId, response, query, nodeLabels, dispatch);
-        setToggleRefresh(!toggleRefresh);
-        console.log("confirmed edit");
-
+        updateOnConfirm(nodeId, response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
-        dispatch(setError(COMMON_GREMLIN_ERROR));
+        const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+        dispatch(setError(errorMessage));
+        // dispatch(setError(COMMON_GREMLIN_ERROR));
       });
   }
 
