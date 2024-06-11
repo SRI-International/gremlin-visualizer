@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import _ from 'lodash';
 import { Options } from 'vis-network';
+import { INITIAL_LABEL_MAPPINGS } from '../constants';
 
 export interface NodeLabel {
   type: string;
@@ -16,8 +17,11 @@ type OptionState = {
   networkOptions: Options;
 };
 
+const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).map(([type, field]) => 
+  ({ type, field }));
+
 const initialState: OptionState = {
-  nodeLabels: [],
+  nodeLabels: initialNodeLabels,
   queryHistory: [],
   isPhysicsEnabled: true,
   nodeLimit: 100,
