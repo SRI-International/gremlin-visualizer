@@ -22,3 +22,5 @@ export const ACTIONS = {
   REFRESH_NODE_LABELS: 'REFRESH_NODE_LABELS',
   SET_NODE_LIMIT: 'SET_NODE_LIMIT'
 };
+
+export const DISABLE_NODE_EDIT = false;

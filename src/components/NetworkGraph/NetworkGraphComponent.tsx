@@ -12,7 +12,7 @@ import { Box } from "@mui/material";
 export const NetworkGraphComponent = () => {
   const dispatch = useDispatch();
   const { nodes, edges } = useSelector(selectGraph);
-  const { networkOptions } = useSelector(selectOptions);
+  const { networkOptions, nodeLabels } = useSelector(selectOptions);
   const myRef = useRef(null);
 
   const selectNodeCallback = (params?: any) => {
@@ -39,7 +39,7 @@ export const NetworkGraphComponent = () => {
         { selectNodeCallback, selectEdgeCallback }
       );
     }
-  });
+  }, [nodes, edges, networkOptions]);
   return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
     <div ref={myRef} className={'mynetwork'} />
   </Box>;

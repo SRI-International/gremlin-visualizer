@@ -31,6 +31,16 @@ const slice = createSlice({
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
     },
+    updateNode: (state, action) => {
+      const { updateNodeId, updated } = action.payload;
+      const stateNodeIndex = state.nodes.findIndex(node => node.id === updateNodeId);
+      if (stateNodeIndex !== -1) {
+        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updated};
+        state.selectedNode = updated;
+      } else {
+        console.error("Node not found in state or updatedNodes");
+      }
+    },
     addEdges: (state, action) => {
       const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.from},${edge.to}`);
       state.edges = [...state.edges, ...newEdges];
@@ -67,6 +77,7 @@ const slice = createSlice({
 
 export const {
   clearGraph,
+  updateNode,
   addNodes,
   addEdges,
   setSelectedEdge,
