@@ -26,8 +26,8 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
-import { EdgeOptions } from "vis-network";
-import { getNetwork } from "../../logics/network";
+import { EdgeOptions, Network } from "vis-network";
+import { getGraph } from "../../logics/graph";
 
 
 type NodeLabelListProps = {
@@ -93,7 +93,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } = useSelector(selectOptions);
-  const network = getNetwork();
+  const network = getGraph();
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -127,7 +127,7 @@ export const Settings = () => {
   function onTogglePhysics(enabled: boolean) {
     dispatch(setIsPhysicsEnabled(enabled));
 
-    if (network) {
+    if (network instanceof Network) {
       const edges: EdgeOptions = {
         smooth: {
           enabled,

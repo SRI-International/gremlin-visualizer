@@ -1,6 +1,7 @@
 const SERVER_URL = 'http://localhost:3001';
 export const QUERY_ENDPOINT = `${SERVER_URL}/query`;
 export const COMMON_GREMLIN_ERROR = 'Invalid query. Please execute a query to get a set of vertices';
+export let GRAPH_IMPL = "vis"
 export const ACTIONS = {
   SET_HOST: 'SET_HOST',
   SET_PORT: 'SET_PORT',
@@ -24,3 +25,12 @@ export const ACTIONS = {
 };
 
 export const DISABLE_NODE_EDIT = false;
+
+/**
+ * To set initial labels to override the default labels, create an entry in the mapping
+ * below as per the example.
+ */
+ export const INITIAL_LABEL_MAPPINGS = {
+  //  software: 'lang'
+  }
+

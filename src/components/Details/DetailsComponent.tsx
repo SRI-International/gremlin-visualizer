@@ -41,7 +41,7 @@ export const DetailsComponent = () => {
     selectedType = _.get(selectedNode, 'type');
     selectedId = _.get(selectedNode, 'id');
     selectedProperties = _.get(selectedNode, 'properties');
-    stringifyObjectValues(selectedProperties);
+    selectedProperties = stringifyObjectValues(selectedProperties);
     selectedHeader = 'Node';
   } else if (!_.isEmpty(selectedEdge)) {
     hasSelected = true;
@@ -49,18 +49,13 @@ export const DetailsComponent = () => {
     selectedId = _.get(selectedEdge, 'id');
     selectedProperties = _.get(selectedEdge, 'properties');
     selectedHeader = 'Edge';
-    stringifyObjectValues(selectedProperties);
+    selectedProperties = stringifyObjectValues(selectedProperties);
   }
 
   useEffect(() => {
     setEditField(null);
     setEditValue(null);
   }, [selectedNode, selectedEdge]);
-
-  const [value, setValue] = React.useState(0);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
 
   /**
    * Return a number of table rows with key-value cells for object properties

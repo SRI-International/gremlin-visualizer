@@ -22,14 +22,18 @@ const slice = createSlice({
   initialState,
   reducers: {
     clearGraph: (state) => {
+      state = Object.assign({}, state);
       state.nodes = [];
       state.edges = [];
       state.selectedNode = {};
       state.selectedEdge = {};
+      return state;
     },
     addNodes: (state, action) => {
+      state = Object.assign({}, state);
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
+      return state;
     },
     updateNode: (state, action) => {
       const { updateNodeId, updated } = action.payload;
@@ -42,27 +46,33 @@ const slice = createSlice({
       }
     },
     addEdges: (state, action) => {
+      state = Object.assign({}, state);
       const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.from},${edge.to}`);
       state.edges = [...state.edges, ...newEdges];
+      return state;
     },
     setSelectedNode: (state, action) => {
       const nodeId = action.payload;
+      state = Object.assign({}, state);
       if (nodeId !== null) {
-        state.selectedNode = _.find(state.nodes, node => node.id === nodeId);
+        state.selectedNode = _.find(state.nodes, node => node.id == nodeId);
       }
       state.selectedEdge = {};
+      return state;
     },
     setSelectedEdge: (state, action) => {
       const edgeId = action.payload;
+      state = Object.assign({}, state);
       if (edgeId !== null) {
         state.selectedEdge = _.find(state.edges, edge => edge.id === edgeId);
       }
       state.selectedNode = {};
+      return state;
     },
     refreshNodeLabels: (state, action) => {
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
-      const newState = Object.assign({}, state);
-      newState.nodes = newState.nodes.map((node: any) => {
+      state = Object.assign({}, state);
+      state.nodes = state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
@@ -70,7 +80,7 @@ const slice = createSlice({
         }
         return node;
       });
-      return newState;
+      return state;
     },
   },
 });

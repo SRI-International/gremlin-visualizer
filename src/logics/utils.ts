@@ -9,6 +9,11 @@ interface NodeData extends Node {
   edges?: Edge[];
 }
 
+export interface GraphData {
+  nodes: Node[],
+  edges: Edge[]
+}
+
 const selectRandomField = (obj: any) => {
   let firstKey;
   for (firstKey in obj) break;
@@ -25,14 +30,14 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
   _.forEach(nodeList, (node) => {
     const type = node.label;
     if (type) {
-      if (!nodeLabelMap[type]) {
+      if (!(type in nodeLabelMap)) {
         const field = selectRandomField(node.properties);
         const nodeLabel: NodeLabel = { type, field };
         nodeLabels.push(nodeLabel);
         nodeLabelMap[type] = field;
       }
       const labelField = nodeLabelMap[type];
-      const label = labelField && labelField in node.properties ? node.properties[labelField] : type;
+      const label = labelField && labelField in node.properties ? node.properties[labelField] : `${type}:${node.id}`;
       const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
       let icon = getIcon(type);
       if (icon) {
@@ -50,9 +55,11 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
 };
 
 export const stringifyObjectValues = (obj: any) => {
+  obj = Object.assign({}, obj)
   _.forOwn(obj, (value, key) => {
     if (!_.isString(value)) {
       obj[key] = JSON.stringify(value);
     }
   });
+  return obj;
 };
