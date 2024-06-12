@@ -12,6 +12,14 @@ import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, DISABLE_NODE_EDIT} from "../../constants";
 import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
+import { EditText, EditTextarea } from 'react-edit-text';
+import 'react-edit-text/dist/index.css';
+
+type EditEvent = {
+  name: string;
+  value: string;
+  previousValue: string;
+};
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
@@ -62,40 +70,21 @@ export const DetailsComponent = () => {
   function getRows(data: any) {
     if (data == null) return;
     return Object.entries(data).map(e => {
+
       return <TableRow>
                 <TableCell><strong>{String(e[0])}</strong></TableCell>
-                
-      <TableCell>
-        {editField === e[0] ? (
-          <TextField value={editValue} onChange={(e) => setEditValue(e.target.value)} />
-        ) : (
-          String(e[1])
-        )}
-      </TableCell>
-
-      <TableCell>
-        {editField === e[0] ? (
-          <>
-            <Button onClick={() => onConfirmEdit(selectedId, editField, editValue)} variant="contained" color="primary">
-              Confirm
-            </Button>
-            <Button onClick={onCancelEdit} variant="contained" color="secondary">
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <Tooltip title = {DISABLE_NODE_EDIT ? "edit node disabled" : ""}>
-          <Button disabled={DISABLE_NODE_EDIT} onClick={() => {
-            setEditField(e[0]);
-            setEditValue(String(e[1]));
-          }} variant="contained" color="primary">
-            Edit
-          </Button>
-          </Tooltip>
-        )}
-
-      </TableCell>
-
+                <TableCell>
+                  {!DISABLE_NODE_EDIT ? (
+                      <EditText
+                      name={String(e[0])}
+                      style={{ fontSize: '16px', border: '1px solid #ccc' }}
+                      onSave={onConfirmEdit}
+                      defaultValue={String(e[1])}
+                      showEditButton
+                    />
+                  ) : <strong>{String(e[0])}</strong>
+                  }
+                </TableCell>
               </TableRow>;
     });
   }
@@ -121,10 +110,10 @@ export const DetailsComponent = () => {
       });
   }
 
-  function onConfirmEdit(nodeId: IdType | undefined, field: string, newValue: any) {
+  function onConfirmEdit({ name, value, previousValue }: EditEvent) {
     setEditField(null);
     setEditValue(null);
-    const query = `g.V('${nodeId}').property('${field}', '${newValue}')`;
+    const query = `g.V('${selectedId}').property('${name}', '${value}')`;
     axios
       .post(
         QUERY_ENDPOINT,
@@ -137,7 +126,7 @@ export const DetailsComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        updateOnConfirm(nodeId, response, query, nodeLabels, dispatch);
+        updateOnConfirm(selectedId, response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
         const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
