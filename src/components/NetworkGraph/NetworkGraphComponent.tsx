@@ -22,6 +22,6 @@ export const NetworkGraphComponent = () => {
     }
   }, [nodes, edges, networkOptions]);
   return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
-    <div ref={myRef} className={'mynetwork'} />
+    <Box ref={myRef} sx={{height: 'calc(100vh - 20px)'}} className={'mynetwork'} />
   </Box>;
 };
