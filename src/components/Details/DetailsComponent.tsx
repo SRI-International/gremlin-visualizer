@@ -17,7 +17,7 @@ export const DetailsComponent = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
-  const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } =
+  const { nodeLabels, nodeLimit } =
     useSelector(selectOptions);
 
   let hasSelected = false;

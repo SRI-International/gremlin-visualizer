@@ -13,7 +13,7 @@ interface NetworkGraphComponentProps {
 
 export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { nodes, edges } = useSelector(selectGraph);
-  const { networkOptions } = useSelector(selectOptions);
+  const { graphOptions } = useSelector(selectOptions);
   const myRef = useRef(null);
 
   useEffect(() => {
@@ -21,10 +21,10 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
       getGraph(
         myRef.current,
         { nodes, edges },
-        networkOptions
+        graphOptions
       );
     }
-  }, [nodes, edges, networkOptions]);
+  }, [nodes, edges, graphOptions]);
   return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)` }}>
     <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
   </Box>;

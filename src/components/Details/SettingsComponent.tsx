@@ -26,8 +26,6 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
-import { EdgeOptions, Network } from "vis-network";
-import { getGraph } from "../../logics/graph";
 
 
 type NodeLabelListProps = {
@@ -92,8 +90,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
 export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
-  const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } = useSelector(selectOptions);
-  const network = getGraph();
+  const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -125,17 +122,6 @@ export const Settings = () => {
 
   function onTogglePhysics(enabled: boolean) {
     dispatch(setIsPhysicsEnabled(enabled));
-
-    if (network instanceof Network) {
-      const edges: EdgeOptions = {
-        smooth: {
-          enabled,
-          roundness: 10,
-          type: enabled ? 'dynamic' : 'continuous',
-        },
-      };
-      network.setOptions({ physics: enabled, edges });
-    }
   }
 
   return (
@@ -166,9 +152,9 @@ export const Settings = () => {
           <FormControlLabel
             control={
               <Switch
-                checked={isPhysicsEnabled}
+                checked={graphOptions.isPhysicsEnabled}
                 onChange={() => {
-                  onTogglePhysics(!isPhysicsEnabled);
+                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
                 }}
                 value="physics"
                 color="primary"
