@@ -25,7 +25,6 @@ export const App = () => {
     }
 
     const handlePanelDragUnselect = () => {
-        console.log('Mouse Up')
         document.removeEventListener('mousemove', handlePanelDrag)
         document.removeEventListener('mouseup', handlePanelDragUnselect)
         document.body.style.userSelect = 'auto'
