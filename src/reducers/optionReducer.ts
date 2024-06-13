@@ -76,6 +76,7 @@ const slice = createSlice({
   reducers: {
     setIsPhysicsEnabled: (state, action) => {
       state.isPhysicsEnabled = _.get(action, 'payload', true);
+      state.networkOptions.physics.isPhysicsEnabled = _.get(action, 'payload', true);
     },
     addQueryHistory: (state, action) => {
       state.queryHistory = [...state.queryHistory, action.payload];
