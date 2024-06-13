@@ -64,7 +64,6 @@ function getOptions(options?: GraphOptions) {
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
-  debugger;
   if (network) {
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
