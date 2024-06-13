@@ -10,7 +10,7 @@ import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
 import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, DISABLE_NODE_EDIT} from "../../constants";
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, DISABLE_NODE_EDGE_EDIT, QUERY_RAW_ENDPOINT, EDGE_ID_APPEND} from "../../constants";
 import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
 import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
@@ -32,10 +32,10 @@ export const DetailsComponent = () => {
   const [editValue, setEditValue] = useState<null | string>(null);
 
   let hasSelected = false;
-  let selectedType: null | undefined = null;
+  let selectedType: any = null;
   let selectedId: IdType | undefined = undefined;
   let selectedProperties = null;
-  let selectedHeader = null;
+  let selectedHeader : string | null = null;
   if (!_.isEmpty(selectedNode)) {
     hasSelected = true;
     selectedType = _.get(selectedNode, 'type');
@@ -74,7 +74,7 @@ export const DetailsComponent = () => {
       return <TableRow>
                 <TableCell><strong>{String(e[0])}</strong></TableCell>
                 <TableCell>
-                  {!DISABLE_NODE_EDIT ? (
+                  {!DISABLE_NODE_EDGE_EDIT ? (
                       <EditText
                       name={String(e[0])}
                       style={{ fontSize: '16px', border: '1px solid #ccc' }}
@@ -113,8 +113,11 @@ export const DetailsComponent = () => {
   function onConfirmEdit({ name, value, previousValue }: EditEvent) {
     setEditField(null);
     setEditValue(null);
-    const query = `g.V('${selectedId}').property('${name}', '${value}')`;
-    axios
+    let query = '';
+    value = value.replace(/"/g, '\\"');
+    if (selectedHeader === "Node") {
+      query = `g.V('${selectedId}').property("${name}", "${value}")`;
+      axios
       .post(
         QUERY_ENDPOINT,
         {
@@ -126,19 +129,62 @@ export const DetailsComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        updateOnConfirm(selectedId, response, query, nodeLabels, dispatch);
+        updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
         const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
         dispatch(setError(errorMessage));
-        // dispatch(setError(COMMON_GREMLIN_ERROR));
       });
-  }
+    }
+    else {
+      query = `g.V().where(__.outE().hasId(${selectedId}))`;
+      editEdgeRawQuery(name, value)
+      .then(() => {
+      return axios
+        .post(
+          QUERY_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );})
+        .then((response) => {
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels, dispatch);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+          dispatch(setError(errorMessage));
+        });
 
-  function onCancelEdit() {
-    setEditField(null);
-    setEditValue(null);
+    }
+  
   }
+  async function editEdgeRawQuery(name : string, value: string) {
+
+    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+    try {
+      const response = await axios
+        .post(
+          QUERY_RAW_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      return true;
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
+      dispatch(setError(errorMessage));
+      throw error;
+    }
+}
+
 
   return hasSelected && (<>
         <h2>Information: {selectedHeader}</h2>

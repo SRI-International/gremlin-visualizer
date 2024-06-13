@@ -120,7 +120,6 @@ export const Settings = () => {
   }
 
   function onRefresh() {
-    console.log("refreshed");
     dispatch(refreshNodeLabels(nodeLabels));
   }
 

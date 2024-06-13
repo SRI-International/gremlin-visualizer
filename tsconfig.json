@@ -24,7 +24,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "plugins": [{ "name": "typescript-plugin-css-modules" }],
-    "downlevelIteration": true
+    "downlevelIteration": true,
   },
   "include": [
     "./src/"
