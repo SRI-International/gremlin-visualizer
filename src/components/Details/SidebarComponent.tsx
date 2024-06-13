@@ -5,8 +5,6 @@ import { selectOptions, } from '../../reducers/optionReducer';
 import Query from "./QueryComponent";
 import { Settings } from "./SettingsComponent";
 import { DetailsComponent } from "./DetailsComponent";
-import { Simulate } from "react-dom/test-utils";
-import drag = Simulate.drag;
 
 type QueryHistoryProps = {
   list: Array<string>;
