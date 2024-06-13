@@ -48,20 +48,29 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export const SidebarComponent = () => {
+interface SidebarComponentProps {
+  panelWidth: number,
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
+}
+
+export const SidebarComponent = (props: SidebarComponentProps) => {
   const { queryHistory } = useSelector(selectOptions);
   const [value, setValue] = React.useState(0);
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const sidebarWidth = 350;
   return (
     <Box>
       <Drawer anchor='right' variant='permanent' open={true} sx={{
         display: { xs: 'none', sm: 'block' },
-        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: sidebarWidth },
+        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.panelWidth },
       }} className='details'>
+        <div
+          id="dragger"
+          onMouseDown={props.handleMouseDown}
+          className={'dragger'}
+        />
         <Tabs variant="fullWidth" value={value} onChange={handleChange}>
           <Tab value={0} label='Query' />
           <Tab value={1} label='Details' />

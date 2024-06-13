@@ -7,7 +7,11 @@ import { selectOptions } from '../../reducers/optionReducer';
 import { Box } from "@mui/material";
 import { getGraph } from "../../logics/graph";
 
-export const NetworkGraphComponent = () => {
+interface NetworkGraphComponentProps {
+  panelWidth: number
+}
+
+export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { nodes, edges } = useSelector(selectGraph);
   const { networkOptions } = useSelector(selectOptions);
   const myRef = useRef(null);
@@ -21,7 +25,7 @@ export const NetworkGraphComponent = () => {
       );
     }
   }, [nodes, edges, networkOptions]);
-  return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
-    <Box ref={myRef} sx={{height: 'calc(100vh - 20px)'}} className={'mynetwork'} />
+  return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)` }}>
+    <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
   </Box>;
 };
