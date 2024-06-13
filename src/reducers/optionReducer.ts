@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import _ from 'lodash';
-import { Options } from 'vis-network';
 import { INITIAL_LABEL_MAPPINGS } from '../constants';
+import { GraphOptions } from "../logics/utils";
 
 export interface NodeLabel {
   type: string;
@@ -12,9 +12,8 @@ export interface NodeLabel {
 type OptionState = {
   nodeLabels: NodeLabel[];
   queryHistory: string[];
-  isPhysicsEnabled: boolean;
   nodeLimit: number;
-  networkOptions: Options;
+  graphOptions: GraphOptions;
 };
 
 const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).map(([type, field]) => 
@@ -23,51 +22,10 @@ const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).ma
 const initialState: OptionState = {
   nodeLabels: initialNodeLabels,
   queryHistory: [],
-  isPhysicsEnabled: true,
   nodeLimit: 100,
-  networkOptions: {
-    physics: {
-      forceAtlas2Based: {
-        gravitationalConstant: -26,
-        centralGravity: 0.005,
-        springLength: 230,
-        springConstant: 0.18,
-        avoidOverlap: 1.5,
-      },
-      maxVelocity: 40,
-      solver: 'forceAtlas2Based',
-      timestep: 0.35,
-      stabilization: {
-        enabled: true,
-        iterations: 50,
-        updateInterval: 25,
-      },
-    },
-    // layout: {
-    //   hierarchical: {
-    //     enabled: true,
-    //     direction: "UD",
-    //     sortMethod: "directed",
-    //   }
-    // },
-    nodes: {
-      shape: 'dot',
-      size: 20,
-      borderWidth: 2,
-      font: {
-        size: 11,
-      },
-    },
-    edges: {
-      width: 2,
-      font: {
-        size: 11,
-      },
-      smooth: {
-        type: 'dynamic',
-      },
-    },
-  } as Options,
+  graphOptions: {
+    isPhysicsEnabled: true,
+  }
 };
 
 const slice = createSlice({
@@ -75,8 +33,7 @@ const slice = createSlice({
   initialState,
   reducers: {
     setIsPhysicsEnabled: (state, action) => {
-      state.isPhysicsEnabled = _.get(action, 'payload', true);
-      state.networkOptions.physics.isPhysicsEnabled = _.get(action, 'payload', true);
+      state.graphOptions.isPhysicsEnabled = _.get(action, 'payload', true);
     },
     addQueryHistory: (state, action) => {
       state.queryHistory = [...state.queryHistory, action.payload];

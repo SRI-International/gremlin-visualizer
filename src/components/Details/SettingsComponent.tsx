@@ -90,7 +90,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
 export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
-  const { nodeLabels, nodeLimit, isPhysicsEnabled } = useSelector(selectOptions);
+  const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -152,9 +152,9 @@ export const Settings = () => {
           <FormControlLabel
             control={
               <Switch
-                checked={isPhysicsEnabled}
+                checked={graphOptions.isPhysicsEnabled}
                 onChange={() => {
-                  onTogglePhysics(!isPhysicsEnabled);
+                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
                 }}
                 value="physics"
                 color="primary"

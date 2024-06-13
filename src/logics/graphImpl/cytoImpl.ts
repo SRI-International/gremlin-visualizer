@@ -1,11 +1,14 @@
-import { Edge, Node, Options } from "vis-network";
+import { Edge, Node } from "vis-network";
 import cy, { NodeDefinition } from "cytoscape";
-import { GraphData } from "../utils";
+import { GraphData, GraphTypes, GraphOptions } from "../utils";
 import { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import cola from "cytoscape-cola";
 
-let cytoImpl: cy.Core | null = null;
+let graph: cy.Core | null = null;
+
+cy.use(cola)
 
 function toCyNode(n: Node): cy.NodeDefinition {
   return { group: "nodes", data: { ...n, id: n.id?.toString() as string | undefined } }
@@ -18,10 +21,10 @@ function toCyEdge(e: Edge): cy.EdgeDefinition {
   }
 }
 
-export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: Options | undefined): cy.Core | null {
+export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   let nodes: NodeDefinition[] = data?.nodes?.map(x => toCyNode(x)) || []
   let edges = data?.edges?.map(x => toCyEdge(x)) || []
-  cytoImpl = cy({
+  graph = cy({
     container: container,
     elements: {
       nodes: nodes,
@@ -53,13 +56,13 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     ]
   });
   const opts: ColaLayoutOptions = { name: 'cola', infinite: true, animate: true, centerGraph: false, fit: false }
-  cytoImpl.layout(opts).start()
-  cytoImpl.on('tap', 'node', (event) => {
+  graph.layout(opts).start()
+  graph.on('tap', 'node', (event) => {
     store.dispatch(setSelectedNode(event.target.id()))
   })
-  cytoImpl.on('tap', 'edge', (event) => {
+  graph.on('tap', 'edge', (event) => {
     store.dispatch(setSelectedEdge(event.target.id()))
   })
 
-  return cytoImpl;
+  return graph;
 }

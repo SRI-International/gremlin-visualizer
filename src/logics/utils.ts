@@ -1,7 +1,9 @@
 import _ from 'lodash';
-import { Edge, Node } from 'vis-network';
+import { Edge, Network, Node } from 'vis-network';
 import { NodeLabel } from '../reducers/optionReducer';
 import getIcon from "../assets/icons";
+import cytoscape from "cytoscape";
+import Sigma from "sigma";
 
 interface NodeData extends Node {
   properties: any;
@@ -9,9 +11,15 @@ interface NodeData extends Node {
   edges?: Edge[];
 }
 
+export type GraphTypes = Sigma | Network | cytoscape.Core | null
+
 export interface GraphData {
   nodes: Node[],
   edges: Edge[]
+}
+
+export interface GraphOptions {
+  isPhysicsEnabled: boolean,
 }
 
 const selectRandomField = (obj: any) => {

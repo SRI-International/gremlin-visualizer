@@ -9,7 +9,7 @@ import { getGraph } from "../../logics/graph";
 
 export const NetworkGraphComponent = () => {
   const { nodes, edges } = useSelector(selectGraph);
-  const { networkOptions } = useSelector(selectOptions);
+  const { graphOptions } = useSelector(selectOptions);
   const myRef = useRef(null);
 
   useEffect(() => {
@@ -17,10 +17,10 @@ export const NetworkGraphComponent = () => {
       getGraph(
         myRef.current,
         { nodes, edges },
-        networkOptions
+        graphOptions
       );
     }
-  }, [nodes, edges, networkOptions]);
+  }, [nodes, edges, graphOptions]);
   return <Box className='graph-container' sx={{width: `calc(100% - ${350}px)`}}>
     <Box ref={myRef} sx={{height: 'calc(100vh - 20px)'}} className={'mynetwork'} />
   </Box>;
