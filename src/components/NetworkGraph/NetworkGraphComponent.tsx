@@ -19,13 +19,13 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   useEffect(() => {
     if (myRef.current != null) {
       getGraph(
-          myRef.current,
-          { nodes, edges },
-          networkOptions
+        myRef.current,
+        { nodes, edges },
+        networkOptions
       );
     }
   }, [nodes, edges, networkOptions]);
-  return <Box className='graph-container' sx={{width: `calc(100% - ${props.panelWidth}px)`}}>
-    <Box ref={myRef} sx={{height: 'calc(100vh - 20px)'}} className={'mynetwork'} />
+  return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)` }}>
+    <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
   </Box>;
 };
