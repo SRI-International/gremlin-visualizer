@@ -2,6 +2,7 @@ const SERVER_URL = 'http://localhost:3001';
 export const QUERY_ENDPOINT = `${SERVER_URL}/query`;
 export const QUERY_RAW_ENDPOINT = `${SERVER_URL}/query-raw`;
 export const COMMON_GREMLIN_ERROR = 'Invalid query. Please execute a query to get a set of vertices';
+export let GRAPH_IMPL = "vis" // 'vis' | 'cytoscape' | 'sigma'
 export const ACTIONS = {
   SET_HOST: 'SET_HOST',
   SET_PORT: 'SET_PORT',
@@ -26,3 +27,11 @@ export const ACTIONS = {
 
 export const DISABLE_NODE_EDGE_EDIT = false;
 export const EDGE_ID_APPEND = 'L';
+/**
+ * To set initial labels to override the default labels, create an entry in the mapping
+ * below as per the example. 
+ */
+ export const INITIAL_LABEL_MAPPINGS = {
+  //  software: 'lang' 
+  }
+

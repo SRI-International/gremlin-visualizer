@@ -25,7 +25,7 @@ export const DetailsComponent = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
-  const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } =
+  const { nodeLabels, nodeLimit } =
     useSelector(selectOptions);
 
   const [editField, setEditField] = useState<null | string>(null);
@@ -41,7 +41,7 @@ export const DetailsComponent = () => {
     selectedType = _.get(selectedNode, 'type');
     selectedId = _.get(selectedNode, 'id');
     selectedProperties = _.get(selectedNode, 'properties');
-    stringifyObjectValues(selectedProperties);
+    selectedProperties = stringifyObjectValues(selectedProperties);
     selectedHeader = 'Node';
   } else if (!_.isEmpty(selectedEdge)) {
     hasSelected = true;
@@ -49,7 +49,7 @@ export const DetailsComponent = () => {
     selectedId = _.get(selectedEdge, 'id');
     selectedProperties = _.get(selectedEdge, 'properties');
     selectedHeader = 'Edge';
-    stringifyObjectValues(selectedProperties);
+    selectedProperties = stringifyObjectValues(selectedProperties);
   }
 
   useEffect(() => {
