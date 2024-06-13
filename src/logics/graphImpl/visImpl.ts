@@ -109,9 +109,9 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     network.on("dragging", function (params) {
       const edges: EdgeOptions = {
         smooth: {
-          enabled: false,
-          roundness: 10,
+          enabled: true,
           type: 'continuous',
+          roundness: 1,
         },
       };
       network!.setOptions({ physics: false, edges });
