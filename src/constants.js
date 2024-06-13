@@ -29,9 +29,9 @@ export const DISABLE_NODE_EDGE_EDIT = false;
 export const EDGE_ID_APPEND = 'L';
 /**
  * To set initial labels to override the default labels, create an entry in the mapping
- * below as per the example. 
+ * below as per the example.
  */
  export const INITIAL_LABEL_MAPPINGS = {
-  //  software: 'lang' 
+  //  software: 'lang'
   }
 
