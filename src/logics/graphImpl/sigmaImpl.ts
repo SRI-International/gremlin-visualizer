@@ -2,9 +2,11 @@ import FA2Layout from "graphology-layout-forceatlas2/worker";
 import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import { GraphData, GraphTypes, GraphOptions } from "../utils";
+import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
+import { createNodeImageProgram } from "@sigma/node-image";
+import getIcon from "../../assets/icons";
 
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
@@ -15,6 +17,13 @@ function createSigmaGraph(container: HTMLElement) {
     allowInvalidContainer: true,
     enableEdgeEvents: true,
     renderEdgeLabels: true,
+    defaultNodeType: "image",
+    nodeProgramClasses: {
+      image: createNodeImageProgram({
+        correctCentering: true,
+        objectFit: 'cover'
+      })
+    },
   });
   sigma.on("clickEdge", e => {
     store.dispatch(setSelectedEdge(e.edge))
@@ -92,7 +101,13 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   if (container && data) {
     for (let element of data.nodes) {
       if (!graph.nodes().includes(element.id!.toString())) {
-        graph.addNode(element.id!, { x: Math.random(), y: Math.random(), size: 5, label: element.label })
+        let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
+        if ( element.group !== undefined && !(element.group in nodeColorMap) ) {
+          nodeColorMap[`${element.group}`] = getColor()
+          store.dispatch(updateColorMap(nodeColorMap))
+        }
+        let color = element.group !== undefined ? nodeColorMap[element.group] : '#ffffff'
+        graph.addNode(element.id!, { x: Math.random(), y: Math.random(), size: 5, label: element.label, color: color, image: getIcon(element.group) })
       }
     }
     for (let id of graph!.nodes()) {

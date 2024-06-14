@@ -6,6 +6,7 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import Graph from "graphology";
+import getIcon from "../../assets/icons";
 
 
 let network: Network | null = null;
@@ -42,7 +43,7 @@ const defaultOptions: Options = {
     borderWidth: 2,
     font: {
       size: 11,
-    },
+    }
   },
   edges: {
     width: 2,
@@ -68,7 +69,14 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
         console.log(`add ${n}`)
-        nodes.add(n)
+        let icon =  getIcon(n.group)
+        if (icon !== null) {
+          let nIcon = Object.assign({}, n)
+          nIcon.image = icon
+          nIcon.shape = 'circularImage'
+          nodes.add(nIcon)
+        } else nodes.add(n)
+
       }
     }
     for (let e of data?.edges || []) {

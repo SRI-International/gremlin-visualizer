@@ -9,12 +9,14 @@ type GraphState = {
   edges: Edge[];
   selectedNode?: Node;
   selectedEdge?: Edge;
+  nodeColorMap: { [index: string]: string };
 };
 const initialState: GraphState = {
   nodes: [],
   edges: [],
   selectedNode: {},
   selectedEdge: {},
+  nodeColorMap: {},
 };
 
 const slice = createSlice({
@@ -72,6 +74,9 @@ const slice = createSlice({
       });
       return state;
     },
+    updateColorMap: (state, action) => {
+      Object.assign(state.nodeColorMap, action.payload);
+    }
   },
 });
 
@@ -82,6 +87,7 @@ export const {
   setSelectedEdge,
   setSelectedNode,
   refreshNodeLabels,
+  updateColorMap
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;
