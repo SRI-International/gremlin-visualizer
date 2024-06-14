@@ -1,7 +1,18 @@
-import { Fab, Grid, Table, TableBody, TableCell, TableRow, Typography, Button, Tooltip, TextField} from "@mui/material";
+import {
+  Fab,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Typography,
+  Button,
+  Tooltip,
+  TextField
+} from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { IdType } from "vis-network";
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +21,13 @@ import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
 import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, DISABLE_NODE_EDGE_EDIT, QUERY_RAW_ENDPOINT, EDGE_ID_APPEND} from "../../constants";
+import {
+  COMMON_GREMLIN_ERROR,
+  QUERY_ENDPOINT,
+  DISABLE_NODE_EDGE_EDIT,
+  QUERY_RAW_ENDPOINT,
+  EDGE_ID_APPEND
+} from "../../constants";
 import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
 import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
@@ -35,7 +52,7 @@ export const DetailsComponent = () => {
   let selectedType: any = null;
   let selectedId: IdType | undefined = undefined;
   let selectedProperties = null;
-  let selectedHeader : string | null = null;
+  let selectedHeader: string | null = null;
   if (!_.isEmpty(selectedNode)) {
     hasSelected = true;
     selectedType = _.get(selectedNode, 'type');
@@ -57,11 +74,6 @@ export const DetailsComponent = () => {
     setEditValue(null);
   }, [selectedNode, selectedEdge]);
 
-  const [value, setValue] = React.useState(0);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
   /**
    * Return a number of table rows with key-value cells for object properties
    * @param data
@@ -72,20 +84,20 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-                <TableCell><strong>{String(e[0])}</strong></TableCell>
-                <TableCell>
-                  {!DISABLE_NODE_EDGE_EDIT ? (
-                      <EditText
-                      name={String(e[0])}
-                      style={{ fontSize: '16px', border: '1px solid #ccc' }}
-                      onSave={onConfirmEdit}
-                      defaultValue={String(e[1])}
-                      showEditButton
-                    />
-                  ) : <strong>{String(e[0])}</strong>
-                  }
-                </TableCell>
-              </TableRow>;
+        <TableCell><strong>{String(e[0])}</strong></TableCell>
+        <TableCell>
+          {!DISABLE_NODE_EDGE_EDIT ? (
+            <EditText
+              name={String(e[0])}
+              style={{ fontSize: '16px', border: '1px solid #ccc' }}
+              onSave={onConfirmEdit}
+              defaultValue={String(e[1])}
+              showEditButton
+            />
+          ) : <strong>{String(e[0])}</strong>
+          }
+        </TableCell>
+      </TableRow>;
     });
   }
 
@@ -106,6 +118,7 @@ export const DetailsComponent = () => {
         onFetchQuery(response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
+        console.error(error)
         dispatch(setError(COMMON_GREMLIN_ERROR));
       });
   }
@@ -118,29 +131,6 @@ export const DetailsComponent = () => {
     if (selectedHeader === "Node") {
       query = `g.V('${selectedId}').property("${name}", "${value}")`;
       axios
-      .post(
-        QUERY_ENDPOINT,
-        {
-          host,
-          port,
-          query,
-          nodeLimit,
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      .then((response) => {
-        updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels, dispatch);
-      })
-      .catch((error) => {
-        const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-        dispatch(setError(errorMessage));
-      });
-    }
-    else {
-      query = `g.V().where(__.outE().hasId(${selectedId}))`;
-      editEdgeRawQuery(name, value)
-      .then(() => {
-      return axios
         .post(
           QUERY_ENDPOINT,
           {
@@ -150,19 +140,41 @@ export const DetailsComponent = () => {
             nodeLimit,
           },
           { headers: { 'Content-Type': 'application/json' } }
-        );})
+        )
         .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels, dispatch);
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
         })
         .catch((error) => {
           const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
           dispatch(setError(errorMessage));
         });
-
+    } else {
+      query = `g.V().where(__.outE().hasId(${selectedId}))`;
+      editEdgeRawQuery(name, value)
+        .then(() => {
+          return axios
+            .post(
+              QUERY_ENDPOINT,
+              {
+                host,
+                port,
+                query,
+                nodeLimit,
+              },
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+        })
+        .then((response) => {
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+          dispatch(setError(errorMessage));
+        });
     }
-  
   }
-  async function editEdgeRawQuery(name : string, value: string) {
+
+  async function editEdgeRawQuery(name: string, value: string) {
 
     const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
     try {
@@ -183,7 +195,7 @@ export const DetailsComponent = () => {
       dispatch(setError(errorMessage));
       throw error;
     }
-}
+  }
 
 
   return hasSelected && (<>

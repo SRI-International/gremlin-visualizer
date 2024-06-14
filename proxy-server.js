@@ -23,8 +23,7 @@ function mapToObj(inputMap) {
 
 function edgesToJson(edgeList) {
   return edgeList.map(
-    edge => (
-      {
+    edge => ({
       id: typeof edge.get('id') !== "string" ? JSON.stringify(edge.get('id')) : edge.get('id'),
       from: edge.get('from'),
       to: edge.get('to'),
@@ -46,7 +45,7 @@ function nodesToJson(nodeList) {
 }
 
 function makeQuery(query, nodeLimit) {
-  const nodeLimitQuery = !isNaN(nodeLimit) && Number(nodeLimit) > 0 ? `.limit(${nodeLimit})`: '';
+  const nodeLimitQuery = !isNaN(nodeLimit) && Number(nodeLimit) > 0 ? `.limit(${nodeLimit})` : '';
   return `${query}${nodeLimitQuery}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
 
 }
@@ -58,14 +57,17 @@ app.post('/query', (req, res, next) => {
   const query = req.body.query;
   const isRawQuery = req.body.isRawQuery;
 
-  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
+  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, {
+    traversalSource: 'g',
+    mimeType: 'application/json'
+  });
   client.submit(makeQuery(query, nodeLimit), {})
     .then((result) => {
       res.send(nodesToJson(result._items));
-})
+    })
     .catch((err) => {
       next(err);
-});
+    });
 
 });
 
@@ -74,16 +76,17 @@ app.post('/query-raw', (req, res, next) => {
   const gremlinPort = req.body.port;
   const query = req.body.query;
 
-  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
-    client.submit(query, {})
+  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, {
+    traversalSource: 'g',
+    mimeType: 'application/json'
+  });
+  client.submit(query, {})
     .then((result) => {
       res.send(result);
-})
+    })
     .catch((err) => {
       next(err);
-
-});
-
+    });
 });
 
 app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${port}!`));
