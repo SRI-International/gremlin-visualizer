@@ -1,11 +1,10 @@
-import { DataInterfaceEdges, DataInterfaceNodes, EdgeOptions, Network, Options } from "vis-network";
+import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import { GraphData, GraphOptions, GraphTypes } from "../utils";
+import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
-import Graph from "graphology";
 import getIcon from "../../assets/icons";
 
 
@@ -51,42 +50,63 @@ const defaultOptions: Options = {
       size: 11,
     },
     smooth: {
+      enabled: true,
       type: 'dynamic',
+      roundness: 0,
     },
   },
 } as Options
 
-function getOptions(options?: GraphOptions) {
-  const opts = {...defaultOptions}
-  if(options) {
+function getOptions(options?: GraphOptions): Options {
+  const opts = { ...defaultOptions }
+  if (options) {
     opts.physics.enabled = options.isPhysicsEnabled
+    if (!options.isPhysicsEnabled) {
+      opts.edges!.smooth = {
+        enabled: true,
+        type: 'continuous',
+        roundness: 1
+      }
+    } else {
+      opts.edges!.smooth = {
+        enabled: true,
+        type: 'dynamic',
+        roundness: 0
+      }
+    }
   }
   return opts
+}
+
+function toVisEdge(edge: EdgeData) {
+  return { ...edge, type: edge.label, arrows: { to: { enabled: true, scaleFactor: 0.5 } } }
+}
+
+function toVisNode(node: NodeData): Node {
+  let gNode = { ...node, ...{ group: node.type } }
+  let icon = getIcon(node.label);
+  if (icon) {
+    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
+  }
+  return gNode
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (network) {
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
-        console.log(`add ${n}`)
-        let icon =  getIcon(n.group)
-        if (icon !== null) {
-          let nIcon = Object.assign({}, n)
-          nIcon.image = icon
-          nIcon.shape = 'circularImage'
-          nodes.add(nIcon)
-        } else nodes.add(n)
-
+        nodes.add(toVisNode(n))
+      } else {
+        nodes.update(toVisNode(n))
       }
     }
     for (let e of data?.edges || []) {
       if (!edges!.get(e.id as Id)) {
-        edges.add(e)
+        edges.add(toVisEdge(e))
       }
     }
     for (let n of nodes.stream().keys()) {
       if (!data?.nodes.map(x => x.id).includes(n)) {
-        console.log(`remove ${n}`)
         nodes.remove(n)
       }
     }
@@ -115,14 +135,10 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       }
     })
     network.on("dragging", function (params) {
-      const edges: EdgeOptions = {
-        smooth: {
-          enabled: true,
-          type: 'continuous',
-          roundness: 1,
-        },
-      };
-      network!.setOptions({ physics: false, edges });
+      // disable physics only when dragging a node
+      if (!params.nodes[0]) {
+        return
+      }
       store.dispatch(setIsPhysicsEnabled(false))
     });
   }

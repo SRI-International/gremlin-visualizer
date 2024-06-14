@@ -17,17 +17,31 @@ export const getColor = () => {
   return color;
 }
 
-interface NodeData extends Node {
-  properties: any;
-  type: string;
-  edges?: Edge[];
+type IdType = string | number
+
+export interface EdgeData {
+  id: IdType
+  from: IdType
+  to: IdType
+  label: string
+  properties: any
+  [key:string]: any
+}
+
+export interface NodeData {
+  id: IdType
+  properties: any
+  label: string
+  type: string
+  edges: EdgeData[]
+  [key:string]: any
 }
 
 export type GraphTypes = Sigma | Network | cytoscape.Core | null
 
 export interface GraphData {
-  nodes: Node[],
-  edges: Edge[]
+  nodes: NodeData[],
+  edges: EdgeData[]
 }
 
 export interface GraphOptions {
@@ -57,12 +71,12 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
         nodeLabelMap[type] = field;
       }
       const labelField = nodeLabelMap[type];
-      const label = labelField && labelField in node.properties ? node.properties[labelField] : `${type}:${node.id}`;
-      const gNode: NodeData = { id: node.id, label: String(label), group: node.label, properties: node.properties, type };
+      const label = labelField && labelField in node.properties ? node.properties[labelField] : defaultNodeLabel(node);
+      node = {...node, label, type}
 
-      nodes.push(gNode);
+      nodes.push(node);
 
-      edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label, arrows: { to: { enabled: true, scaleFactor: 0.5 } } })));
+      edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label })));
     }
   });
 
@@ -79,4 +93,7 @@ export const stringifyObjectValues = (obj: any) => {
   return obj;
 };
 
+export function defaultNodeLabel(node: any) {
+  return { ...node, label: `${node.type}:${node.id}` }
+}
 
