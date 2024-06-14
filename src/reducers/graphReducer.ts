@@ -5,8 +5,8 @@ import _ from 'lodash';
 import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 
 type GraphState = {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: NodeData[];
+  edges: EdgeData[];
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   nodeColorMap: { [index: string]: string };
