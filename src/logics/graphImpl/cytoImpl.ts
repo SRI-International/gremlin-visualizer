@@ -79,7 +79,6 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
   if(container && data) {
 
     let nodes: NodeDefinition[] = data.nodes?.map(x => {
-      console.log(x)
       let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
       if ( x.type !== undefined && !(x.type in nodeColorMap) ) {
         nodeColorMap[`${x.type}`] = getColor()
