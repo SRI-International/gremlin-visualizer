@@ -1,20 +1,20 @@
 // import vis from 'vis-network';
 import { createSlice } from '@reduxjs/toolkit';
-import { Edge, Node } from 'vis-network';
 import { RootState } from '../app/store';
 import _ from 'lodash';
+import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 
 type GraphState = {
-  nodes: Node[];
-  edges: Edge[];
-  selectedNode?: Node;
-  selectedEdge?: Edge;
+  nodes: NodeData[];
+  edges: EdgeData[];
+  selectedNode?: NodeData;
+  selectedEdge?: EdgeData;
 };
 const initialState: GraphState = {
   nodes: [],
   edges: [],
-  selectedNode: {},
-  selectedEdge: {},
+  selectedNode: undefined,
+  selectedEdge: undefined,
 };
 
 const slice = createSlice({
@@ -25,8 +25,8 @@ const slice = createSlice({
       state = Object.assign({}, state);
       state.nodes = [];
       state.edges = [];
-      state.selectedNode = {};
-      state.selectedEdge = {};
+      state.selectedNode = undefined;
+      state.selectedEdge = undefined;
       return state;
     },
     addNodes: (state, action) => {
@@ -67,7 +67,7 @@ const slice = createSlice({
       if (nodeId !== null) {
         state.selectedNode = _.find(state.nodes, node => node.id == nodeId);
       }
-      state.selectedEdge = {};
+      state.selectedEdge = undefined;
       return state;
     },
     setSelectedEdge: (state, action) => {
@@ -76,21 +76,22 @@ const slice = createSlice({
       if (edgeId !== null) {
         state.selectedEdge = _.find(state.edges, edge => edge.id === edgeId);
       }
-      state.selectedNode = {};
+      state.selectedNode = undefined;
       return state;
     },
     refreshNodeLabels: (state, action) => {
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
-      state = Object.assign({}, state);
       state.nodes = state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
-          return { ...node, label };
+          if (label === undefined)
+            return defaultNodeLabel(node)
+          else
+            return { ...node, label };
         }
-        return node;
+        return defaultNodeLabel(node)
       });
-      return state;
     },
   },
 });
