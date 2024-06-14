@@ -41,7 +41,7 @@ const slice = createSlice({
       const { updateId, updatedElement } = action.payload;
       const stateNodeIndex = state.nodes.findIndex(node => node.id === updateId);
       if (stateNodeIndex !== -1) {
-        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updatedElement};
+        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updatedElement };
         state.selectedNode = updatedElement;
       } else {
         console.error("Node not found in state or updatedNodes");
@@ -51,7 +51,7 @@ const slice = createSlice({
       const { updateId, updatedElement } = action.payload;
       const stateEdgeIndex = state.edges.findIndex(edge => edge.id === updateId);
       if (stateEdgeIndex !== -1) {
-        state.edges[stateEdgeIndex] = { ...state.edges[stateEdgeIndex], ...updatedElement};
+        state.edges[stateEdgeIndex] = { ...state.edges[stateEdgeIndex], ...updatedElement };
         state.selectedEdge = updatedElement;
       } else {
         console.error("Edge not found in state or updatedNodes");
@@ -88,11 +88,11 @@ const slice = createSlice({
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
           if (label === undefined)
-            return defaultNodeLabel(node)
+            return { ...node, ...{ label: defaultNodeLabel(node) } }
           else
             return { ...node, label };
         }
-        return defaultNodeLabel(node)
+        return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },
     updateColorMap: (state, action) => {
