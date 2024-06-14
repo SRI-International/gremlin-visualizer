@@ -1,7 +1,18 @@
-import { Fab, Grid, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material";
+import {
+  Fab,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Typography,
+  Button,
+  Tooltip,
+  TextField
+} from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IdType } from "vis-network";
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,8 +21,22 @@ import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
 import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
-import { onFetchQuery } from "../../logics/actionHelper";
+import {
+  COMMON_GREMLIN_ERROR,
+  QUERY_ENDPOINT,
+  DISABLE_NODE_EDGE_EDIT,
+  QUERY_RAW_ENDPOINT,
+  EDGE_ID_APPEND
+} from "../../constants";
+import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
+import { EditText, EditTextarea } from 'react-edit-text';
+import 'react-edit-text/dist/index.css';
+
+type EditEvent = {
+  name: string;
+  value: string;
+  previousValue: string;
+};
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
@@ -20,11 +45,14 @@ export const DetailsComponent = () => {
   const { nodeLabels, nodeLimit } =
     useSelector(selectOptions);
 
+  const [editField, setEditField] = useState<null | string>(null);
+  const [editValue, setEditValue] = useState<null | string>(null);
+
   let hasSelected = false;
-  let selectedType = null;
+  let selectedType: any = null;
   let selectedId: IdType | undefined = undefined;
   let selectedProperties = null;
-  let selectedHeader = null;
+  let selectedHeader: string | null = null;
   if (!_.isEmpty(selectedNode)) {
     hasSelected = true;
     selectedType = _.get(selectedNode, 'type');
@@ -41,6 +69,11 @@ export const DetailsComponent = () => {
     selectedProperties = stringifyObjectValues(selectedProperties);
   }
 
+  useEffect(() => {
+    setEditField(null);
+    setEditValue(null);
+  }, [selectedNode, selectedEdge]);
+
   /**
    * Return a number of table rows with key-value cells for object properties
    * @param data
@@ -49,7 +82,22 @@ export const DetailsComponent = () => {
   function getRows(data: any) {
     if (data == null) return;
     return Object.entries(data).map(e => {
-      return <TableRow><TableCell><strong>{String(e[0])}</strong></TableCell><TableCell>{String(e[1])}</TableCell></TableRow>;
+
+      return <TableRow>
+        <TableCell><strong>{String(e[0])}</strong></TableCell>
+        <TableCell>
+          {!DISABLE_NODE_EDGE_EDIT ? (
+            <EditText
+              name={String(e[0])}
+              style={{ fontSize: '16px', border: '1px solid #ccc' }}
+              onSave={onConfirmEdit}
+              defaultValue={String(e[1])}
+              showEditButton
+            />
+          ) : <strong>{String(e[0])}</strong>
+          }
+        </TableCell>
+      </TableRow>;
     });
   }
 
@@ -70,9 +118,85 @@ export const DetailsComponent = () => {
         onFetchQuery(response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
+        console.warn(error)
         dispatch(setError(COMMON_GREMLIN_ERROR));
       });
   }
+
+  function onConfirmEdit({ name, value, previousValue }: EditEvent) {
+    setEditField(null);
+    setEditValue(null);
+    let query = '';
+    value = value.replace(/"/g, '\\"');
+    if (selectedHeader === "Node") {
+      query = `g.V('${selectedId}').property("${name}", "${value}")`;
+      axios
+        .post(
+          QUERY_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+        .then((response) => {
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+          dispatch(setError(errorMessage));
+        });
+    } else {
+      query = `g.V().where(__.outE().hasId(${selectedId}))`;
+      editEdgeRawQuery(name, value)
+        .then(() => {
+          return axios
+            .post(
+              QUERY_ENDPOINT,
+              {
+                host,
+                port,
+                query,
+                nodeLimit,
+              },
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+        })
+        .then((response) => {
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+          dispatch(setError(errorMessage));
+        });
+    }
+  }
+
+  async function editEdgeRawQuery(name: string, value: string) {
+
+    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+    try {
+      const response = await axios
+        .post(
+          QUERY_RAW_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      return true;
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
+      dispatch(setError(errorMessage));
+      throw error;
+    }
+  }
+
 
   return hasSelected && (<>
         <h2>Information: {selectedHeader}</h2>
