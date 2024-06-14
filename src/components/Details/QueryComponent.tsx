@@ -33,6 +33,7 @@ const Query = ({}) => {
         onFetchQuery(response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
+        console.warn(error)
         dispatch(setError(COMMON_GREMLIN_ERROR));
       });
   }
