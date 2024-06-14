@@ -1,11 +1,13 @@
-import { Edge, Node } from "vis-network";
 import cy, { NodeDefinition } from "cytoscape";
-import { GraphData, GraphTypes, GraphOptions } from "../utils";
+import { GraphData, GraphTypes, GraphOptions, getColor, NodeData, EdgeData } from "../utils";
 import { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import cola from "cytoscape-cola";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
+import { useDispatch, useSelector } from "react-redux";
+import _ from "lodash";
+import getIcon from "../../assets/icons";
 
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
@@ -13,11 +15,13 @@ const opts: ColaLayoutOptions = { name: 'cola', infinite: true, animate: true, c
 
 cy.use(cola)
 
-function toCyNode(n: Node): cy.NodeDefinition {
-  return { group: "nodes", data: { ...n, id: n.id!.toString() } }
+function toCyNode(n: NodeData): cy.NodeDefinition {
+  let nodeColorMap = store.getState().graph.nodeColorMap
+  let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
+  return { group: "nodes", data: { ...n, id: n.id!.toString() }, style: { 'background-color': color, 'background-opacity': 0.7, 'border-width': '3px', 'border-color': color, 'background-image': getIcon(n.type), 'background-fit': 'contain'} }
 }
 
-function toCyEdge(e: Edge): cy.EdgeDefinition {
+function toCyEdge(e: EdgeData): cy.EdgeDefinition {
   return {
     group: "edges",
     data: { ...e, id: e.id!.toString(), source: e.from!.toString() , target: e.to!.toString() }
@@ -53,6 +57,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
               width: 1,
               "curve-style": "bezier",
               "target-arrow-shape": 'triangle',
+              "label": "data(label)"
             }
           }
         ]
@@ -72,7 +77,15 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     return graph;
   }
   if(container && data) {
-    let nodes: NodeDefinition[] = data.nodes?.map(x => toCyNode(x)) || []
+
+    let nodes: NodeDefinition[] = data.nodes?.map(x => {
+      let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
+      if ( x.type !== undefined && !(x.type in nodeColorMap) ) {
+        nodeColorMap[`${x.type}`] = getColor()
+        store.dispatch(updateColorMap(nodeColorMap))
+      }
+      return toCyNode(x)
+    }) || []
     let edges = data.edges?.map(x => toCyEdge(x)) || []
     for(let n of nodes) {
       if(!graph.nodes().map(x => x.id()).includes(n.data.id!)) {

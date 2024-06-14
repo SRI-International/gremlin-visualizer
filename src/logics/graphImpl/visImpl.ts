@@ -42,7 +42,7 @@ const defaultOptions: Options = {
     borderWidth: 2,
     font: {
       size: 11,
-    },
+    }
   },
   edges: {
     width: 2,
@@ -86,7 +86,7 @@ function toVisNode(node: NodeData): Node {
   let gNode = { ...node, ...{ group: node.type } }
   let icon = getIcon(node.label);
   if (icon) {
-    gNode = { ...gNode, ...{ image: icon, shape: 'image' } }
+    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
   }
   return gNode
 }
