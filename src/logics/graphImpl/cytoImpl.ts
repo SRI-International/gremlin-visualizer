@@ -1,6 +1,5 @@
-import { Edge, Node } from "vis-network";
 import cy, { NodeDefinition } from "cytoscape";
-import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
+import { GraphData, GraphTypes, GraphOptions, getColor, NodeData, EdgeData } from "../utils";
 import { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
 import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
@@ -16,13 +15,13 @@ const opts: ColaLayoutOptions = { name: 'cola', infinite: true, animate: true, c
 
 cy.use(cola)
 
-function toCyNode(n: Node): cy.NodeDefinition {
+function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
-  let color = n.group !== undefined ? nodeColorMap[n.group] : '#ffffff';
-  return { group: "nodes", data: { ...n, id: n.id!.toString() }, style: { 'background-color': color, 'background-opacity': 0.7, 'border-width': '3px', 'border-color': color, 'background-image': getIcon(n.group), 'background-fit': 'contain'} }
+  let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
+  return { group: "nodes", data: { ...n, id: n.id!.toString() }, style: { 'background-color': color, 'background-opacity': 0.7, 'border-width': '3px', 'border-color': color, 'background-image': getIcon(n.type), 'background-fit': 'contain'} }
 }
 
-function toCyEdge(e: Edge): cy.EdgeDefinition {
+function toCyEdge(e: EdgeData): cy.EdgeDefinition {
   return {
     group: "edges",
     data: { ...e, id: e.id!.toString(), source: e.from!.toString() , target: e.to!.toString() }
@@ -79,20 +78,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
   }
   if(container && data) {
 
-    // if (data.nodes) {
-    //   let groups = [...new Set(data.nodes.map(node => node.group))]
-    //   let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-    //   let groupsAssigned = Object.keys(nodeColorMap)
-    //   let newGroups = _.difference(groups, groupsAssigned)
-    //   newGroups.map(group => nodeColorMap[`${group}`] = getColor())
-    //   store.dispatch(updateColorMap(nodeColorMap))
-    //
-    // }
-
     let nodes: NodeDefinition[] = data.nodes?.map(x => {
+      console.log(x)
       let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-      if ( x.group !== undefined && !(x.group in nodeColorMap) ) {
-        nodeColorMap[`${x.group}`] = getColor()
+      if ( x.type !== undefined && !(x.type in nodeColorMap) ) {
+        nodeColorMap[`${x.type}`] = getColor()
         store.dispatch(updateColorMap(nodeColorMap))
       }
       return toCyNode(x)

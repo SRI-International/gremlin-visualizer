@@ -102,12 +102,12 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     for (let element of data.nodes) {
       if (!graph.nodes().includes(element.id!.toString())) {
         let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-        if ( element.group !== undefined && !(element.group in nodeColorMap) ) {
-          nodeColorMap[`${element.group}`] = getColor()
+        if ( element.type !== undefined && !(element.type in nodeColorMap) ) {
+          nodeColorMap[`${element.type}`] = getColor()
           store.dispatch(updateColorMap(nodeColorMap))
         }
-        let color = element.group !== undefined ? nodeColorMap[element.group] : '#ffffff'
-        graph.addNode(element.id!, { x: Math.random(), y: Math.random(), size: 5, label: element.label, color: color, image: getIcon(element.group) })
+        let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
+        graph.addNode(element.id!, { x: Math.random(), y: Math.random(), size: 5, label: element.label, color: color, image: getIcon(element.type) })
       }
     }
     for (let id of graph!.nodes()) {
