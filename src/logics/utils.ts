@@ -4,6 +4,19 @@ import { NodeLabel } from '../reducers/optionReducer';
 import cytoscape from "cytoscape";
 import Sigma from "sigma";
 
+let convert = require('color-convert')
+
+let hues = [0, 240, 60, 120, 280, 30, 310, 180]
+let hueIndex = 0;
+let light = 50
+
+export const getColor = () => {
+  let color = '#' + convert.hsl.hex(hues[hueIndex++], 100, light)
+  if (hueIndex == 8) light = light === 50 ? 75 : light === 75 ? 25 : 50
+  hueIndex %= 8;
+  return color;
+}
+
 type IdType = string | number
 
 export interface EdgeData {
@@ -12,7 +25,8 @@ export interface EdgeData {
   to: IdType
   label: string
   properties: any
-  [key:string]: any
+
+  [key: string]: any
 }
 
 export interface NodeData {
@@ -52,6 +66,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
 
   _.forEach(nodeList, (node) => {
     const type = node.label;
+    node = { ...node, type }
     if (type) {
       if (!(type in nodeLabelMap)) {
         const field = selectRandomField(node.properties);
@@ -61,7 +76,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       }
       const labelField = nodeLabelMap[type];
       const label = labelField && labelField in node.properties ? node.properties[labelField] : defaultNodeLabel(node);
-      node = {...node, label, type}
+      node = { ...node, label }
 
       nodes.push(node);
 
@@ -83,7 +98,7 @@ export const stringifyObjectValues = (obj: any) => {
 };
 
 export function defaultNodeLabel(node: any) {
-  return { ...node, label: `${node.type}:${node.id}` }
+  return `${node.type}:${node.id}`
 }
 
 
