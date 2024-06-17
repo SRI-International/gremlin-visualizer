@@ -8,7 +8,7 @@ import {
   Typography,
   Button,
   Tooltip,
-  TextField
+  TextField, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectGremlin, setError } from "../../reducers/gremlinReducer";
 import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
-import _ from "lodash";
+import _, { add } from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
 import {
   COMMON_GREMLIN_ERROR,
@@ -42,11 +42,13 @@ export const DetailsComponent = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
-  const { nodeLabels, nodeLimit } =
-    useSelector(selectOptions);
+  const { nodeLabels, nodeLimit } = useSelector(selectOptions);
 
   const [editField, setEditField] = useState<null | string>(null);
   const [editValue, setEditValue] = useState<null | string>(null);
+  const [openAddProperty, setOpenAddProperty] = useState<boolean>(false);
+  const [addPropertyName, setAddPropertyName] = useState<null | string>(null);
+  const [addPropertyValue, setAddPropertyValue] = useState<null | string>(null);
 
   let hasSelected = false;
   let selectedType: any = null;
@@ -123,11 +125,8 @@ export const DetailsComponent = () => {
       });
   }
 
-  function onConfirmEdit({ name, value, previousValue }: EditEvent) {
-    setEditField(null);
-    setEditValue(null);
+  function updateElementProperty(name: string, value: string) {
     let query = '';
-    value = value.replace(/"/g, '\\"');
     if (selectedHeader === "Node") {
       query = `g.V('${selectedId}').property("${name}", "${value}")`;
       axios
@@ -197,6 +196,24 @@ export const DetailsComponent = () => {
     }
   }
 
+  function onConfirmEdit({ name, value, previousValue }: EditEvent) {
+    setEditField(null);
+    setEditValue(null);
+    value = value.replace(/"/g, '\\"');
+    updateElementProperty(name, value)
+  }
+
+  function onConfirmAddProperty() {
+    if (addPropertyName === null || addPropertyValue === null) return;
+    updateElementProperty(addPropertyName, addPropertyValue)
+    onCancelAddProperty()
+  }
+
+  function onCancelAddProperty() {
+    setOpenAddProperty(false)
+    setAddPropertyName(null)
+    setAddPropertyValue(null)
+  }
 
   return hasSelected && (<>
         <h2>Information: {selectedHeader}</h2>
@@ -241,11 +258,54 @@ export const DetailsComponent = () => {
             </Table>
           </Grid>
         </Grid>
+        <Grid
+          container
+          spacing={0}
+          direction="column"
+          alignItems="center"
+          justifyContent="center"
+          paddingTop={2}
+        >
+          <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
+            Add Property
+          </Button>
+        </Grid>
+        <Dialog
+          open={openAddProperty}>
+          <DialogTitle>Add Property</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="propertyName"
+                  label="Property Name"
+                  variant="standard"
+                  onChange={e => setAddPropertyName(e.target.value)}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  margin="dense"
+                  id="propertyValue"
+                  label="Property Value"
+                  variant="standard"
+                  onChange={e => setAddPropertyValue(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button variant='outlined' onClick={onCancelAddProperty}>Cancel</Button>
+            <Button variant='contained' onClick={onConfirmAddProperty}>Add</Button>
+          </DialogActions>
+        </Dialog>
+
       </>
     ) ||
     (<Grid item xs={12} sm={12} md={12}>
       <Grid container>
-
         <Typography>No Nodes Selected</Typography>
       </Grid>
     </Grid>)
