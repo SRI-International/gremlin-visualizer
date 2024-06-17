@@ -86,12 +86,12 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-        <TableCell><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{ width: 1, height: 1 }}><strong>{String(e[0])}</strong></TableCell>
         <TableCell>
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
               name={String(e[0])}
-              style={{ fontSize: '16px', border: '1px solid #ccc' }}
+              style={{ fontSize: '14px', border: '1px solid #ccc', height: '28px', lineHeight: '28px'}}
               onSave={onConfirmEdit}
               defaultValue={String(e[1])}
               showEditButton
@@ -246,11 +246,11 @@ export const DetailsComponent = () => {
             <Table aria-label="simple table">
               <TableBody>
                 <TableRow key={'type'}>
-                  <TableCell scope="row"><strong>Type</strong></TableCell>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>Type</strong></TableCell>
                   <TableCell align="left">{String(selectedType)}</TableCell>
                 </TableRow>
                 <TableRow key={'id'}>
-                  <TableCell scope="row"><strong>ID</strong></TableCell>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>ID</strong></TableCell>
                   <TableCell align="left">{String(selectedId)}</TableCell>
                 </TableRow>
                 {getRows(selectedProperties)}
