@@ -104,10 +104,13 @@ export const ModalDialogComponent = () => {
           component: 'form',
           onSubmit: handleSubmit,
         }}
+        maxWidth='sm'
+        fullWidth={true}
       >
         <DialogTitle>Add New Node</DialogTitle>
         <DialogContent>
           <TextField
+            autoFocus
             required
             margin="dense"
             name="type"
@@ -124,7 +127,7 @@ export const ModalDialogComponent = () => {
               <React.Fragment key={index}>
                 <Grid item xs={5}>
                   <TextField
-                    autoFocus={index === 0}
+                    // autoFocus={index === 0}
                     required
                     margin="dense"
                     name="propertyName"
