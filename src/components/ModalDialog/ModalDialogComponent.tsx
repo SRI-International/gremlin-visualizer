@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectDialog, closeDialog,} from '../../reducers/dialogReducer';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from '@mui/material';
@@ -26,10 +26,15 @@ export const ModalDialogComponent = () => {
   const [duplicateError, setDuplicateError] = useState<string>('');
 
 
+  useEffect(() => {
+    if (isDialogOpen) {
+        setFormFields([{ propertyName: '', propertyValue: '' }]);
+        setType('');
+        setDuplicateError('');
+    }
+  }, [isDialogOpen]);
+
   const handleClose = () => {
-    setFormFields([{ propertyName: '', propertyValue: '' }]);
-    setType('');
-    setDuplicateError('');
     dispatch(closeDialog());
   };
 
