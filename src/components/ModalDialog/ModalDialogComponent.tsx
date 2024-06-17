@@ -127,7 +127,6 @@ export const ModalDialogComponent = () => {
               <React.Fragment key={index}>
                 <Grid item xs={5}>
                   <TextField
-                    // autoFocus={index === 0}
                     required
                     margin="dense"
                     name="propertyName"
