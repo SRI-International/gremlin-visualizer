@@ -262,8 +262,6 @@ export const DetailsComponent = () => {
           container
           spacing={0}
           direction="column"
-          alignItems="center"
-          justifyContent="center"
           paddingTop={2}
         >
           <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
