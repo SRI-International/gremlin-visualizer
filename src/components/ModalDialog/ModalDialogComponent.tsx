@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDialog, closeDialog,} from '../../reducers/dialogReducer';
+import { selectDialog, closeDialog, } from '../../reducers/dialogReducer';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from '@mui/material';
 import axios from 'axios';
 import { manualAddNode } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import {
-    COMMON_GREMLIN_ERROR,
-    QUERY_ENDPOINT,
-  } from "../../constants";
+  COMMON_GREMLIN_ERROR,
+  QUERY_ENDPOINT,
+} from "../../constants";
 import { selectOptions } from '../../reducers/optionReducer';
 
 type FormField = {
@@ -28,9 +28,9 @@ export const ModalDialogComponent = () => {
 
   useEffect(() => {
     if (isDialogOpen) {
-        setFormFields([{ propertyName: '', propertyValue: '' }]);
-        setType('');
-        setDuplicateError('');
+      setFormFields([{ propertyName: '', propertyValue: '' }]);
+      setType('');
+      setDuplicateError('');
     }
   }, [isDialogOpen]);
 
@@ -49,8 +49,8 @@ export const ModalDialogComponent = () => {
 
   const addFields = () => {
     let object = {
-        propertyName: '',
-        propertyValue: ''
+      propertyName: '',
+      propertyValue: ''
     };
     setFormFields([...formFields, object]);
   };
@@ -75,8 +75,8 @@ export const ModalDialogComponent = () => {
 
     let query = `g.addV('${type}')`;
     for (const [key, value] of Object.entries(formFields)) {
-        query += `.property('${value.propertyName}', '${value.propertyValue}')`;
-      }
+      query += `.property('${value.propertyName}', '${value.propertyValue}')`;
+    }
     axios
       .post(
         QUERY_ENDPOINT,
@@ -89,7 +89,7 @@ export const ModalDialogComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        const addedNode = [{...response.data[0], x, y}]
+        const addedNode = [{ ...response.data[0], x, y }]
         manualAddNode(addedNode, nodeLabels, dispatch);
       })
       .catch((error) => {
@@ -124,7 +124,7 @@ export const ModalDialogComponent = () => {
             onChange={(e) => setType(e.target.value)}
             fullWidth
             variant="standard"
-            sx={{paddingBottom : 2}}
+            sx={{ paddingBottom: 2 }}
           />
           {duplicateError && <p style={{ color: 'red' }}>{duplicateError}</p>}
           <Grid container spacing={2}>
@@ -154,7 +154,7 @@ export const ModalDialogComponent = () => {
                     variant="standard"
                   />
                 </Grid>
-                <Grid item xs={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
+                <Grid item xs={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                   <Button onClick={() => removeFields(index)} variant="outlined" color="secondary">
                     Remove
                   </Button>
