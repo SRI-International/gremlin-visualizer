@@ -25,7 +25,7 @@ export const updateOnConfirm = (elementType: string | null, updateId: IdType | u
     let updatedElement = nodes[0];
     store.dispatch(updateNode({ updateId, updatedElement }));
   } else {
-    let updatedElement = edges[0];
+    let updatedElement = edges.find(e => e.id == updateId);
     store.dispatch(updateEdge({ updateId, updatedElement }));
   }
   store.dispatch(addQueryHistory(query));
