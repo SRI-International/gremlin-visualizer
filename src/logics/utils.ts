@@ -21,6 +21,8 @@ export interface NodeData {
   label: string
   type: string
   edges: EdgeData[]
+  x: any
+  y: any
   [key:string]: any
 }
 
@@ -83,3 +85,5 @@ export const stringifyObjectValues = (obj: any) => {
 export function defaultNodeLabel(node: any) {
   return { ...node, label: `${node.type}:${node.id}` }
 }
+
+
