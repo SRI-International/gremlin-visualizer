@@ -7,7 +7,7 @@ import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
 
-
+export const layoutOptions = ['force-directed']
 let network: Network | null = null;
 const nodes = new DataSet({})
 const edges = new DataSet({})

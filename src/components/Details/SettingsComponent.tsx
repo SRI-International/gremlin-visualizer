@@ -1,11 +1,15 @@
 import {
   Divider,
   Fab,
+  FormControl,
   FormControlLabel,
   Grid,
   IconButton,
+  InputLabel,
   List,
   ListItem,
+  MenuItem,
+  Select,
   Switch,
   TextField,
   Tooltip,
@@ -13,7 +17,7 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNodeLabel,
@@ -26,6 +30,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
+import { applyLayout, layoutOptions } from "../../logics/graph";
 
 
 type NodeLabelListProps = {
@@ -91,6 +96,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
+  const [selectedLayout, setSelectedLayout] = useState('force-directed');
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -145,25 +151,6 @@ export const Settings = () => {
             variant="standard"
           />
         </form>
-        <Tooltip
-          title="Automatically stabilize the graph"
-          aria-label="add"
-        >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={graphOptions.isPhysicsEnabled}
-                onChange={() => {
-                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
-                }}
-                value="physics"
-                color="primary"
-              />
-            }
-            label="Enable Physics"
-          />
-        </Tooltip>
-        <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Tooltip
@@ -183,6 +170,42 @@ export const Settings = () => {
         </Tooltip>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">Layout</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={selectedLayout}
+            label="Layout"
+            onChange={(x) => {
+              applyLayout(x.target.value)
+              setSelectedLayout(x.target.value)
+            }}
+          >
+            {layoutOptions.map(x => <MenuItem value={x}>{x}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <Tooltip
+          title="Automatically stabilize the graph"
+          aria-label="add"
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={graphOptions.isPhysicsEnabled}
+                onChange={() => {
+                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
+                }}
+                value="physics"
+                color="primary"
+              />
+            }
+            label="Enable Physics"
+          />
+        </Tooltip>
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>

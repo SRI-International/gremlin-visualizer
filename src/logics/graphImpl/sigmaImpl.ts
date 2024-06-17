@@ -8,6 +8,7 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
 
+export const layoutOptions = ['force-directed', 'hierarchical', 'circular']
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
@@ -122,4 +123,8 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     }
   }
   return sigma;
+}
+
+export function applyLayout(name: string) {
+ return
 }

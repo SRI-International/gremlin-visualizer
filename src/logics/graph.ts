@@ -1,15 +1,15 @@
 import { GRAPH_IMPL } from "../constants";
-import { getCytoGraph } from "./graphImpl/cytoImpl";
-import { getSigmaGraph } from "./graphImpl/sigmaImpl";
-import { getVisNetwork } from "./graphImpl/visImpl";
+import { getCytoGraph, applyLayout as cytoLayout, layoutOptions as cytoLayouts  } from "./graphImpl/cytoImpl";
+import { getSigmaGraph, applyLayout as sigmaLayout, layoutOptions as sigmaLayouts } from "./graphImpl/sigmaImpl";
+import { getVisNetwork, layoutOptions as visLayouts } from "./graphImpl/visImpl";
 
-const getGraph = (() => {
+const { getGraph, applyLayout, layoutOptions } = (() => {
   if (GRAPH_IMPL === "cytoscape") {
-    return getCytoGraph;
+    return { getGraph: getCytoGraph, applyLayout: cytoLayout, layoutOptions: cytoLayouts };
   } else if (GRAPH_IMPL === "sigma") {
-    return getSigmaGraph;
+    return { getGraph: getSigmaGraph, applyLayout: sigmaLayout, layoutOptions: sigmaLayouts };
   } else {
-    return getVisNetwork;
+    return { getGraph: getVisNetwork, applyLayout: sigmaLayout, layoutOptions: visLayouts };
   }
 })();
-export { getGraph };
+export { getGraph, applyLayout, layoutOptions };
