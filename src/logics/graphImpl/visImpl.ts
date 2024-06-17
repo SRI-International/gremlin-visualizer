@@ -146,3 +146,6 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
   return network;
 }
 
+export function applyLayout(name: string) {
+
+}

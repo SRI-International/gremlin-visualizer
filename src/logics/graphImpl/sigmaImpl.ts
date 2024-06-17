@@ -7,8 +7,10 @@ import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
+import { circular } from "graphology-layout";
+import { animateNodes } from "sigma/utils";
 
-export const layoutOptions = ['force-directed', 'hierarchical', 'circular']
+export const layoutOptions = ['force-directed', 'circular']
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
@@ -96,29 +98,43 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   }
   // update options
   if (options) {
-    if(options.isPhysicsEnabled) sigmaLayout?.start(); else sigmaLayout?.stop();
+    if (options.isPhysicsEnabled) sigmaLayout?.start(); else sigmaLayout?.stop();
+    if (!sigmaLayout) {
+      store.dispatch(setIsPhysicsEnabled(false))
+    }
   }
   // updates graph data
   if (container && data) {
     for (let element of data.nodes) {
       if (!graph.nodes().includes(element.id!.toString())) {
         let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-        if ( element.type !== undefined && !(element.type in nodeColorMap) ) {
+        if (element.type !== undefined && !(element.type in nodeColorMap)) {
           nodeColorMap[`${element.type}`] = getColor()
           store.dispatch(updateColorMap(nodeColorMap))
         }
         let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
-        graph.addNode(element.id!, { x: Math.random(), y: Math.random(), size: 5, label: element.label, color: color, image: getIcon(element.type) })
+        graph.addNode(element.id!, {
+          x: Math.random(),
+          y: Math.random(),
+          size: 5,
+          label: element.label,
+          color: color,
+          image: getIcon(element.type)
+        })
       }
     }
     for (let id of graph!.nodes()) {
-      if(!data.nodes.map(x => x.id!.toString()).includes(id)) {
+      if (!data.nodes.map(x => x.id!.toString()).includes(id)) {
         graph.dropNode(id)
       }
     }
     for (let element of data.edges) {
-      if(!graph.edges().includes(element.id!.toString())) {
-        graph.addDirectedEdgeWithKey(element.id, element.from, element.to, { size: 2, type: 'arrow', label: element.label })
+      if (!graph.edges().includes(element.id!.toString())) {
+        graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
+          size: 2,
+          type: 'arrow',
+          label: element.label
+        })
       }
     }
   }
@@ -126,5 +142,26 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
 }
 
 export function applyLayout(name: string) {
- return
+  if (!sigma) return
+  sigmaLayout?.stop()
+  switch (name) {
+    case 'circular': {
+      sigmaLayout = null
+      const circularPosition = circular(graph)
+      animateNodes(graph, circularPosition, { duration: 1000 })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'force-directed': {
+      sigmaLayout = new FA2Layout(graph!, {
+        settings: { gravity: .1, linLogMode: true }
+      });
+      sigmaLayout.start()
+      store.dispatch(setIsPhysicsEnabled(true))
+      break
+    }
+    default: {
+      console.warn(`Unknown layout ${name} applied`)
+    }
+  }
 }
