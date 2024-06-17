@@ -84,7 +84,7 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-        <TableCell style={{ width: '1%' }}><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
         <TableCell>
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
