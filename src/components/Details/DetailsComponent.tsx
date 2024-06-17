@@ -8,7 +8,7 @@ import {
   Typography,
   Button,
   Tooltip,
-  TextField, Dialog, DialogTitle, DialogContent, DialogActions
+  TextField, Dialog, DialogTitle, DialogContent, DialogActions, IconButton
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -31,6 +31,8 @@ import {
 import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
 import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
+import '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type EditEvent = {
   name: string;
@@ -86,8 +88,8 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-        <TableCell><strong>{String(e[0])}</strong></TableCell>
-        <TableCell>
+        <TableCell style={{width: 1}}><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{paddingRight: 5}}>
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
               name={String(e[0])}
@@ -99,6 +101,17 @@ export const DetailsComponent = () => {
           ) : <strong>{String(e[0])}</strong>
           }
         </TableCell>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <TableCell style={{ width:1 }} padding='none'>
+            <IconButton onClick={() => {
+              deleteElementProperty(String(e[0]))
+            }}>
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
+        ) : <></>
+        }
+
       </TableRow>;
     });
   }
@@ -149,7 +162,7 @@ export const DetailsComponent = () => {
         });
     } else {
       query = `g.V().where(__.outE().hasId(${selectedId}))`;
-      editEdgeRawQuery(name, value)
+      updateEdgeProperty(name, value)
         .then(() => {
           return axios
             .post(
@@ -173,9 +186,106 @@ export const DetailsComponent = () => {
     }
   }
 
-  async function editEdgeRawQuery(name: string, value: string) {
+  async function updateEdgeProperty(name: string, value: string) {
 
     const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+    try {
+      const response = await axios
+        .post(
+          QUERY_RAW_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      return true;
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
+      dispatch(setError(errorMessage));
+      throw error;
+    }
+  }
+
+  function deleteElementProperty(name: string) {
+    let query = '';
+    if (selectedHeader === "Node") {
+      query = `g.V(${selectedId})`;
+      deleteVertexProperty(name)
+        .then(() => {
+          return axios
+            .post(
+              QUERY_ENDPOINT,
+              {
+                host,
+                port,
+                query,
+                nodeLimit,
+              },
+              { headers: { 'Content-Type': 'application/json' } }
+            )
+            .then((response) => {
+              updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+            })
+            .catch((error) => {
+              const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+              dispatch(setError(errorMessage));
+            });
+      })
+    } else {
+      query = `g.V().where(__.outE().hasId(${selectedId}))`;
+      deleteEdgeProperty(name)
+        .then(() => {
+          return axios
+            .post(
+              QUERY_ENDPOINT,
+              {
+                host,
+                port,
+                query,
+                nodeLimit,
+              },
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+        })
+        .then((response) => {
+          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+          dispatch(setError(errorMessage));
+        });
+    }
+  }
+
+  async function deleteVertexProperty(name: string) {
+
+    const query = `g.V('${selectedId}').properties("${name}").drop()`;
+    try {
+      const response = await axios
+        .post(
+          QUERY_RAW_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      return true;
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
+      dispatch(setError(errorMessage));
+      throw error;
+    }
+  }
+
+  async function deleteEdgeProperty(name: string) {
+
+    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).properties("${name}").drop()`;
     try {
       const response = await axios
         .post(
@@ -248,26 +358,31 @@ export const DetailsComponent = () => {
                 <TableRow key={'type'}>
                   <TableCell scope="row"><strong>Type</strong></TableCell>
                   <TableCell align="left">{String(selectedType)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
                 <TableRow key={'id'}>
                   <TableCell scope="row"><strong>ID</strong></TableCell>
                   <TableCell align="left">{String(selectedId)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
                 {getRows(selectedProperties)}
               </TableBody>
             </Table>
           </Grid>
         </Grid>
-        <Grid
-          container
-          spacing={0}
-          direction="column"
-          paddingTop={2}
-        >
-          <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
-            Add Property
-          </Button>
-        </Grid>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            paddingTop={2}
+          >
+            <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
+              Add Property
+            </Button>
+          </Grid>
+        ) : <></>
+        }
         <Dialog
           open={openAddProperty}>
           <DialogTitle>Add Property</DialogTitle>
@@ -299,7 +414,6 @@ export const DetailsComponent = () => {
             <Button variant='contained' onClick={onConfirmAddProperty}>Add</Button>
           </DialogActions>
         </Dialog>
-
       </>
     ) ||
     (<Grid item xs={12} sm={12} md={12}>
