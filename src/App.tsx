@@ -5,6 +5,7 @@ import { SidebarComponent } from './components/Details/SidebarComponent';
 import { GraphTypes } from "./logics/utils";
 import { Network } from "vis-network";
 import Sigma from "sigma";
+import { ModalDialogComponent } from './components/ModalDialog/ModalDialogComponent';
 
 export const App = () => {
 
@@ -45,8 +46,8 @@ export const App = () => {
     if (graph === null) return;
     if (graph instanceof Network) {
       positions = graph.getPositions()
-    } else if (graph instanceof Sigma){
-      graph.getGraph().forEachNode(((node, attributes) => positions[node] = {x: attributes.x, y: attributes.y}))
+    } else if (graph instanceof Sigma) {
+      graph.getGraph().forEachNode(((node, attributes) => positions[node] = { x: attributes.x, y: attributes.y }))
     } else {
       graph.nodes().map(node => positions[node.data('id')] = node.position())
     }
@@ -57,8 +58,10 @@ export const App = () => {
   return (
     <div>
       <HeaderComponent />
-      <NetworkGraphComponent panelWidth={panelWidth} retrieveGraph={retrieveGraph}/>
-      <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} createWorkspace={createWorkspace}/>
+      <NetworkGraphComponent panelWidth={panelWidth} retrieveGraph={retrieveGraph} />
+      <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} createWorkspace={createWorkspace} />
+      <ModalDialogComponent />
     </div>
   );
+
 }
