@@ -221,24 +221,24 @@ export const DetailsComponent = () => {
         {selectedHeader === 'Node' && (
           <Grid container spacing={2}>
             <Grid item xs={6} sm={6} md={6}>
-              <Fab
-                variant="extended"
-                size="small"
+              <Button
+                variant="outlined"
+                size='small'
                 onClick={() => onTraverse(selectedId, 'out')}
               >
                 Traverse Out Edges
                 <ArrowForwardIcon />
-              </Fab>
+              </Button>
             </Grid>
             <Grid item xs={6} sm={6} md={6}>
-              <Fab
-                variant="extended"
+              <Button
+                variant="outlined"
                 size="small"
                 onClick={() => onTraverse(selectedId, 'in')}
               >
                 Traverse In Edges
                 <ArrowBackIcon />
-              </Fab>
+              </Button>
             </Grid>
           </Grid>
         )}

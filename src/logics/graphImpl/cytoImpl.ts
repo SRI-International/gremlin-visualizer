@@ -112,6 +112,8 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     for (let n of nodes) {
       if (!graph.nodes().map(x => x.id()).includes(n.data.id!)) {
         graph.add(n)
+      } else {
+        graph.getElementById(n.data.id!).data(n.data)
       }
     }
     for (let n of graph.nodes()) {
