@@ -7,8 +7,10 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 
+export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
+let layoutName: string = 'force-directed'
 const opts: ColaLayoutOptions = {
   name: 'cola',
   infinite: true,
@@ -128,14 +130,42 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     }
   }
   if (options) {
-    if (options.isPhysicsEnabled) {
-      layout?.stop()
-      layout = graph.layout({ ...opts, ...{ infinite: options.isPhysicsEnabled } })
-      layout.start()
-    } else {
-      layout?.stop()
-    }
+    if (options.isPhysicsEnabled) applyLayout(layoutName)
+    else layout?.stop();
   }
 
   return graph;
+}
+
+export function applyLayout(name: string) {
+  layoutName = name
+  if (!graph || !layout) return
+  layout.stop()
+  switch (name) {
+    case 'force-directed': {
+      layout = graph.layout({ ...opts, ...{ infinite: store.getState().options.graphOptions.isPhysicsEnabled } })
+      store.dispatch(setIsPhysicsEnabled(true))
+      break
+    }
+    case 'circle': {
+      layout = graph.layout({ name: "circle" })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'hierarchical': {
+      layout = graph.layout({ name: "breadthfirst" })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'grid': {
+      layout = graph.layout({ name: 'grid' })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    default: {
+      console.warn(`Unknown layout ${name} applied`)
+    }
+  }
+  layout.start()
+
 }

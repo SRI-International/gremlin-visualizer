@@ -8,10 +8,14 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
+import { circular } from "graphology-layout";
+import { animateNodes } from "sigma/utils";
 
+export const layoutOptions = ['force-directed', 'circular']
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
+let layoutName = 'force-directed'
 
 function createSigmaGraph(container: HTMLElement) {
   const sigma = new Sigma(graph!, container as HTMLElement, {
@@ -104,7 +108,8 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   }
   // update options
   if (options) {
-    if (options.isPhysicsEnabled) sigmaLayout?.start(); else sigmaLayout?.stop();
+    if (options.isPhysicsEnabled) applyLayout(layoutName)
+    else sigmaLayout?.stop()
   }
   // updates graph data
   if (container && data) {
@@ -155,4 +160,30 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     }
   }
   return sigma;
+}
+
+export function applyLayout(name: string) {
+  layoutName = name
+  if (!sigma) return
+  sigmaLayout?.stop()
+  switch (name) {
+    case 'circular': {
+      sigmaLayout = null
+      const circularPosition = circular(graph)
+      animateNodes(graph, circularPosition, { duration: 1000 })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'force-directed': {
+      sigmaLayout = new FA2Layout(graph!, {
+        settings: { gravity: .1, linLogMode: true }
+      });
+      sigmaLayout.start()
+      store.dispatch(setIsPhysicsEnabled(true))
+      break
+    }
+    default: {
+      console.warn(`Unknown layout ${name} applied`)
+    }
+  }
 }
