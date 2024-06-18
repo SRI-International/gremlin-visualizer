@@ -299,7 +299,6 @@ export const DetailsComponent = () => {
             <Button variant='contained' onClick={onConfirmAddProperty}>Add</Button>
           </DialogActions>
         </Dialog>
-
       </>
     ) ||
     (<Grid item xs={12} sm={12} md={12}>

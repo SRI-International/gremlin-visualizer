@@ -1,12 +1,12 @@
 import {
-  Button,
+  Button, Dialog, DialogActions, DialogContent, DialogTitle,
   Divider,
-  Fab,
+  Fab, FormControl,
   FormControlLabel,
   Grid,
-  IconButton,
+  IconButton, InputLabel,
   List,
-  ListItem,
+  ListItem, MenuItem, Select,
   Switch,
   TextField,
   Tooltip,
@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNodeLabel,
@@ -26,7 +26,8 @@ import {
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { refreshNodeLabels } from "../../reducers/graphReducer";
+import { refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
+import { GRAPH_IMPL } from "../../constants";
 
 type SettingsComponentProps = {
   createWorkspace: () => void
@@ -96,6 +97,11 @@ export const Settings = (props: SettingsComponentProps) => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
 
+  const [ workspaceImport, setWorkspaceImport ] = useState(false);
+  const [ workspaceExport, setWorkspaceExport ] = useState(false);
+  const [ workspaceSelected, setWorkspaceSelected ] = useState<string | null>(null);
+  const workspaceOptions = useSelector(selectGraph).workspaces;
+
   function onHostChanged(host: string) {
     dispatch(setHost(host));
   }
@@ -126,6 +132,35 @@ export const Settings = (props: SettingsComponentProps) => {
 
   function onTogglePhysics(enabled: boolean) {
     dispatch(setIsPhysicsEnabled(enabled));
+  }
+
+  function loadWorkspaceOptions() {
+    return workspaceOptions.map(workspace => {
+      if (workspace.impl !== GRAPH_IMPL) return <></>;
+      else return <MenuItem value={workspace.name}>workspace.name</MenuItem>;
+    });
+  }
+
+  function onSelectWorkspace(event: { target: { value: React.SetStateAction<string | null>; }; }) {
+    setWorkspaceSelected(event.target.value);
+  }
+
+  function onConfirmLoadWorkspace(){
+
+  }
+
+  function onCancelSelectWorkspace() {
+    setWorkspaceImport(false);
+    setWorkspaceSelected(null);
+  }
+
+
+  function onCancelSaveWorkspace() {
+    setWorkspaceExport(false);
+  }
+
+  function onConfirmSaveWorkspace() {
+
   }
 
   return (
@@ -190,10 +225,10 @@ export const Settings = (props: SettingsComponentProps) => {
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        <Button variant='contained' onClick={props.createWorkspace} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+        <Button variant='contained' onClick={() => setWorkspaceExport(true)} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
           Export Layout
         </Button>
-        <Button variant='contained' onClick={props.createWorkspace} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+        <Button variant='contained' onClick={() => setWorkspaceImport(true)} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
           Import Layout
         </Button>
       </Grid>
@@ -225,6 +260,45 @@ export const Settings = (props: SettingsComponentProps) => {
           Add Node Label
         </Fab>
       </Grid>
+      <Dialog
+        open={workspaceImport}>
+        <DialogTitle>Load Workspace</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth>
+            <InputLabel>Workspace</InputLabel>
+            <Select
+              id="workspaceSelect"
+              value={null}
+              label="Workspace"
+              onChange={onSelectWorkspace}
+            >
+              {loadWorkspaceOptions()}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelSelectWorkspace}>Cancel</Button>
+          <Button variant='contained' onClick={onConfirmLoadWorkspace}>Load</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={workspaceExport}>
+        <DialogTitle>Save Workspace</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth>
+            <InputLabel>Workspace Name</InputLabel>
+            <TextField
+              autoFocus
+              required
+            />
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelSaveWorkspace}>Cancel</Button>
+          <Button variant='contained' onClick={onConfirmSaveWorkspace}>Load</Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
+
   )
 }

@@ -6,6 +6,7 @@ import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 
 type Workspace = {
   name: string,
+  impl: string,
   layout: Record<string, object>
 }
 
