@@ -1,12 +1,7 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
 import store from "../../app/store"
-<<<<<<< HEAD
-import { addEdges, setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import {openDialog, setCoordinates, setIsNodeDialog, setEdgeFrom, setEdgeTo} from "../../reducers/dialogReducer";
-=======
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
->>>>>>> develop
+import {openDialog, setCoordinates, setIsNodeDialog, setEdgeFrom, setEdgeTo} from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
