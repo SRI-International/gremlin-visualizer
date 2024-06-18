@@ -33,6 +33,7 @@ import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
 import '@mui/icons-material/Delete';
 import DeleteIcon from "@mui/icons-material/Delete";
+import { setEnvironmentData } from "node:worker_threads";
 
 type EditEvent = {
   name: string;
@@ -104,7 +105,7 @@ export const DetailsComponent = () => {
         {!DISABLE_NODE_EDGE_EDIT ? (
           <TableCell style={{ width:1 }} padding='none'>
             <IconButton onClick={() => {
-              deleteElementProperty(String(e[0]))
+              updateElementProperty(String(e[0]), String(e[1]), true)
             }}>
               <DeleteIcon />
             </IconButton>
@@ -138,133 +139,30 @@ export const DetailsComponent = () => {
       });
   }
 
-  function updateElementProperty(name: string, value: string) {
-    let query = '';
-    if (selectedHeader === "Node") {
-      query = `g.V('${selectedId}').property("${name}", "${value}")`;
-      axios
-        .post(
-          QUERY_ENDPOINT,
-          {
-            host,
-            port,
-            query,
-            nodeLimit,
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        )
-        .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-        })
-        .catch((error) => {
-          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-          dispatch(setError(errorMessage));
-        });
-    } else {
-      query = `g.V().where(__.outE().hasId(${selectedId}))`;
-      updateEdgeProperty(name, value)
-        .then(() => {
-          return axios
-            .post(
-              QUERY_ENDPOINT,
-              {
-                host,
-                port,
-                query,
-                nodeLimit,
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-        })
-        .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-        })
-        .catch((error) => {
-          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-          dispatch(setError(errorMessage));
-        });
-    }
-  }
-
-  async function updateEdgeProperty(name: string, value: string) {
-
-    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
-    try {
-      const response = await axios
-        .post(
-          QUERY_RAW_ENDPOINT,
-          {
-            host,
-            port,
-            query,
-            nodeLimit,
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-      return true;
-    } catch (error) {
-      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
-      dispatch(setError(errorMessage));
-      throw error;
-    }
-  }
-
-  function deleteElementProperty(name: string) {
-    let query = '';
-    if (selectedHeader === "Node") {
-      query = `g.V(${selectedId})`;
-      deleteVertexProperty(name)
-        .then(() => {
-          return axios
-            .post(
-              QUERY_ENDPOINT,
-              {
-                host,
-                port,
-                query,
-                nodeLimit,
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            )
-            .then((response) => {
-              updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-            })
-            .catch((error) => {
-              const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-              dispatch(setError(errorMessage));
-            });
+  function sendUpdateQuery(query: string) {
+    axios
+      .post(
+        QUERY_ENDPOINT,
+        {
+          host,
+          port,
+          query,
+          nodeLimit,
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
       })
-    } else {
-      query = `g.V().where(__.outE().hasId(${selectedId}))`;
-      deleteEdgeProperty(name)
-        .then(() => {
-          return axios
-            .post(
-              QUERY_ENDPOINT,
-              {
-                host,
-                port,
-                query,
-                nodeLimit,
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-        })
-        .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-        })
-        .catch((error) => {
-          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-          dispatch(setError(errorMessage));
-        });
-    }
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+        dispatch(setError(errorMessage));
+      });
   }
 
-  async function deleteVertexProperty(name: string) {
-
-    const query = `g.V('${selectedId}').properties("${name}").drop()`;
+  async function sendRawQuery(query: string) {
     try {
-      const response = await axios
+      await axios
         .post(
           QUERY_RAW_ENDPOINT,
           {
@@ -283,39 +181,40 @@ export const DetailsComponent = () => {
     }
   }
 
-  async function deleteEdgeProperty(name: string) {
+  function updateElementProperty(name: string, value: string, deletion: boolean) {
 
-    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).properties("${name}").drop()`;
-    try {
-      const response = await axios
-        .post(
-          QUERY_RAW_ENDPOINT,
-          {
-            host,
-            port,
-            query,
-            nodeLimit,
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-      return true;
-    } catch (error) {
-      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
-      dispatch(setError(errorMessage));
-      throw error;
+    let rawQuery = '', updateQuery = '';
+
+    if (selectedHeader === "Node" && !deletion) {             // Editing/adding node property
+      updateQuery = `g.V('${selectedId}').property("${name}", "${value}")`;
+      sendUpdateQuery(updateQuery)
+      return;
+    } else if (selectedHeader === "Node") {                   // Deleting node property
+      rawQuery = `g.V('${selectedId}').properties("${name}").drop()`;
+      updateQuery = `g.V(${selectedId})`;
+    } else if (selectedHeader === "Edge" && !deletion) {      // Editing/adding edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
+    } else {                                                  // Deleting edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).properties("${name}").drop()`
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
     }
+
+    sendRawQuery(rawQuery)
+      .then(()=> sendUpdateQuery(updateQuery))
+
   }
 
   function onConfirmEdit({ name, value, previousValue }: EditEvent) {
     setEditField(null);
     setEditValue(null);
     value = value.replace(/"/g, '\\"');
-    updateElementProperty(name, value)
+    updateElementProperty(name, value, false)
   }
 
   function onConfirmAddProperty() {
     if (addPropertyName === null || addPropertyValue === null) return;
-    updateElementProperty(addPropertyName, addPropertyValue)
+    updateElementProperty(addPropertyName, addPropertyValue, false)
     onCancelAddProperty()
   }
 
