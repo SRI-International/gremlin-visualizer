@@ -35,8 +35,9 @@ export interface NodeData {
   label: string
   type: string
   edges: EdgeData[]
-
-  [key: string]: any
+  x: number
+  y: number
+  [key:string]: any
 }
 
 export type GraphTypes = Sigma | Network | cytoscape.Core | null
@@ -99,4 +100,5 @@ export const stringifyObjectValues = (obj: any) => {
 export function defaultNodeLabel(node: any) {
   return `${node.type}:${node.id}`
 }
+
 

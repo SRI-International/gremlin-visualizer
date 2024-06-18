@@ -1,5 +1,5 @@
 import { extractEdgesAndNodes } from './utils';
-import { addEdges, addNodes } from '../reducers/graphReducer';
+import { addEdges, addNodes, setSelectedNode } from '../reducers/graphReducer';
 import { NodeLabel, addQueryHistory, setNodeLabels } from '../reducers/optionReducer';
 import store, { AppDispatch } from '../app/store';
 import { updateNode, updateEdge } from "../reducers/graphReducer"
@@ -30,4 +30,16 @@ export const updateOnConfirm = (elementType: string | null, updateId: IdType | u
   }
   store.dispatch(addQueryHistory(query));
 };
+
+export const manualAddNode = (result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
+  const { nodes, edges, nodeLabels } = extractEdgesAndNodes(
+    result,
+    oldNodeLabels
+
+  );
+  dispatch(addNodes(nodes));
+  dispatch(setNodeLabels(nodeLabels));
+  dispatch(setSelectedNode(nodes[0].id));
+}
+
 
