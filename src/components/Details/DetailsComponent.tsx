@@ -8,7 +8,7 @@ import {
   Typography,
   Button,
   Tooltip,
-  TextField, Dialog, DialogTitle, DialogContent, DialogActions
+  TextField, Dialog, DialogTitle, DialogContent, DialogActions, IconButton
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -31,6 +31,9 @@ import {
 import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
 import { EditText, EditTextarea } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
+import '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
+import { setEnvironmentData } from "node:worker_threads";
 
 type EditEvent = {
   name: string;
@@ -86,8 +89,8 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-        <TableCell style={{ width: 1, height: 1 }}><strong>{String(e[0])}</strong></TableCell>
-        <TableCell>
+        <TableCell style={{width: 1}}><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{paddingRight: 5}}>
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
               name={String(e[0])}
@@ -99,6 +102,17 @@ export const DetailsComponent = () => {
           ) : <strong>{String(e[0])}</strong>
           }
         </TableCell>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <TableCell style={{ width:1 }} padding='none'>
+            <IconButton onClick={() => {
+              updateElementProperty(String(e[0]), String(e[1]), true)
+            }}>
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
+        ) : <></>
+        }
+
       </TableRow>;
     });
   }
@@ -125,59 +139,30 @@ export const DetailsComponent = () => {
       });
   }
 
-  function updateElementProperty(name: string, value: string) {
-    let query = '';
-    if (selectedHeader === "Node") {
-      query = `g.V('${selectedId}').property("${name}", "${value}")`;
-      axios
-        .post(
-          QUERY_ENDPOINT,
-          {
-            host,
-            port,
-            query,
-            nodeLimit,
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        )
-        .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-        })
-        .catch((error) => {
-          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-          dispatch(setError(errorMessage));
-        });
-    } else {
-      query = `g.V().where(__.outE().hasId(${selectedId}))`;
-      editEdgeRawQuery(name, value)
-        .then(() => {
-          return axios
-            .post(
-              QUERY_ENDPOINT,
-              {
-                host,
-                port,
-                query,
-                nodeLimit,
-              },
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-        })
-        .then((response) => {
-          updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
-        })
-        .catch((error) => {
-          const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
-          dispatch(setError(errorMessage));
-        });
-    }
+  function sendUpdateQuery(query: string) {
+    axios
+      .post(
+        QUERY_ENDPOINT,
+        {
+          host,
+          port,
+          query,
+          nodeLimit,
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+        dispatch(setError(errorMessage));
+      });
   }
 
-  async function editEdgeRawQuery(name: string, value: string) {
-
-    const query = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+  async function sendRawQuery(query: string) {
     try {
-      const response = await axios
+      await axios
         .post(
           QUERY_RAW_ENDPOINT,
           {
@@ -196,16 +181,40 @@ export const DetailsComponent = () => {
     }
   }
 
+  function updateElementProperty(name: string, value: string, deletion: boolean) {
+
+    let rawQuery = '', updateQuery = '';
+
+    if (selectedHeader === "Node" && !deletion) {             // Editing/adding node property
+      updateQuery = `g.V('${selectedId}').property("${name}", "${value}")`;
+      sendUpdateQuery(updateQuery)
+      return;
+    } else if (selectedHeader === "Node") {                   // Deleting node property
+      rawQuery = `g.V('${selectedId}').properties("${name}").drop()`;
+      updateQuery = `g.V(${selectedId})`;
+    } else if (selectedHeader === "Edge" && !deletion) {      // Editing/adding edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
+    } else {                                                  // Deleting edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).properties("${name}").drop()`
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
+    }
+
+    sendRawQuery(rawQuery)
+      .then(()=> sendUpdateQuery(updateQuery))
+
+  }
+
   function onConfirmEdit({ name, value, previousValue }: EditEvent) {
     setEditField(null);
     setEditValue(null);
     value = value.replace(/"/g, '\\"');
-    updateElementProperty(name, value)
+    updateElementProperty(name, value, false)
   }
 
   function onConfirmAddProperty() {
     if (addPropertyName === null || addPropertyValue === null) return;
-    updateElementProperty(addPropertyName, addPropertyValue)
+    updateElementProperty(addPropertyName, addPropertyValue, false)
     onCancelAddProperty()
   }
 
@@ -248,26 +257,31 @@ export const DetailsComponent = () => {
                 <TableRow key={'type'}>
                   <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>Type</strong></TableCell>
                   <TableCell align="left">{String(selectedType)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
                 <TableRow key={'id'}>
                   <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>ID</strong></TableCell>
                   <TableCell align="left">{String(selectedId)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
                 {getRows(selectedProperties)}
               </TableBody>
             </Table>
           </Grid>
         </Grid>
-        <Grid
-          container
-          spacing={0}
-          direction="column"
-          paddingTop={2}
-        >
-          <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
-            Add Property
-          </Button>
-        </Grid>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            paddingTop={2}
+          >
+            <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
+              Add Property
+            </Button>
+          </Grid>
+        ) : <></>
+        }
         <Dialog
           open={openAddProperty}>
           <DialogTitle>Add Property</DialogTitle>

@@ -1,5 +1,6 @@
 import {
   Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Box,
   Divider,
   Fab, FormControl,
   FormControlLabel,
@@ -8,12 +9,15 @@ import {
   List,
   ListItem, MenuItem, Select,
   Switch,
+  SelectChangeEvent,
   TextField,
   Tooltip,
   Typography
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -22,11 +26,13 @@ import {
   removeNodeLabel,
   selectOptions,
   setIsPhysicsEnabled,
+  setLayout,
   setNodeLimit
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
+import { applyLayout, layoutOptions } from "../../logics/graph";
 import { GRAPH_IMPL } from "../../constants";
 
 type SettingsComponentProps = {
@@ -135,6 +141,11 @@ export const Settings = (props: SettingsComponentProps) => {
     dispatch(setIsPhysicsEnabled(enabled));
   }
 
+  function onLayoutChange(x: SelectChangeEvent) {
+    applyLayout(x.target.value)
+    dispatch(setLayout(x.target.value))
+  }
+
   function loadWorkspaceOptions() {
     return workspaceOptions.map(workspace => {
       if (workspace.impl !== GRAPH_IMPL) return <></>;
@@ -185,25 +196,6 @@ export const Settings = (props: SettingsComponentProps) => {
             variant="standard"
           />
         </form>
-        <Tooltip
-          title="Automatically stabilize the graph"
-          aria-label="add"
-        >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={graphOptions.isPhysicsEnabled}
-                onChange={() => {
-                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
-                }}
-                value="physics"
-                color="primary"
-              />
-            }
-            label="Enable Physics"
-          />
-        </Tooltip>
-        <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Tooltip
@@ -211,6 +203,7 @@ export const Settings = (props: SettingsComponentProps) => {
           aria-label="add"
         >
           <TextField
+            style={{ width: '150px' }}
             label="Node Limit"
             type="Number"
             variant="outlined"
@@ -221,6 +214,36 @@ export const Settings = (props: SettingsComponentProps) => {
             }}
           />
         </Tooltip>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <FormControl fullWidth sx={{ display: 'flex', flexDirection: 'row' }}>
+          <Box flexGrow='1'>
+            <InputLabel id="layout-label">Layout</InputLabel>
+            <Select
+              size='small'
+              fullWidth
+              labelId="layout-label"
+              id="layout-select"
+              value={graphOptions.layout}
+              label="Layout"
+              onChange={onLayoutChange}
+            >
+              {layoutOptions.map(x => <MenuItem key={x} value={x}>{x}</MenuItem>)}
+            </Select>
+          </Box>
+          <Tooltip
+            title="Automatically stabilize the graph"
+            aria-label="add"
+          >
+            <Fab size='small' color='primary' style={{ minWidth: '40px' }}
+                 onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
+              {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
+            </Fab>
+          </Tooltip>
+        </FormControl>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Divider />
@@ -301,6 +324,5 @@ export const Settings = (props: SettingsComponentProps) => {
         </DialogActions>
       </Dialog>
     </Grid>
-
   )
 }
