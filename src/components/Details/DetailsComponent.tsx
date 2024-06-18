@@ -94,7 +94,7 @@ export const DetailsComponent = () => {
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
               name={String(e[0])}
-              style={{ fontSize: '16px', border: '1px solid #ccc' }}
+              style={{ fontSize: '14px', border: '1px solid #ccc', height: '28px', lineHeight: '28px'}}
               onSave={onConfirmEdit}
               defaultValue={String(e[1])}
               showEditButton
@@ -255,12 +255,12 @@ export const DetailsComponent = () => {
             <Table aria-label="simple table">
               <TableBody>
                 <TableRow key={'type'}>
-                  <TableCell scope="row"><strong>Type</strong></TableCell>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>Type</strong></TableCell>
                   <TableCell align="left">{String(selectedType)}</TableCell>
                   {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
                 <TableRow key={'id'}>
-                  <TableCell scope="row"><strong>ID</strong></TableCell>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>ID</strong></TableCell>
                   <TableCell align="left">{String(selectedId)}</TableCell>
                   {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
                 </TableRow>
