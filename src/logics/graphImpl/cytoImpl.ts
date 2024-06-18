@@ -10,6 +10,7 @@ import cola from "cytoscape-cola";
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
+let layoutName: string = 'force-directed'
 const opts: ColaLayoutOptions = { name: 'cola', infinite: true, animate: true, centerGraph: false, fit: false }
 
 cy.use(cola)
@@ -114,19 +115,15 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     }
   }
   if (options) {
-    if (options.isPhysicsEnabled) {
-      layout?.stop()
-      layout = graph.layout({ ...opts, ...{ infinite: options.isPhysicsEnabled } })
-      layout.start()
-    } else {
-      layout?.stop()
-    }
+    if (options.isPhysicsEnabled) applyLayout(layoutName)
+    else layout?.stop();
   }
 
   return graph;
 }
 
 export function applyLayout(name: string) {
+  layoutName = name
   if (!graph || !layout) return
   layout.stop()
   switch (name) {

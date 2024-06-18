@@ -1,7 +1,7 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import {openDialog, setCoordinates} from "../../reducers/dialogReducer";
+import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
@@ -144,10 +144,10 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     });
     network.on('click', function (params) {
       let jsEvent = params.event.srcEvent;
-      if((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
-        store.dispatch(setCoordinates({x: params.pointer.canvas.x, y: params.pointer.canvas.y}));
+      if ((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
+        store.dispatch(setCoordinates({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
         store.dispatch(openDialog());
-    }
+      }
     });
   }
 
@@ -155,5 +155,5 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
 }
 
 export function applyLayout(name: string) {
-
+  network?.setOptions(getOptions(store.getState().options.graphOptions))
 }

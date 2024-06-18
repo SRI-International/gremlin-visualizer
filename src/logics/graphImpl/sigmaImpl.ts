@@ -14,6 +14,7 @@ export const layoutOptions = ['force-directed', 'circular']
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
+let layoutName = 'force-directed'
 
 function createSigmaGraph(container: HTMLElement) {
   const sigma = new Sigma(graph!, container as HTMLElement, {
@@ -98,10 +99,8 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   }
   // update options
   if (options) {
-    if (options.isPhysicsEnabled) sigmaLayout?.start(); else sigmaLayout?.stop();
-    if (!sigmaLayout) {
-      store.dispatch(setIsPhysicsEnabled(false))
-    }
+    if (options.isPhysicsEnabled) applyLayout(layoutName)
+    else sigmaLayout?.stop()
   }
   // updates graph data
   if (container && data) {
@@ -142,6 +141,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
 }
 
 export function applyLayout(name: string) {
+  layoutName = name
   if (!sigma) return
   sigmaLayout?.stop()
   switch (name) {
