@@ -124,7 +124,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       }
     }
     for (let e of edges) {
-      if (!graph.edges().map(x => x.id()).includes(e.data.id!)) {
+      if (!graph.edges().map(x => x.id()).includes(e.data.id!) && graph.$id(e.data.target).size() > 0) {
         graph.add(e)
       }
     }

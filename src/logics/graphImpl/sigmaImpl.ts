@@ -150,7 +150,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
       }
     }
     for (let element of data.edges) {
-      if (!graph.edges().includes(element.id!.toString())) {
+      if (!graph.edges().includes(element.id!.toString()) && graph.nodes().includes(element.to!.toString())) {
         graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
           size: 2,
           type: 'arrow',
