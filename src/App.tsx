@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NetworkGraphComponent } from './components/NetworkGraph/NetworkGraphComponent';
 import { HeaderComponent } from './components/Header/HeaderComponent';
 import { SidebarComponent } from './components/Details/SidebarComponent';
+import { ModalDialogComponent } from './components/ModalDialog/ModalDialogComponent';
 
 export const App = () => {
 
@@ -34,6 +35,7 @@ export const App = () => {
       <HeaderComponent />
       <NetworkGraphComponent panelWidth={panelWidth} />
       <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} />
+      <ModalDialogComponent />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
+import {openDialog, setCoordinates} from "../../reducers/dialogReducer";
+import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
@@ -9,8 +10,8 @@ import getIcon from "../../assets/icons";
 
 export const layoutOptions = ['force-directed']
 let network: Network | null = null;
-const nodes = new DataSet({})
-const edges = new DataSet({})
+const nodes = new DataSet<Node>({})
+const edges = new DataSet<Edge>({})
 const defaultOptions: Options = {
   physics: {
     forceAtlas2Based: {
@@ -125,7 +126,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       const nodeId =
         params.nodes && params.nodes.length > 0 ? params.nodes[0] : null;
       store.dispatch(setSelectedNode(nodeId));
-    })
+    });
     network.on('selectEdge', (params?: any) => {
       const edgeId =
         params.edges && params.edges.length === 1 ? params.edges[0] : null;
@@ -133,13 +134,20 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!isNodeSelected && edgeId !== null) {
         store.dispatch(setSelectedEdge(edgeId));
       }
-    })
+    });
     network.on("dragging", function (params) {
       // disable physics only when dragging a node
       if (!params.nodes[0]) {
         return
       }
       store.dispatch(setIsPhysicsEnabled(false))
+    });
+    network.on('click', function (params) {
+      let jsEvent = params.event.srcEvent;
+      if((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
+        store.dispatch(setCoordinates({x: params.pointer.canvas.x, y: params.pointer.canvas.y}));
+        store.dispatch(openDialog());
+    }
     });
   }
 
