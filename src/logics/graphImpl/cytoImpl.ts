@@ -8,6 +8,8 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
 import getIcon from "../../assets/icons";
+import { Simulate } from "react-dom/test-utils";
+import select = Simulate.select;
 
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
@@ -103,7 +105,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       }
     }
   }
-  if(options) {
+  if (options) {
     if(options.isPhysicsEnabled) {
       layout?.stop()
       layout = graph.layout({...opts, ...{infinite: options.isPhysicsEnabled}})
@@ -114,4 +116,17 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
   }
 
   return graph;
+}
+
+function getNodePositions() {
+  let positions: Record<string, object>
+  return graph?.nodes().map(node => positions[node.data('id')] = node.position())
+}
+
+function setNodePositions(name: string) {
+  let workspace = useSelector(selectGraph).workspaces.find(workspace => workspace.name === name);
+  graph?.nodes().forEach(node => {
+    let newPosition = workspace?.layout[node.data('id')]
+    if (newPosition !== undefined) node.position(newPosition);
+  })
 }

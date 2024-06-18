@@ -100,6 +100,7 @@ export const Settings = (props: SettingsComponentProps) => {
   const [ workspaceImport, setWorkspaceImport ] = useState(false);
   const [ workspaceExport, setWorkspaceExport ] = useState(false);
   const [ workspaceSelected, setWorkspaceSelected ] = useState<string | null>(null);
+  const [ workspaceName, setWorkspaceName ] = useState<string | null>(null);
   const workspaceOptions = useSelector(selectGraph).workspaces;
 
   function onHostChanged(host: string) {
@@ -290,6 +291,7 @@ export const Settings = (props: SettingsComponentProps) => {
             <TextField
               autoFocus
               required
+              onChange={(event) => setWorkspaceSelected(event.target.value)}
             />
           </FormControl>
         </DialogContent>
