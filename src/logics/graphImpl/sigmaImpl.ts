@@ -7,6 +7,7 @@ import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
+import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
 
@@ -82,6 +83,14 @@ function createSigmaGraph(container: HTMLElement) {
   sigma.getMouseCaptor().on("mousedown", () => {
     if (!sigma!.getCustomBBox()) sigma!.setCustomBBox(sigma!.getBBox());
   });
+
+  sigma.on('clickStage', function (params) {
+    let jsEvent = params.event.original;
+    if (jsEvent.shiftKey) {
+      store.dispatch(setCoordinates({ x: params.event.x, y: params.event.y }));
+      store.dispatch(openDialog());
+    }
+  });
   return sigma
 }
 
@@ -90,7 +99,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   if (!sigma) {
     sigma = createSigmaGraph(container!)
     sigmaLayout = new FA2Layout(graph!, {
-      settings: { gravity: .1, linLogMode: true }
+      settings: { gravity: .01, linLogMode: true }
     });
     if (options?.isPhysicsEnabled) {
       sigmaLayout.start()
@@ -105,20 +114,33 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   // updates graph data
   if (container && data) {
     for (let element of data.nodes) {
+      let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
+      if (element.type !== undefined && !(element.type in nodeColorMap)) {
+        nodeColorMap[`${element.type}`] = getColor()
+        store.dispatch(updateColorMap(nodeColorMap))
+      }
+      let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
       if (!graph.nodes().includes(element.id!.toString())) {
-        let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-        if (element.type !== undefined && !(element.type in nodeColorMap)) {
-          nodeColorMap[`${element.type}`] = getColor()
-          store.dispatch(updateColorMap(nodeColorMap))
+        let pos = { x: Math.random(), y: Math.random() }
+        if (element.x && element.y) {
+          pos = sigma.viewportToGraph({ x: element.x, y: element.y })
         }
-        let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
+        let {x, y} = pos
         graph.addNode(element.id!, {
-          x: Math.random(),
-          y: Math.random(),
+          x: x,
+          y: y,
           size: 5,
           label: element.label,
           color: color,
           image: getIcon(element.type)
+        })
+      } else {
+        graph.updateNode(element.id!, attr => {
+          return {
+            ...attr,
+            label: element.label,
+            color: color,
+          }
         })
       }
     }
@@ -128,7 +150,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
       }
     }
     for (let element of data.edges) {
-      if (!graph.edges().includes(element.id!.toString())) {
+      if (!graph.edges().includes(element.id!.toString()) && graph.nodes().includes(element.to!.toString())) {
         graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
           size: 2,
           type: 'arrow',

@@ -1,17 +1,23 @@
 import cy, { NodeDefinition } from "cytoscape";
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
-import { ColaLayoutOptions } from "cytoscape-cola";
+import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
-import cola from "cytoscape-cola";
+import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
 let layoutName: string = 'force-directed'
-const opts: ColaLayoutOptions = { name: 'cola', infinite: true, animate: true, centerGraph: false, fit: false }
+const opts: ColaLayoutOptions = {
+  name: 'cola',
+  infinite: true,
+  animate: true,
+  centerGraph: false,
+  fit: false,
+}
 
 cy.use(cola)
 
@@ -28,8 +34,9 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'border-color': color,
       'background-image': getIcon(n.type),
       'background-fit': 'contain'
-    }
-  }
+    },
+    position: { x: n.x, y: n.y },
+  };
 }
 
 function toCyEdge(e: EdgeData): cy.EdgeDefinition {
@@ -85,6 +92,12 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     graph.on('drag', 'node', e => {
       store.dispatch(setIsPhysicsEnabled(false))
     })
+    graph.on('tap', e => {
+      if (e.target == graph && e.originalEvent.shiftKey) {
+        store.dispatch(setCoordinates({ x: e.position.x, y: e.position.y }));
+        store.dispatch(openDialog());
+      }
+    })
     return graph;
   }
   if (container && data) {
@@ -101,6 +114,8 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     for (let n of nodes) {
       if (!graph.nodes().map(x => x.id()).includes(n.data.id!)) {
         graph.add(n)
+      } else {
+        graph.getElementById(n.data.id!).data(n.data)
       }
     }
     for (let n of graph.nodes()) {
@@ -109,7 +124,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       }
     }
     for (let e of edges) {
-      if (!graph.edges().map(x => x.id()).includes(e.data.id!)) {
+      if (!graph.edges().map(x => x.id()).includes(e.data.id!) && graph.$id(e.data.target).size() > 0) {
         graph.add(e)
       }
     }
