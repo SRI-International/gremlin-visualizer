@@ -7,6 +7,7 @@ import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
+import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
@@ -77,6 +78,14 @@ function createSigmaGraph(container: HTMLElement) {
   // Disable the autoscale at the first down interaction
   sigma.getMouseCaptor().on("mousedown", () => {
     if (!sigma!.getCustomBBox()) sigma!.setCustomBBox(sigma!.getBBox());
+  });
+
+  sigma.on('clickStage', function (params) {
+    let jsEvent = params.event.original;
+    if(jsEvent.shiftKey) {
+      store.dispatch(setCoordinates({x: params.event.x, y: params.event.y}));
+      store.dispatch(openDialog());
+    }
   });
   return sigma
 }
