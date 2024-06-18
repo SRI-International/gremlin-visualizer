@@ -1,4 +1,5 @@
 import {
+  Button,
   Divider,
   Fab,
   FormControlLabel,
@@ -27,6 +28,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
 
+type SettingsComponentProps = {
+  createWorkspace: () => void
+}
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
@@ -87,7 +91,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   );
 };
 
-export const Settings = () => {
+export const Settings = (props: SettingsComponentProps) => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
@@ -181,6 +185,17 @@ export const Settings = () => {
             }}
           />
         </Tooltip>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <Button variant='contained' onClick={props.createWorkspace} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+          Export Layout
+        </Button>
+        <Button variant='contained' onClick={props.createWorkspace} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+          Import Layout
+        </Button>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <Divider />
