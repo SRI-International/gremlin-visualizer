@@ -16,7 +16,7 @@ type OptionState = {
   graphOptions: GraphOptions;
 };
 
-const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).map(([type, field]) => 
+const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).map(([type, field]) =>
   ({ type, field }));
 
 const initialState: OptionState = {
@@ -24,6 +24,7 @@ const initialState: OptionState = {
   queryHistory: [],
   nodeLimit: 100,
   graphOptions: {
+    layout: 'force-directed',
     isPhysicsEnabled: true,
   }
 };
@@ -34,6 +35,9 @@ const slice = createSlice({
   reducers: {
     setIsPhysicsEnabled: (state, action) => {
       state.graphOptions.isPhysicsEnabled = _.get(action, 'payload', true);
+    },
+    setLayout: (state, action) => {
+      state.graphOptions.layout = action.payload
     },
     addQueryHistory: (state, action) => {
       state.queryHistory = [...state.queryHistory, action.payload];
@@ -76,6 +80,7 @@ const slice = createSlice({
 
 export const {
   setIsPhysicsEnabled,
+  setLayout,
   addQueryHistory,
   clearQueryHistory,
   setNodeLabels,
