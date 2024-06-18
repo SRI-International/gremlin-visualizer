@@ -203,7 +203,8 @@ export const DetailsComponent = () => {
     updateElementProperty(name, value)
   }
 
-  function onConfirmAddProperty() {
+  function onConfirmAddProperty(event: { preventDefault: () => void; }) {
+    event.preventDefault()
     if (addPropertyName === null || addPropertyValue === null) return;
     updateElementProperty(addPropertyName, addPropertyValue)
     onCancelAddProperty()
@@ -269,13 +270,19 @@ export const DetailsComponent = () => {
           </Button>
         </Grid>
         <Dialog
-          open={openAddProperty}>
+          open={openAddProperty}
+          onClose={onCancelAddProperty}
+          PaperProps={{
+            component: 'form',
+            onSubmit: onConfirmAddProperty,
+          }}>
           <DialogTitle>Add Property</DialogTitle>
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item>
                 <TextField
                   autoFocus
+                  required
                   margin="dense"
                   id="propertyName"
                   label="Property Name"
@@ -285,6 +292,7 @@ export const DetailsComponent = () => {
               </Grid>
               <Grid item>
                 <TextField
+                  required
                   margin="dense"
                   id="propertyValue"
                   label="Property Value"
@@ -296,7 +304,7 @@ export const DetailsComponent = () => {
           </DialogContent>
           <DialogActions>
             <Button variant='outlined' onClick={onCancelAddProperty}>Cancel</Button>
-            <Button variant='contained' onClick={onConfirmAddProperty}>Add</Button>
+            <Button type='submit' variant='contained'>Add</Button>
           </DialogActions>
         </Dialog>
 
