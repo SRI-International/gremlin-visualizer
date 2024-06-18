@@ -1,10 +1,8 @@
 import {
   Box,
-  Button, Container,
   Divider,
   Fab,
   FormControl,
-  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -12,7 +10,7 @@ import {
   ListItem,
   MenuItem,
   Select,
-  Switch,
+  SelectChangeEvent,
   TextField,
   Tooltip,
   Typography
@@ -21,7 +19,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNodeLabel,
@@ -29,13 +27,13 @@ import {
   removeNodeLabel,
   selectOptions,
   setIsPhysicsEnabled,
+  setLayout,
   setNodeLimit
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
 import { applyLayout, layoutOptions } from "../../logics/graph";
-import { PlayArrow } from "@mui/icons-material";
 
 
 type NodeLabelListProps = {
@@ -101,7 +99,6 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-  const [selectedLayout, setSelectedLayout] = useState('force-directed');
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -135,6 +132,11 @@ export const Settings = () => {
     dispatch(setIsPhysicsEnabled(enabled));
   }
 
+  function onLayoutChange(x: SelectChangeEvent) {
+    applyLayout(x.target.value)
+    dispatch(setLayout(x.target.value))
+  }
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={12}>
@@ -163,7 +165,7 @@ export const Settings = () => {
           aria-label="add"
         >
           <TextField
-            style={{width: '150px'}}
+            style={{ width: '150px' }}
             label="Node Limit"
             type="Number"
             variant="outlined"
@@ -181,27 +183,25 @@ export const Settings = () => {
       <Grid item xs={12} sm={12} md={12}>
         <FormControl fullWidth sx={{ display: 'flex', flexDirection: 'row' }}>
           <Box flexGrow='1'>
-            <InputLabel id="demo-simple-select-label">Layout</InputLabel>
+            <InputLabel id="layout-label">Layout</InputLabel>
             <Select
               size='small'
               fullWidth
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={selectedLayout}
+              labelId="layout-label"
+              id="layout-select"
+              value={graphOptions.layout}
               label="Layout"
-              onChange={(x) => {
-                applyLayout(x.target.value)
-                setSelectedLayout(x.target.value)
-              }}
+              onChange={onLayoutChange}
             >
-              {layoutOptions.map(x => <MenuItem value={x}>{x}</MenuItem>)}
+              {layoutOptions.map(x => <MenuItem key={x} value={x}>{x}</MenuItem>)}
             </Select>
           </Box>
           <Tooltip
             title="Automatically stabilize the graph"
             aria-label="add"
           >
-            <Fab size='small' color='primary' style={{minWidth: '40px'}} onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
+            <Fab size='small' color='primary' style={{ minWidth: '40px' }}
+                 onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
               {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
             </Fab>
           </Tooltip>
