@@ -1,4 +1,6 @@
 import {
+  Box,
+  Button, Container,
   Divider,
   Fab,
   FormControl,
@@ -17,6 +19,8 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -31,6 +35,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { refreshNodeLabels } from "../../reducers/graphReducer";
 import { applyLayout, layoutOptions } from "../../logics/graph";
+import { PlayArrow } from "@mui/icons-material";
 
 
 type NodeLabelListProps = {
@@ -158,6 +163,7 @@ export const Settings = () => {
           aria-label="add"
         >
           <TextField
+            style={{width: '150px'}}
             label="Node Limit"
             type="Number"
             variant="outlined"
@@ -173,39 +179,35 @@ export const Settings = () => {
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">Layout</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedLayout}
-            label="Layout"
-            onChange={(x) => {
-              applyLayout(x.target.value)
-              setSelectedLayout(x.target.value)
-            }}
+        <FormControl fullWidth sx={{ display: 'flex', flexDirection: 'row' }}>
+          <Box flexGrow='1'>
+            <InputLabel id="demo-simple-select-label">Layout</InputLabel>
+            <Select
+              size='small'
+              fullWidth
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedLayout}
+              label="Layout"
+              onChange={(x) => {
+                applyLayout(x.target.value)
+                setSelectedLayout(x.target.value)
+              }}
+            >
+              {layoutOptions.map(x => <MenuItem value={x}>{x}</MenuItem>)}
+            </Select>
+          </Box>
+          <Tooltip
+            title="Automatically stabilize the graph"
+            aria-label="add"
           >
-            {layoutOptions.map(x => <MenuItem value={x}>{x}</MenuItem>)}
-          </Select>
+            <Fab size='small' color='primary' style={{minWidth: '40px'}} onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
+              {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
+            </Fab>
+          </Tooltip>
         </FormControl>
-        <Tooltip
-          title="Automatically stabilize the graph"
-          aria-label="add"
-        >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={graphOptions.isPhysicsEnabled}
-                onChange={() => {
-                  onTogglePhysics(!graphOptions.isPhysicsEnabled);
-                }}
-                value="physics"
-                color="primary"
-              />
-            }
-            label="Enable Physics"
-          />
-        </Tooltip>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
