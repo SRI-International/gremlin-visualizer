@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectDialog, closeDialog, } from '../../reducers/dialogReducer';
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from '@mui/material';
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid, DialogContentText } from '@mui/material';
 import axios from 'axios';
-import { manualAddNode } from '../../logics/actionHelper';
+import { manualAddEdge, manualAddNode } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
+import { ArrowForward } from '@mui/icons-material';
 import {
   COMMON_GREMLIN_ERROR,
   QUERY_ENDPOINT,
@@ -20,7 +21,7 @@ export const ModalDialogComponent = () => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const { isDialogOpen, x, y } = useSelector(selectDialog);
+  const { isDialogOpen, x, y, isNodeDialog, edgeFrom, edgeTo} = useSelector(selectDialog);
   const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
@@ -73,9 +74,18 @@ export const ModalDialogComponent = () => {
 
     const data = { type, fields: formFields };
 
-    let query = `g.addV('${type}')`;
+    let query = '';
+    if (isNodeDialog) {
+      query = `g.addV('${type}')`;
+    }
+    else {
+      query = `g.V(${edgeFrom}).as('a').addE('${type}').to(__.V('${edgeTo}'))`;
+    }
     for (const [key, value] of Object.entries(formFields)) {
       query += `.property('${value.propertyName}', '${value.propertyValue}')`;
+    }
+    if (!isNodeDialog) {
+      query += `.select('a')`
     }
     axios
       .post(
@@ -89,8 +99,14 @@ export const ModalDialogComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        const addedNode = [{ ...response.data[0], x, y }]
-        manualAddNode(addedNode, nodeLabels, dispatch);
+        if (isNodeDialog) {
+          const addedNode = [{ ...response.data[0], x, y }];
+          manualAddNode(addedNode, nodeLabels, dispatch);
+        }
+        else {
+          const addedEdge = response.data;
+          manualAddEdge(addedEdge, nodeLabels, dispatch);
+        }
       })
       .catch((error) => {
         const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
@@ -112,8 +128,11 @@ export const ModalDialogComponent = () => {
         maxWidth='sm'
         fullWidth={true}
       >
-        <DialogTitle>Add New Node</DialogTitle>
+        <DialogTitle>{isNodeDialog? 'Add New Node' : 'Add New Edge'}</DialogTitle>
         <DialogContent>
+          {(!isNodeDialog) && (<DialogContentText style = {{textAlign:'center', fontSize:'20px', fontWeight: 'bold', color:'black' }}>
+          Node Id : {edgeFrom} <ArrowForward style={{verticalAlign: "middle"}} /> Node Id : {edgeTo}
+          </DialogContentText>)}
           <TextField
             autoFocus
             required
