@@ -37,7 +37,8 @@ export interface NodeData {
   edges: EdgeData[]
   x: number
   y: number
-  [key:string]: any
+
+  [key: string]: any
 }
 
 export type GraphTypes = Sigma | Network | cytoscape.Core | null
@@ -48,6 +49,7 @@ export interface GraphData {
 }
 
 export interface GraphOptions {
+  layout: string,
   isPhysicsEnabled: boolean,
 }
 
