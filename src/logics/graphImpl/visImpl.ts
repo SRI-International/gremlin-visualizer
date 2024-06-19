@@ -1,8 +1,8 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
+import {openNodeDialog, openEdgeDialog} from "../../reducers/dialogReducer";
+import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
@@ -12,7 +12,16 @@ export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
+let shiftKeyDown = false;
+
 const defaultOptions: Options = {
+  manipulation: {
+    addEdge: function (data: any, _callback: any) {
+      const edgeFrom = data.from;
+      const edgeTo = data.to;
+      store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
+    }
+  },
   physics: {
     forceAtlas2Based: {
       gravitationalConstant: -26,
@@ -156,9 +165,21 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     });
     network.on('click', function (params) {
       let jsEvent = params.event.srcEvent;
-      if ((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
-        store.dispatch(setCoordinates({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
-        store.dispatch(openDialog());
+      if((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
+        store.dispatch(openNodeDialog({x: params.pointer.canvas.x, y: params.pointer.canvas.y}));
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        network!.addEdgeMode();
+      }
+    }
+    );
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown === true) {
+        shiftKeyDown = false;
+        network!.disableEditMode();
       }
     });
   }

@@ -85,7 +85,6 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label })));
     }
   });
-
   return { edges, nodes, nodeLabels };
 };
 

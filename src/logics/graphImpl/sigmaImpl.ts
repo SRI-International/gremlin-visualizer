@@ -7,7 +7,7 @@ import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
+import { openNodeDialog } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
 
@@ -87,8 +87,7 @@ function createSigmaGraph(container: HTMLElement) {
   sigma.on('clickStage', function (params) {
     let jsEvent = params.event.original;
     if (jsEvent.shiftKey) {
-      store.dispatch(setCoordinates({ x: params.event.x, y: params.event.y }));
-      store.dispatch(openDialog());
+      store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
     }
   });
   return sigma
