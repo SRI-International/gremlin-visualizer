@@ -2,7 +2,7 @@ import cy, { NodeDefinition } from "cytoscape";
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
-import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
@@ -180,8 +180,7 @@ export function getNodePositions() {
   return positions;
 }
 
-export function setNodePositions(name: string) {
-  let workspace = useSelector(selectGraph).workspaces.find(workspace => workspace.name === name);
+export function setNodePositions(workspace: Workspace | undefined) {
   graph?.nodes().forEach(node => {
     let newPosition = workspace?.layout[node.data('id')]
     if (newPosition !== undefined) node.position(newPosition);

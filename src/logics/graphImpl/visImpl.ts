@@ -1,6 +1,6 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
@@ -162,6 +162,6 @@ export function getNodePositions() {
   return network?.getPositions()
 }
 
-export function setNodePositions(name: string) {
+export function setNodePositions(workspace: Workspace | undefined) {
 
 }

@@ -99,12 +99,12 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
+  const workspaces = useSelector(selectGraph).workspaces
 
   const [ workspaceImport, setWorkspaceImport ] = useState(false);
   const [ workspaceExport, setWorkspaceExport ] = useState(false);
-  const [ workspaceSelected, setWorkspaceSelected ] = useState<string | null>(null);
-  const [ workspaceName, setWorkspaceName ] = useState<string | null>(null);
-  const workspaceOptions = useSelector(selectGraph).workspaces;
+  const [ workspaceSelected, setWorkspaceSelected ] = useState<string>('');
+  const [ workspaceName, setWorkspaceName ] = useState<string>('');
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -144,24 +144,26 @@ export const Settings = () => {
   }
 
   function loadWorkspaceOptions() {
-    console.log(workspaceOptions)
-    return workspaceOptions.map(workspace => {
-      if (workspace.impl !== GRAPH_IMPL) return <></>;
-      else return <MenuItem key={workspace.name}>{workspace.name}</MenuItem>;
+    const workspaceOptions = workspaces.filter(workspace => workspace.impl === GRAPH_IMPL);
+    if (workspaceOptions.length > 0) return workspaceOptions.map(workspace => {
+      return <MenuItem key={workspace.name} value={workspace.name}>{workspace.name}</MenuItem>;
     });
+    else return <MenuItem disabled value={''}>No workspaces saved</MenuItem>;
   }
 
-  function onSelectWorkspace(event: { target: { value: React.SetStateAction<string | null>; }; }) {
+  function onSelectWorkspace(event: { target: { value: React.SetStateAction<string>; }; }) {
     setWorkspaceSelected(event.target.value);
   }
 
-  function onConfirmLoadWorkspace(){
-    setNodePositions('a')
+  function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault()
+    let workspace = workspaces.find(workspace => workspace.name === workspaceSelected)
+    setNodePositions(workspace)
   }
 
   function onCancelSelectWorkspace() {
     setWorkspaceImport(false);
-    setWorkspaceSelected(null);
+    setWorkspaceSelected('');
   }
 
 
@@ -169,7 +171,8 @@ export const Settings = () => {
     setWorkspaceExport(false);
   }
 
-  function onConfirmSaveWorkspace() {
+  function onConfirmSaveWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault()
     let savedWorkspace = {
       name: workspaceName,
       impl: GRAPH_IMPL,
@@ -289,29 +292,44 @@ export const Settings = () => {
         </Button>
       </Grid>
       <Dialog
-        open={workspaceImport}>
+        open={workspaceImport}
+        onClose={onCancelSelectWorkspace}
+        PaperProps={{
+          component: 'form',
+          onSubmit: onConfirmLoadWorkspace,
+        }}>
         <DialogTitle>Load Workspace</DialogTitle>
         <DialogContent>
-          <FormControl fullWidth>
-            <InputLabel>Workspace</InputLabel>
-            <Select
-              id="workspaceSelect"
-              value={null}
-              label="Workspace"
-              onChange={onSelectWorkspace}
-            >
-              {loadWorkspaceOptions()}
-            </Select>
-          </FormControl>
+          <Grid container>
+            <Grid item>
+              <TextField
+                  select
+                  required
+                  id="workspaceSelect"
+                  label="Workspace"
+                  margin="dense"
+                  variant="standard"
+                  value={workspaceSelected}
+                  style={{width: '200px'}}
+                  onChange={onSelectWorkspace}
+                >
+                  {loadWorkspaceOptions()}
+                </TextField>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button variant='outlined' onClick={onCancelSelectWorkspace}>Cancel</Button>
-          <Button variant='contained' onClick={onConfirmLoadWorkspace}>Load</Button>
+          <Button type='submit' variant='contained'>Load</Button>
         </DialogActions>
       </Dialog>
       <Dialog
         open={workspaceExport}
-        onSubmit={onConfirmSaveWorkspace}>
+        onClose={onCancelSaveWorkspace}
+        PaperProps={{
+          component: 'form',
+          onSubmit: onConfirmSaveWorkspace,
+        }}>
         <DialogTitle>Save Workspace</DialogTitle>
         <DialogContent>
           <FormControl fullWidth>
