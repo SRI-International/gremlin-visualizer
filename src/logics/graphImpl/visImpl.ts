@@ -1,14 +1,14 @@
-import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
+import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode, updateNode } from "../../reducers/graphReducer";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
+import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
 
-export const layoutOptions = ['force-directed']
+export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
@@ -30,13 +30,6 @@ const defaultOptions: Options = {
       updateInterval: 25,
     },
   },
-  // layout: {
-  //   hierarchical: {
-  //     enabled: true,
-  //     direction: "UD",
-  //     sortMethod: "directed",
-  //   }
-  // },
   nodes: {
     shape: 'dot',
     size: 20,
@@ -63,6 +56,17 @@ function getOptions(options?: GraphOptions): Options {
   if (options) {
     opts.physics.enabled = options.isPhysicsEnabled
     if (!options.isPhysicsEnabled) {
+      const positions = network?.getPositions()
+      nodes.stream().forEach((n, id) => {
+          const oldNode = {...store.getState().graph.nodes.find(x => x.id == id)}
+          if (oldNode && positions) {
+            oldNode.x = positions[id].x;
+            oldNode.y = positions[id].y
+            store.dispatch(updateNode( oldNode))
+          }
+          return true
+        }
+      )
       opts.edges!.smooth = {
         enabled: true,
         type: 'continuous',
@@ -73,6 +77,25 @@ function getOptions(options?: GraphOptions): Options {
         enabled: true,
         type: 'dynamic',
         roundness: 0
+      }
+    }
+    switch (options.layout) {
+      case 'force-directed': {
+        opts.layout = { hierarchical: false }
+        break;
+      }
+      case 'hierarchical': {
+        opts.layout = {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+          }
+        }
+        break;
+      }
+      default: {
+        console.log(`Unknown layout ${options.layout} applied`)
       }
     }
   }
