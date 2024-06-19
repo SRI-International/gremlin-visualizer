@@ -270,23 +270,23 @@ export const Settings = () => {
         <NodeLabelList nodeLabels={nodeLabels} />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        <Fab
-          variant="extended"
+        <Button
+          variant='contained'
           color="primary"
-          size="small"
+          style={{ marginRight: '8px' }}
+          startIcon={<RefreshIcon />}
           onClick={onRefresh.bind(this)}
         >
-          <RefreshIcon />
           Refresh
-        </Fab>
-        <Fab
-          variant="extended"
-          size="small"
+        </Button>
+        <Button
+          variant="outlined"
+          color='primary'
           onClick={onAddNodeLabel.bind(this)}
+          startIcon={<AddIcon />}
         >
-          <AddIcon />
           Add Node Label
-        </Fab>
+        </Button>
       </Grid>
       <Dialog
         open={workspaceImport}>
