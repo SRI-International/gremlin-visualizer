@@ -106,7 +106,7 @@ function toVisEdge(edge: EdgeData) {
 
 function toVisNode(node: NodeData): Node {
   let gNode = { ...node, ...{ group: node.type } }
-  let icon = getIcon(node.label);
+  let icon = getIcon(node.type);
   if (icon) {
     gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
   }
