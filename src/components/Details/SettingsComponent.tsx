@@ -164,7 +164,7 @@ export const Settings = () => {
 
   function loadWorkspaceOptions() {
     const workspaceOptions = workspaces.filter(workspace => workspace.impl === GRAPH_IMPL);
-    if (!workspaceOptions.length) return workspaceOptions.map(workspace => {
+    if (workspaceOptions.length > 0) return workspaceOptions.map(workspace => {
       return <MenuItem key={workspace.name} value={workspace.name}>{workspace.name}</MenuItem>;
     });
     else return <MenuItem disabled value={''}>No workspaces saved</MenuItem>;
