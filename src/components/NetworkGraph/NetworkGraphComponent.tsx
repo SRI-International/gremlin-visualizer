@@ -10,7 +10,6 @@ import { GraphTypes } from "../../logics/utils";
 
 interface NetworkGraphComponentProps {
   panelWidth: number
-  retrieveGraph: (graph: GraphTypes) => void
 }
 
 export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
@@ -25,7 +24,6 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
         { nodes, edges },
         graphOptions
       );
-      props.retrieveGraph(graph);
     }
   }, [nodes, edges, graphOptions]);
 

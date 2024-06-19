@@ -31,13 +31,10 @@ import {
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
-import { applyLayout, layoutOptions } from "../../logics/graph";
+import { addWorkspace, refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
+import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
 import { GRAPH_IMPL } from "../../constants";
-
-type SettingsComponentProps = {
-  createWorkspace: () => void
-}
+// import { Workspace } from "../../reducers/graphReducer";
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
@@ -98,7 +95,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   );
 };
 
-export const Settings = (props: SettingsComponentProps) => {
+export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
@@ -147,9 +144,10 @@ export const Settings = (props: SettingsComponentProps) => {
   }
 
   function loadWorkspaceOptions() {
+    console.log(workspaceOptions)
     return workspaceOptions.map(workspace => {
       if (workspace.impl !== GRAPH_IMPL) return <></>;
-      else return <MenuItem value={workspace.name}>workspace.name</MenuItem>;
+      else return <MenuItem key={workspace.name}>{workspace.name}</MenuItem>;
     });
   }
 
@@ -158,7 +156,7 @@ export const Settings = (props: SettingsComponentProps) => {
   }
 
   function onConfirmLoadWorkspace(){
-
+    setNodePositions('a')
   }
 
   function onCancelSelectWorkspace() {
@@ -172,7 +170,13 @@ export const Settings = (props: SettingsComponentProps) => {
   }
 
   function onConfirmSaveWorkspace() {
-
+    let savedWorkspace = {
+      name: workspaceName,
+      impl: GRAPH_IMPL,
+      layout: getNodePositions()
+    }
+    dispatch(addWorkspace(savedWorkspace))
+    onCancelSaveWorkspace()
   }
 
   return (
@@ -306,21 +310,25 @@ export const Settings = (props: SettingsComponentProps) => {
         </DialogActions>
       </Dialog>
       <Dialog
-        open={workspaceExport}>
+        open={workspaceExport}
+        onSubmit={onConfirmSaveWorkspace}>
         <DialogTitle>Save Workspace</DialogTitle>
         <DialogContent>
           <FormControl fullWidth>
-            <InputLabel>Workspace Name</InputLabel>
             <TextField
               autoFocus
               required
-              onChange={(event) => setWorkspaceSelected(event.target.value)}
+              margin="dense"
+              id="workspaceName"
+              label="Workspace Name"
+              variant="standard"
+              onChange={(event) => setWorkspaceName(event.target.value)}
             />
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button variant='outlined' onClick={onCancelSaveWorkspace}>Cancel</Button>
-          <Button variant='contained' onClick={onConfirmSaveWorkspace}>Load</Button>
+          <Button type='submit' variant='contained'>Load</Button>
         </DialogActions>
       </Dialog>
     </Grid>

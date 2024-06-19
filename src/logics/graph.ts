@@ -12,4 +12,4 @@ const { getGraph, getNodePositions, setNodePositions, applyLayout, layoutOptions
     return { getGraph: getVisNetwork, getNodePositions: getVisNodePositions, setNodePositions: setVisNodePositions, applyLayout: visLayout, layoutOptions: visLayouts };
   }
 })();
-export { getGraph, applyLayout, layoutOptions };
+export { getGraph, getNodePositions, setNodePositions, applyLayout, layoutOptions };

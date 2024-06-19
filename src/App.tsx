@@ -33,33 +33,11 @@ export const App = () => {
     document.body.style.userSelect = 'auto'
   }
 
-  const [graph, setGraph] = useState<GraphTypes>(null);
-
-  function retrieveGraph(graph: GraphTypes) {
-    setGraph(graph)
-  }
-
-  function createWorkspace() {
-
-    let positions: Record<string, object> = {};
-
-    if (graph === null) return;
-    if (graph instanceof Network) {
-      positions = graph.getPositions()
-    } else if (graph instanceof Sigma) {
-      graph.getGraph().forEachNode(((node, attributes) => positions[node] = { x: attributes.x, y: attributes.y }))
-    } else {
-      graph.nodes().map(node => positions[node.data('id')] = node.position())
-    }
-
-    console.log(positions)
-  }
-
   return (
     <div>
       <HeaderComponent />
-      <NetworkGraphComponent panelWidth={panelWidth} retrieveGraph={retrieveGraph} />
-      <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} createWorkspace={createWorkspace} />
+      <NetworkGraphComponent panelWidth={panelWidth} />
+      <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} />
       <ModalDialogComponent />
     </div>
   );

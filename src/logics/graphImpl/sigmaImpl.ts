@@ -2,13 +2,14 @@ import FA2Layout from "graphology-layout-forceatlas2/worker";
 import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
+import { useSelector } from "react-redux";
 
 export const layoutOptions = ['force-directed', 'circular']
 const graph: Graph = new Graph();
@@ -167,10 +168,20 @@ export function applyLayout(name: string) {
 }
 
 export function getNodePositions() {
-  let positions: Record<string, { x: number, y: number }>
-  return sigma?.getGraph().forEachNode(((node, attributes) => positions[node] = { x: attributes.x, y: attributes.y }))
+  let positions: Record<string, { x: number, y: number }> = {};
+  sigma?.getGraph().forEachNode((node, attributes) => {
+    positions[node] = { x: attributes.x, y: attributes.y }
+  })
+  return positions
 }
 
 export function setNodePositions(name: string) {
-
+  sigma?.getGraph().forEachNode((node, attributes) => {
+    console.log(node, attributes)
+  })
+  // let workspace = useSelector(selectGraph).workspaces.find(workspace => workspace.name === name);
+  // sigma?.setSetting("nodeReducer", (node, attributes) => {
+  //   let newPosition = workspace?.layout[node]
+  //   if (newPosition !== undefined) return {...attributes, x: newPosition?.x, y: newPosition?.y}
+  // })
 }

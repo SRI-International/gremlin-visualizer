@@ -51,7 +51,6 @@ function TabPanel(props: TabPanelProps) {
 interface SidebarComponentProps {
   panelWidth: number,
   handleMouseDown: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
-  createWorkspace: () => void
 }
 
 export const SidebarComponent = (props: SidebarComponentProps) => {
@@ -84,7 +83,7 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
           <QueryHistoryList list={queryHistory} />
         </TabPanel>
         <TabPanel index={2} value={value}>
-          <Settings createWorkspace={props.createWorkspace} />
+          <Settings />
         </TabPanel>
         <TabPanel index={1} value={value}>
           <DetailsComponent />

@@ -158,8 +158,11 @@ export function applyLayout(name: string) {
 }
 
 export function getNodePositions() {
-  let positions: Record<string, { x: number, y: number }>
-  return graph?.nodes().map(node => positions[node.data('id')] = node.position())
+  let positions: Record<string, { x: number, y: number }> = {};
+  graph?.nodes().forEach(node => {
+    positions[node.data('id')] = node.position()
+  })
+  return positions;
 }
 
 export function setNodePositions(name: string) {

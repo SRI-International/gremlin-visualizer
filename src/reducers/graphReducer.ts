@@ -4,7 +4,7 @@ import { RootState } from '../app/store';
 import _ from 'lodash';
 import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 
-type Workspace = {
+export type Workspace = {
   name: string,
   impl: string,
   layout: Record<string, {x: number, y: number}>
@@ -108,6 +108,7 @@ const slice = createSlice({
       Object.assign(state.nodeColorMap, action.payload);
     },
     addWorkspace: (state, action) => {
+      console.log(action.payload)
       state.workspaces.push(action.payload)
     }
   },
@@ -122,7 +123,8 @@ export const {
   setSelectedEdge,
   setSelectedNode,
   refreshNodeLabels,
-  updateColorMap
+  updateColorMap,
+  addWorkspace
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;
