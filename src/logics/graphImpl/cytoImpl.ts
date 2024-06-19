@@ -14,7 +14,7 @@ let layout: cy.Layouts | null = null;
 let layoutName: string = 'force-directed'
 const opts: ColaLayoutOptions = {
   name: 'cola',
-  infinite: true,
+  infinite: false,
   animate: true,
   centerGraph: false,
   fit: false,
@@ -25,6 +25,7 @@ cy.use(cola)
 function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
   let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
+  console.log(n)
   return {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },
@@ -175,7 +176,7 @@ export function applyLayout(name: string) {
 export function getNodePositions() {
   let positions: Record<string, { x: number, y: number }> = {};
   graph?.nodes().forEach(node => {
-    positions[node.data('id')] = node.position()
+    positions[node.data('id')] = Object.assign({}, node.position())
   })
   return positions;
 }

@@ -208,5 +208,4 @@ export function setNodePositions(workspace: Workspace | undefined) {
       }
     })
   })
-
 }

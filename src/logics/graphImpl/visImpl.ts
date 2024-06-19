@@ -7,6 +7,7 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
+import { networkDOTParser } from "vis-network/esnext";
 
 export const layoutOptions = ['force-directed']
 let network: Network | null = null;
@@ -163,5 +164,12 @@ export function getNodePositions() {
 }
 
 export function setNodePositions(workspace: Workspace | undefined) {
+  if (workspace !== undefined) {
+    let nodeIds = Object.keys(workspace.layout);
+    nodeIds.forEach((id => {
+      if (network?.findNode(id) !== undefined && network?.findNode(id).length > 0)
+        network?.moveNode(parseInt(id), workspace.layout[id].x, workspace.layout[id].y)
+    }))
+  }
 
 }
