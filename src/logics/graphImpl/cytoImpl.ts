@@ -35,7 +35,7 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-image': getIcon(n.type),
       'background-fit': 'contain'
     },
-    position: { x: n.x, y: n.y },
+    position: { x: n.x ? n.x : 0, y: n.y ? n.y : 0 },
   };
 }
 
@@ -115,7 +115,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       if (!graph.nodes().map(x => x.id()).includes(n.data.id!)) {
         graph.add(n)
       } else {
-        graph.getElementById(n.data.id!).data(n.data)
+        graph.getElementById(n.data.id!).data({ ...n.data, ...{ x: undefined, y: undefined } })
       }
     }
     for (let n of graph.nodes()) {

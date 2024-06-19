@@ -1,6 +1,6 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode, updateNode } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
 import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
@@ -56,17 +56,6 @@ function getOptions(options?: GraphOptions): Options {
   if (options) {
     opts.physics.enabled = options.isPhysicsEnabled
     if (!options.isPhysicsEnabled) {
-      const positions = network?.getPositions()
-      nodes.stream().forEach((n, id) => {
-          const oldNode = {...store.getState().graph.nodes.find(x => x.id == id)}
-          if (oldNode && positions) {
-            oldNode.x = positions[id].x;
-            oldNode.y = positions[id].y
-            store.dispatch(updateNode( oldNode))
-          }
-          return true
-        }
-      )
       opts.edges!.smooth = {
         enabled: true,
         type: 'continuous',
@@ -121,7 +110,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!nodes!.get(n.id as Id)) {
         nodes.add(toVisNode(n))
       } else {
-        nodes.update(toVisNode(n))
+        nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
     for (let e of data?.edges || []) {
