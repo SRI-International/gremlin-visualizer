@@ -35,7 +35,7 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-image': getIcon(n.type),
       'background-fit': 'contain'
     },
-    position: { x: n.x ? n.x : 0, y: n.y ? n.y : 0 },
+    position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
 }
 
@@ -143,6 +143,7 @@ export function applyLayout(name: string) {
   switch (name) {
     case 'force-directed': {
       layout = graph.layout({ ...opts, ...{ infinite: store.getState().options.graphOptions.isPhysicsEnabled } })
+      graph.center()
       store.dispatch(setIsPhysicsEnabled(true))
       break
     }
