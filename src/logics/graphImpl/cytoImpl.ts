@@ -5,7 +5,7 @@ import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
+import { openNodeDialog } from "../../reducers/dialogReducer";
 
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
@@ -94,8 +94,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     })
     graph.on('tap', e => {
       if (e.target == graph && e.originalEvent.shiftKey) {
-        store.dispatch(setCoordinates({ x: e.position.x, y: e.position.y }));
-        store.dispatch(openDialog());
+        store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
       }
     })
     return graph;

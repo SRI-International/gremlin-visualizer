@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectDialog, closeDialog, } from '../../reducers/dialogReducer';
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid, DialogContentText } from '@mui/material';
 import axios from 'axios';
-import { manualAddEdge, manualAddNode } from '../../logics/actionHelper';
+import { manualAddElement } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import { ArrowForward } from '@mui/icons-material';
 import {
   COMMON_GREMLIN_ERROR,
   QUERY_ENDPOINT,
+  DIALOG_TYPES
 } from "../../constants";
 import { selectOptions } from '../../reducers/optionReducer';
 
@@ -21,11 +22,10 @@ export const ModalDialogComponent = () => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const { isDialogOpen, x, y, isNodeDialog, edgeFrom, edgeTo} = useSelector(selectDialog);
+  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo} = useSelector(selectDialog);
   const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
-
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -34,6 +34,29 @@ export const ModalDialogComponent = () => {
       setDuplicateError('');
     }
   }, [isDialogOpen]);
+
+  const getDialogTitle = (dialogType : any) => {
+    switch (dialogType) {
+      case DIALOG_TYPES.NODE:
+        return "Add New Node";
+      case DIALOG_TYPES.EDGE:
+        return "Add New Edge";
+      default:
+        return "";
+    }
+  }
+  const getDialogText = (dialogType : any) => {
+    switch (dialogType) {
+      case DIALOG_TYPES.NODE:
+        return null;
+      case DIALOG_TYPES.EDGE:
+        return (<DialogContentText style = {{textAlign:'center', fontSize:'20px', fontWeight: 'bold', color:'black' }}>
+          Node Id : {edgeFrom} <ArrowForward style={{verticalAlign: "middle"}} /> Node Id : {edgeTo}
+          </DialogContentText>);
+      default:
+        return null;
+    }
+  }
 
   const handleClose = () => {
     dispatch(closeDialog());
@@ -73,6 +96,7 @@ export const ModalDialogComponent = () => {
     }
 
     const data = { type, fields: formFields };
+    const isNodeDialog = (dialogType == DIALOG_TYPES.NODE);
 
     let query = '';
     if (isNodeDialog) {
@@ -99,14 +123,8 @@ export const ModalDialogComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        if (isNodeDialog) {
-          const addedNode = [{ ...response.data[0], x, y }];
-          manualAddNode(addedNode, nodeLabels, dispatch);
-        }
-        else {
-          const addedEdge = response.data;
-          manualAddEdge(addedEdge, nodeLabels, dispatch);
-        }
+        const addedElement = isNodeDialog? [{...response.data[0], x, y}] : response.data
+        manualAddElement(isNodeDialog, addedElement, nodeLabels, dispatch);
       })
       .catch((error) => {
         const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
@@ -128,11 +146,9 @@ export const ModalDialogComponent = () => {
         maxWidth='sm'
         fullWidth={true}
       >
-        <DialogTitle>{isNodeDialog? 'Add New Node' : 'Add New Edge'}</DialogTitle>
+        <DialogTitle>{getDialogTitle(dialogType)}</DialogTitle>
         <DialogContent>
-          {(!isNodeDialog) && (<DialogContentText style = {{textAlign:'center', fontSize:'20px', fontWeight: 'bold', color:'black' }}>
-          Node Id : {edgeFrom} <ArrowForward style={{verticalAlign: "middle"}} /> Node Id : {edgeTo}
-          </DialogContentText>)}
+          {getDialogText(dialogType)}
           <TextField
             autoFocus
             required

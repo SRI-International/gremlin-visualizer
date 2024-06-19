@@ -31,25 +31,23 @@ export const updateOnConfirm = (elementType: string | null, updateId: IdType | u
   store.dispatch(addQueryHistory(query));
 };
 
-export const manualAddNode = (result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
+export const manualAddElement = (isNode : boolean, result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(
     result,
     oldNodeLabels
 
   );
-  dispatch(addNodes(nodes));
-  dispatch(setNodeLabels(nodeLabels));
-  dispatch(setSelectedNode(nodes[0].id));
+  if (isNode) {
+    dispatch(addNodes(nodes));
+    dispatch(setNodeLabels(nodeLabels));
+    dispatch(setSelectedNode(nodes[0].id));
+  }
+  else {
+    dispatch(addNodes(nodes));
+    dispatch(addEdges(edges));
+    dispatch(setSelectedEdge(edges[0].id));
+  }
 }
 
-export const manualAddEdge = (result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
-  const { nodes, edges} = extractEdgesAndNodes(
-    result,
-    oldNodeLabels
-  );
-  dispatch(addNodes(nodes));
-  dispatch(addEdges(edges));
-  dispatch(setSelectedEdge(edges[0].id));
-}
 
 

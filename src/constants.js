@@ -24,6 +24,10 @@ export const ACTIONS = {
   REFRESH_NODE_LABELS: 'REFRESH_NODE_LABELS',
   SET_NODE_LIMIT: 'SET_NODE_LIMIT'
 };
+export const DIALOG_TYPES = {
+  NODE: 'node',
+  EDGE: 'edge'
+};
 
 export const DISABLE_NODE_EDGE_EDIT = false;
 export const EDGE_ID_APPEND = 'L';
