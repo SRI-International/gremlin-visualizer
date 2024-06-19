@@ -6,6 +6,7 @@ import axios from 'axios';
 import { manualAddElement } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import { ArrowForward } from '@mui/icons-material';
+import Autocomplete from '@mui/material/Autocomplete';
 import {
   COMMON_GREMLIN_ERROR,
   QUERY_ENDPOINT,
@@ -26,10 +27,11 @@ export const ModalDialogComponent = () => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo} = useSelector(selectDialog);
+  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo, fieldSuggestions} = useSelector(selectDialog);
   const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
+  const [autocompleteOptions, setAutocompleteOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -60,6 +62,9 @@ export const ModalDialogComponent = () => {
       default:
         return null;
     }
+  }
+  const getAutocomplete = (type : string) => {
+    return fieldSuggestions[dialogType]?.[type] ?? []; 
   }
 
   const handleClose = () => {
@@ -169,17 +174,23 @@ export const ModalDialogComponent = () => {
           <Grid container spacing={2}>
             {formFields.map((form, index) => (
               <React.Fragment key={index}>
-                <Grid item xs={5}>
-                  <TextField
-                    required
-                    margin="dense"
-                    name="propertyName"
-                    label="Property Name"
-                    value={form.propertyName}
-                    onChange={event => handleFormChange(event, index)}
-                    fullWidth
-                    variant="standard"
-                  />
+                <Grid item xs={5}> 
+                  <Autocomplete
+                    freeSolo
+                    options= {getAutocomplete(type)}
+                    renderInput = {(params) =>(
+                      <TextField
+                      {...params}
+                      required
+                      margin="dense"
+                      name="propertyName"
+                      label="Property Name"
+                      value={form.propertyName}
+                      onChange={event => handleFormChange(event, index)}
+                      fullWidth
+                      variant="standard"
+                      />)}
+                    />
                 </Grid>
                 <Grid item xs={5}>
                   <TextField

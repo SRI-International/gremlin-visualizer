@@ -3,6 +3,9 @@ import { Edge, Network, Node } from 'vis-network';
 import { NodeLabel } from '../reducers/optionReducer';
 import cytoscape from "cytoscape";
 import Sigma from "sigma";
+import { FieldSuggestions, setSuggestions } from '../reducers/dialogReducer';
+import store from '../app/store';
+import { DIALOG_TYPES } from '../components/ModalDialog/ModalDialogComponent';
 
 let convert = require('color-convert')
 
@@ -59,6 +62,45 @@ const selectRandomField = (obj: any) => {
   return firstKey;
 };
 
+export interface TempFieldSuggestions {
+  [dialogType : string] : {
+    [label: string] : Set<string>;
+  }
+}
+
+const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
+  const fieldSuggestions: FieldSuggestions = {[DIALOG_TYPES.NODE] : {}, [DIALOG_TYPES.EDGE] : {}};
+  const tempFieldSuggestions: TempFieldSuggestions = {[DIALOG_TYPES.NODE] : {}, [DIALOG_TYPES.EDGE] : {}};
+  const nodeSuggestions = tempFieldSuggestions[DIALOG_TYPES.NODE];
+  const edgeSuggestions = tempFieldSuggestions[DIALOG_TYPES.EDGE];
+
+  nodes.forEach(node => {
+    if (!nodeSuggestions[node.type]) {
+      nodeSuggestions[node.type] = new Set();
+    }
+    Object.keys(node.properties).forEach(field => {
+      nodeSuggestions[node.type].add(field);
+    });
+  })
+  Object.keys(nodeSuggestions).forEach(type => {
+    fieldSuggestions[DIALOG_TYPES.NODE][type] = Array.from(nodeSuggestions[type]);
+  });
+
+  edges.forEach(edge => {
+    if (!edgeSuggestions[edge.type]) {
+      edgeSuggestions[edge.type] = new Set();
+    }
+    Object.keys(edge.properties).forEach(field => {
+      edgeSuggestions[edge.type].add(field);
+    });
+  })
+  Object.keys(edgeSuggestions).forEach(type => {
+    fieldSuggestions[DIALOG_TYPES.EDGE][type] = Array.from(edgeSuggestions[type]);
+  });
+
+  store.dispatch(setSuggestions(fieldSuggestions));
+};
+
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
   const nodes: Node[] = [];
@@ -85,6 +127,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label })));
     }
   });
+  storeSuggestions(nodes as NodeData[], edges as EdgeData[]);
   return { edges, nodes, nodeLabels };
 };
 
