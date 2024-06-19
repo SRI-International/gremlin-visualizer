@@ -9,13 +9,17 @@ import { ArrowForward } from '@mui/icons-material';
 import {
   COMMON_GREMLIN_ERROR,
   QUERY_ENDPOINT,
-  DIALOG_TYPES
 } from "../../constants";
 import { selectOptions } from '../../reducers/optionReducer';
 
 type FormField = {
   propertyName: string;
   propertyValue: string;
+};
+
+export const DIALOG_TYPES = {
+  NODE: 'node',
+  EDGE: 'edge'
 };
 
 export const ModalDialogComponent = () => {

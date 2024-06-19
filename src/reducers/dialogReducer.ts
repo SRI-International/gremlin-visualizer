@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
-import { DIALOG_TYPES } from '../constants';
-
+import { DIALOG_TYPES } from "../components/ModalDialog/ModalDialogComponent";
 
 const initialState = {
   isDialogOpen: false,
@@ -9,7 +8,7 @@ const initialState = {
   properties: {},
   x: null,
   y: null,
-  edgeFrom : null,
+  edgeFrom: null,
   edgeTo: null
 };
 
