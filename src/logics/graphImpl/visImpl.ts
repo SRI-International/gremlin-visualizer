@@ -1,4 +1,4 @@
-import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
+import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
 import {openNodeDialog, openEdgeDialog} from "../../reducers/dialogReducer";
@@ -8,7 +8,7 @@ import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
 
-export const layoutOptions = ['force-directed']
+export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
@@ -39,13 +39,6 @@ const defaultOptions: Options = {
       updateInterval: 25,
     },
   },
-  // layout: {
-  //   hierarchical: {
-  //     enabled: true,
-  //     direction: "UD",
-  //     sortMethod: "directed",
-  //   }
-  // },
   nodes: {
     shape: 'dot',
     size: 20,
@@ -84,6 +77,25 @@ function getOptions(options?: GraphOptions): Options {
         roundness: 0
       }
     }
+    switch (options.layout) {
+      case 'force-directed': {
+        opts.layout = { hierarchical: false }
+        break;
+      }
+      case 'hierarchical': {
+        opts.layout = {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+          }
+        }
+        break;
+      }
+      default: {
+        console.log(`Unknown layout ${options.layout} applied`)
+      }
+    }
   }
   return opts
 }
@@ -107,7 +119,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!nodes!.get(n.id as Id)) {
         nodes.add(toVisNode(n))
       } else {
-        nodes.update(toVisNode(n))
+        nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
     for (let e of data?.edges || []) {

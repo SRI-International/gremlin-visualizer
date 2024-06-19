@@ -35,8 +35,8 @@ export interface NodeData {
   label: string
   type: string
   edges: EdgeData[]
-  x: number
-  y: number
+  x: number | undefined
+  y: number | undefined
 
   [key: string]: any
 }
