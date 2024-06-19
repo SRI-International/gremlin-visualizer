@@ -35,8 +35,8 @@ export interface NodeData {
   label: string
   type: string
   edges: EdgeData[]
-  x: number
-  y: number
+  x: number | undefined
+  y: number | undefined
 
   [key: string]: any
 }
@@ -85,7 +85,6 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label })));
     }
   });
-
   return { edges, nodes, nodeLabels };
 };
 

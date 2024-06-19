@@ -1,7 +1,7 @@
-import { DataInterfaceEdges, DataInterfaceNodes, Edge, Node, Network, Options } from "vis-network";
+import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
+import {openNodeDialog, openEdgeDialog} from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
@@ -9,11 +9,20 @@ import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
 import { networkDOTParser } from "vis-network/esnext";
 
-export const layoutOptions = ['force-directed']
+export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
+let shiftKeyDown = false;
+
 const defaultOptions: Options = {
+  manipulation: {
+    addEdge: function (data: any, _callback: any) {
+      const edgeFrom = data.from;
+      const edgeTo = data.to;
+      store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
+    }
+  },
   physics: {
     forceAtlas2Based: {
       gravitationalConstant: -26,
@@ -31,13 +40,6 @@ const defaultOptions: Options = {
       updateInterval: 25,
     },
   },
-  // layout: {
-  //   hierarchical: {
-  //     enabled: true,
-  //     direction: "UD",
-  //     sortMethod: "directed",
-  //   }
-  // },
   nodes: {
     shape: 'dot',
     size: 20,
@@ -76,6 +78,25 @@ function getOptions(options?: GraphOptions): Options {
         roundness: 0
       }
     }
+    switch (options.layout) {
+      case 'force-directed': {
+        opts.layout = { hierarchical: false }
+        break;
+      }
+      case 'hierarchical': {
+        opts.layout = {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+          }
+        }
+        break;
+      }
+      default: {
+        console.log(`Unknown layout ${options.layout} applied`)
+      }
+    }
   }
   return opts
 }
@@ -86,7 +107,7 @@ function toVisEdge(edge: EdgeData) {
 
 function toVisNode(node: NodeData): Node {
   let gNode = { ...node, ...{ group: node.type } }
-  let icon = getIcon(node.label);
+  let icon = getIcon(node.type);
   if (icon) {
     gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
   }
@@ -99,7 +120,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!nodes!.get(n.id as Id)) {
         nodes.add(toVisNode(n))
       } else {
-        nodes.update(toVisNode(n))
+        nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
     for (let e of data?.edges || []) {
@@ -145,9 +166,21 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     });
     network.on('click', function (params) {
       let jsEvent = params.event.srcEvent;
-      if ((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
-        store.dispatch(setCoordinates({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
-        store.dispatch(openDialog());
+      if((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
+        store.dispatch(openNodeDialog({x: params.pointer.canvas.x, y: params.pointer.canvas.y}));
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        network!.addEdgeMode();
+      }
+    }
+    );
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown === true) {
+        shiftKeyDown = false;
+        network!.disableEditMode();
       }
     });
   }

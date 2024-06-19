@@ -26,7 +26,7 @@ export const App = () => {
       setPanelWidth(offsetRight);
     }
   }
-
+  
   const handlePanelDragUnselect = () => {
     document.removeEventListener('mousemove', handlePanelDrag)
     document.removeEventListener('mouseup', handlePanelDragUnselect)

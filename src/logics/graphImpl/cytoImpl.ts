@@ -5,8 +5,8 @@ import store from "../../app/store";
 import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
-import { openDialog, setCoordinates } from "../../reducers/dialogReducer";
 import { useSelector } from "react-redux";
+import { openNodeDialog } from "../../reducers/dialogReducer";
 
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
@@ -14,7 +14,7 @@ let layout: cy.Layouts | null = null;
 let layoutName: string = 'force-directed'
 const opts: ColaLayoutOptions = {
   name: 'cola',
-  infinite: false,
+  infinite: true,
   animate: true,
   centerGraph: false,
   fit: false,
@@ -25,7 +25,6 @@ cy.use(cola)
 function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
   let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
-  console.log(n)
   return {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },
@@ -37,7 +36,7 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-image': getIcon(n.type),
       'background-fit': 'contain'
     },
-    position: { x: n.x, y: n.y },
+    position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
 }
 
@@ -96,8 +95,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     })
     graph.on('tap', e => {
       if (e.target == graph && e.originalEvent.shiftKey) {
-        store.dispatch(setCoordinates({ x: e.position.x, y: e.position.y }));
-        store.dispatch(openDialog());
+        store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
       }
     })
     return graph;
@@ -117,7 +115,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       if (!graph.nodes().map(x => x.id()).includes(n.data.id!)) {
         graph.add(n)
       } else {
-        graph.getElementById(n.data.id!).data(n.data)
+        graph.getElementById(n.data.id!).data({ ...n.data, ...{ x: undefined, y: undefined } })
       }
     }
     for (let n of graph.nodes()) {
@@ -146,6 +144,7 @@ export function applyLayout(name: string) {
   switch (name) {
     case 'force-directed': {
       layout = graph.layout({ ...opts, ...{ infinite: store.getState().options.graphOptions.isPhysicsEnabled } })
+      graph.center()
       store.dispatch(setIsPhysicsEnabled(true))
       break
     }
@@ -168,7 +167,6 @@ export function applyLayout(name: string) {
       console.warn(`Unknown layout ${name} applied`)
     }
   }
-
   layout.start()
 
 }
