@@ -2,7 +2,7 @@ import FA2Layout from "graphology-layout-forceatlas2/worker";
 import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
 import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
@@ -185,4 +185,42 @@ export function applyLayout(name: string) {
       console.warn(`Unknown layout ${name} applied`)
     }
   }
+}
+
+export function getNodePositions() {
+  sigmaLayout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  let positions: Record<string, { x: number, y: number }> = {};
+  sigma?.getGraph().forEachNode((node, attributes) => {
+    positions[node] = { x: attributes.x, y: attributes.y }
+  })
+  return {
+    layout: positions,
+    zoom: sigma?.getCamera().ratio,
+    view: {
+      x: sigma?.getCamera().x,
+      y: sigma?.getCamera().y
+    }
+  }
+}
+
+export function setNodePositions(workspace: Workspace | undefined) {
+  sigmaLayout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  graph.forEachNode((node, attributes) => {
+    let newPosition = workspace?.layout[node]
+    if (newPosition !== undefined) graph.updateNode(node, attributes => {
+      return {
+        ...attributes,
+        x: newPosition?.x,
+        y: newPosition?.y
+      }
+    })
+  })
+  sigma?.getCamera().setState({
+    ...sigma?.getCamera().getState(),
+    x: workspace?.view.x,
+    y: workspace?.view.y,
+    ratio: workspace?.zoom
+  })
 }

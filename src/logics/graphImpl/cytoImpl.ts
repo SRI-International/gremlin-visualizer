@@ -2,7 +2,7 @@ import cy, { NodeDefinition } from "cytoscape";
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openNodeDialog } from "../../reducers/dialogReducer";
@@ -168,4 +168,29 @@ export function applyLayout(name: string) {
   }
   layout.start()
 
+}
+
+export function getNodePositions() {
+  layout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  let positions: Record<string, { x: number, y: number }> = {};
+  graph?.nodes().forEach(node => {
+    positions[node.data('id')] = Object.assign({}, node.position())
+  })
+  return {
+    layout: positions,
+    zoom: graph?.zoom(),
+    view: Object.assign({}, graph?.pan())
+  };
+}
+
+export function setNodePositions(workspace: Workspace | undefined) {
+  layout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  graph?.nodes().forEach(node => {
+    let newPosition = workspace?.layout[node.data('id')]
+    if (newPosition !== undefined) node.position(newPosition);
+  })
+  graph?.zoom(workspace?.zoom)
+  graph?.pan(workspace?.view)
 }
