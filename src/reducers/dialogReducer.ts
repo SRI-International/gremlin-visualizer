@@ -2,11 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import { DIALOG_TYPES } from "../components/ModalDialog/ModalDialogComponent";
 
-export interface FieldSuggestions {
+export interface Suggestions {
   [dialogType : string] : {
-    [label: string] : string[];
+    types : string[]
+    labels : {[label: string] : string[]}
   }
 }
+
 
 interface DialogState {
   isDialogOpen: boolean;
@@ -16,7 +18,7 @@ interface DialogState {
   y: number | null;
   edgeFrom: string | null;
   edgeTo: string | null;
-  fieldSuggestions: FieldSuggestions;
+  suggestions: Suggestions;
 }
 
 const initialState: DialogState = {
@@ -27,7 +29,7 @@ const initialState: DialogState = {
   y: null,
   edgeFrom: null,
   edgeTo: null,
-  fieldSuggestions: {}
+  suggestions: {},
 };
 
 const slice = createSlice({
@@ -55,25 +57,35 @@ const slice = createSlice({
       state.dialogType = action.payload;
     },
     setSuggestions: (state, action) => {
-      const fieldSuggestions = action.payload as FieldSuggestions;
-      Object.entries(fieldSuggestions).forEach(([dialogType, labels]) => {
-        if (!state.fieldSuggestions[dialogType]) {
-          state.fieldSuggestions[dialogType] = {};
+      const suggestions = action.payload as Suggestions;
+
+      Object.entries(suggestions).forEach(([dialogType, elementSuggestions]) => {
+        if (!state.suggestions[dialogType]) {
+          state.suggestions[dialogType] = {
+            types: [],
+            labels : {}
+          };
         }
-        Object.entries(labels).forEach(([label, suggestionsArray]) => {
-          if (!state.fieldSuggestions[dialogType][label]) {
-            state.fieldSuggestions[dialogType][label] = [];
-          }
-          const tempSet = new Set(state.fieldSuggestions[dialogType][label]);
-          suggestionsArray.forEach(suggestion => {
-            tempSet.add(suggestion);
+
+        Object.entries(elementSuggestions.labels).forEach(([label, fields]) => {
+          const tempSet = new Set(state.suggestions[dialogType].labels[label]);
+          fields.forEach(fields => {
+            tempSet.add(fields);
           });
-          state.fieldSuggestions[dialogType][label] = Array.from(tempSet);
+          state.suggestions[dialogType].labels[label] = Array.from(tempSet);
         });
+
+        const tempSet = new Set(state.suggestions[dialogType].types);
+        elementSuggestions.types.forEach((type) => {
+          tempSet.add(type);
+        });
+        state.suggestions[dialogType].types = Array.from(tempSet);
       });
     }
+
   }
-});
+})
+
 
 export const { openNodeDialog, openEdgeDialog, closeDialog, setDialogType, setSuggestions } = slice.actions;
 export const selectDialog = (state: RootState) => state.dialog;
