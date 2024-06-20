@@ -7,7 +7,9 @@ import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 export type Workspace = {
   name: string,
   impl: string,
-  layout: Record<string, {x: number, y: number}>
+  layout: Record<string, { x: number, y: number }>
+  zoom: number,
+  view: { x: number, y: number }
 }
 
 type GraphState = {
@@ -108,8 +110,9 @@ const slice = createSlice({
       Object.assign(state.nodeColorMap, action.payload);
     },
     addWorkspace: (state, action) => {
-      console.log(action.payload)
-      state.workspaces.push(action.payload)
+      let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
+      if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
+      else state.workspaces.push(action.payload)
     }
   },
 });

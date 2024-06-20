@@ -5,7 +5,6 @@ import store from "../../app/store";
 import { selectGraph, setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
-import { useSelector } from "react-redux";
 import { openNodeDialog } from "../../reducers/dialogReducer";
 
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
@@ -172,16 +171,26 @@ export function applyLayout(name: string) {
 }
 
 export function getNodePositions() {
+  layout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
   let positions: Record<string, { x: number, y: number }> = {};
   graph?.nodes().forEach(node => {
     positions[node.data('id')] = Object.assign({}, node.position())
   })
-  return positions;
+  return {
+    layout: positions,
+    zoom: graph?.zoom(),
+    view: Object.assign({}, graph?.pan())
+  };
 }
 
 export function setNodePositions(workspace: Workspace | undefined) {
+  layout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
   graph?.nodes().forEach(node => {
     let newPosition = workspace?.layout[node.data('id')]
     if (newPosition !== undefined) node.position(newPosition);
   })
+  graph?.zoom(workspace?.zoom)
+  graph?.pan(workspace?.view)
 }

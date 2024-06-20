@@ -1,18 +1,24 @@
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Box,
   Divider,
-  Fab, FormControl,
-  FormControlLabel,
+  Fab,
+  FormControl,
   Grid,
-  IconButton, InputLabel,
+  IconButton,
+  InputLabel,
   List,
-  ListItem, MenuItem, Select,
-  Switch,
+  ListItem,
+  MenuItem,
+  Select,
   SelectChangeEvent,
   TextField,
   Tooltip,
-  Typography, Alert
+  Typography
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,7 +40,6 @@ import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { addWorkspace, refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
 import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
 import { GRAPH_IMPL } from "../../constants";
-// import { Workspace } from "../../reducers/graphReducer";
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
@@ -182,10 +187,15 @@ export const Settings = () => {
       setWorkspaceSaveNameConflict(true)
       return;
     }
+    finishSaveWorkspace(null)
+  }
+
+  function finishSaveWorkspace(event: { preventDefault: () => void; } | null) {
+    event?.preventDefault()
     let savedWorkspace = {
       name: workspaceSaveName,
       impl: GRAPH_IMPL,
-      layout: getNodePositions()
+      ...getNodePositions()
     }
     dispatch(addWorkspace(savedWorkspace))
     onCancelSaveWorkspace()
@@ -270,10 +280,16 @@ export const Settings = () => {
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
-        <Button variant='contained' onClick={() => setSaveWorkspace(true)} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
-          Save Workspace
+        <Button
+          variant='contained'
+          onClick={() => setSaveWorkspace(true)}
+          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+            Save Workspace
         </Button>
-        <Button variant='contained' onClick={() => setLoadWorkspace(true)} style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+        <Button
+          variant='contained'
+          onClick={() => setLoadWorkspace(true)}
+          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
           Load Workspace
         </Button>
       </Grid>
@@ -306,12 +322,14 @@ export const Settings = () => {
         </Button>
       </Grid>
       <Dialog
+        id='loadWorkspaceDialog'
         open={loadWorkspace}
         onClose={onCancelLoadWorkspace}
         PaperProps={{
           component: 'form',
           onSubmit: onConfirmLoadWorkspace,
-        }}>
+        }}
+      >
         <DialogTitle>Load Workspace</DialogTitle>
         <DialogContent>
           <Grid container>
@@ -338,15 +356,16 @@ export const Settings = () => {
         </DialogActions>
       </Dialog>
       <Dialog
+        id='saveWorkspaceDialog'
         open={saveWorkspace}
         onClose={onCancelSaveWorkspace}
         PaperProps={{
           component: 'form',
           onSubmit: onConfirmSaveWorkspace,
-        }}>
+        }}
+      >
         <DialogTitle>Save Workspace</DialogTitle>
         <DialogContent>
-          {workspaceSaveNameConflict && <Alert severity="error">A workspace already exists with that name</Alert>}
           <FormControl fullWidth>
             <TextField
               autoFocus
@@ -363,6 +382,24 @@ export const Settings = () => {
         <DialogActions>
           <Button variant='outlined' onClick={onCancelSaveWorkspace}>Cancel</Button>
           <Button type='submit' variant='contained'>Save</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        id='workspaceSaveNameConflictDialog'
+        open={workspaceSaveNameConflict}
+        onClose={() => setWorkspaceSaveNameConflict(false)}
+        PaperProps={{
+          component: 'form',
+          onSubmit: finishSaveWorkspace,
+        }}
+      >
+        <DialogTitle>Workspace Name Conflict</DialogTitle>
+        <DialogContent>
+          <Typography>A workspace with the name "{workspaceSaveName}" already exists. Would you like to overwrite this workspace?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelSaveWorkspace}>No</Button>
+          <Button type='submit' variant='contained'>Yes</Button>
         </DialogActions>
       </Dialog>
     </Grid>

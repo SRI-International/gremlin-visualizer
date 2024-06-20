@@ -193,16 +193,26 @@ export function applyLayout(name: string) {
 }
 
 export function getNodePositions() {
-  return network?.getPositions()
+  store.dispatch(setIsPhysicsEnabled(false))
+  return {
+    layout: network?.getPositions(),
+    zoom: network?.getScale(),
+    view: network?.getViewPosition(),
+  }
 }
 
 export function setNodePositions(workspace: Workspace | undefined) {
+  store.dispatch(setIsPhysicsEnabled(false))
   if (workspace !== undefined) {
     let nodeIds = Object.keys(workspace.layout);
     nodeIds.forEach((id => {
       if (network?.findNode(id) !== undefined && network?.findNode(id).length > 0)
         network?.moveNode(parseInt(id), workspace.layout[id].x, workspace.layout[id].y)
     }))
+    network?.moveTo({
+      position: workspace.view,
+      scale: workspace.zoom
+    })
   }
 
 }
