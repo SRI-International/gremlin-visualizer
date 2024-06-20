@@ -97,6 +97,7 @@ function getOptions(options?: GraphOptions): Options {
       }
     }
   }
+
   return opts
 }
 
@@ -134,7 +135,50 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     }
     if (options) {
       network.setOptions(getOptions(options));
+      if (!options.isPhysicsEnabled) {
+
+        let sortedEdges = edges.get().sort((a, b) => {
+          if (a.from === undefined || a.to === undefined || b.from === undefined || b.to === undefined) return 0;
+          if (a.from === b.from) {
+            if (a.to === b.to) {
+              if (a.label === undefined || b.label === undefined || a.label === b.label) return 0;
+              else if (a.label > b.label) return 1;
+              else return -1
+            }
+            else return a.to > b.to ? 1 : -1;
+          }
+          else return a.from > b.from ? 1 : -1;
+        })
+
+        for (let i = 0; i < sortedEdges.length;) {
+          let matchingEdges = sortedEdges.filter(edge => {
+            return edge.from === sortedEdges[i].from
+            && edge.to === sortedEdges[i].to
+          })
+
+          let stepSize = 0.4/(matchingEdges.length - 1)
+          let roundnessValues: number[] = [];
+          for (let i = 0; i < matchingEdges.length; i++) roundnessValues.push(0.3 + i * stepSize)
+
+          console.log(roundnessValues)
+
+          matchingEdges.forEach((edge, index) => {
+            network?.updateEdge(edge.id, {
+              smooth: {
+                enabled: true,
+                type: 'discrete',
+                roundness: roundnessValues[index]
+              }
+            })
+          })
+
+          i += matchingEdges.length
+        }
+      }
     }
+
+    console.log(edges.get())
+
     return network;
   }
 
