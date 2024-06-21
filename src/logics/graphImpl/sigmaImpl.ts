@@ -3,19 +3,31 @@ import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
-import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
+import { getColor, GraphData, GraphOptions, GraphTypes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
 import { openNodeDialog } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
+import { EdgeArrowProgram } from "sigma/rendering";
+import { DEFAULT_EDGE_CURVATURE, EdgeCurvedArrowProgram, indexParallelEdgesIndex } from "@sigma/edge-curve";
+
 
 export const layoutOptions = ['force-directed', 'circular']
-const graph: Graph = new Graph({multi: true});
+const graph: Graph = new Graph({ multi: true });
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
 let layoutName = 'force-directed'
+
+function getCurvature(index: number, maxIndex: number): number {
+  if (maxIndex <= 0) throw new Error("Invalid maxIndex");
+  if (index < 0) return -getCurvature(-index, maxIndex);
+  const amplitude = 3.5;
+  const maxCurvature = amplitude * (1 - Math.exp(-maxIndex / amplitude)) * DEFAULT_EDGE_CURVATURE;
+  return (maxCurvature * index) / maxIndex;
+}
+
 
 function createSigmaGraph(container: HTMLElement) {
   const sigma = new Sigma(graph!, container as HTMLElement, {
@@ -23,6 +35,11 @@ function createSigmaGraph(container: HTMLElement) {
     enableEdgeEvents: true,
     renderEdgeLabels: true,
     defaultNodeType: "image",
+    defaultEdgeType: "straight",
+    edgeProgramClasses: {
+      straight: EdgeArrowProgram,
+      curved: EdgeCurvedArrowProgram,
+    },
     nodeProgramClasses: {
       image: createNodeImageProgram({
         correctCentering: true,
@@ -93,6 +110,33 @@ function createSigmaGraph(container: HTMLElement) {
   return sigma
 }
 
+function curveEdges(graph: Graph) {
+  indexParallelEdgesIndex(graph, {
+    edgeIndexAttribute: "parallelIndex",
+    edgeMinIndexAttribute: "parallelMinIndex",
+    edgeMaxIndexAttribute: "parallelMaxIndex",
+  });
+  graph.forEachEdge((edge, { parallelIndex, parallelMinIndex, parallelMaxIndex, }:
+      | { parallelIndex: number; parallelMinIndex?: number; parallelMaxIndex: number }
+      | { parallelIndex?: null; parallelMinIndex?: null; parallelMaxIndex?: null },
+    ) => {
+      if (typeof parallelMinIndex === "number") {
+        graph.mergeEdgeAttributes(edge, {
+          type: parallelIndex ? "curved" : "straight",
+          curvature: getCurvature(parallelIndex, parallelMaxIndex),
+        });
+      } else if (typeof parallelIndex === "number") {
+        graph.mergeEdgeAttributes(edge, {
+          type: "curved",
+          curvature: getCurvature(parallelIndex, parallelMaxIndex),
+        });
+      } else {
+        graph.setEdgeAttribute(edge, "type", "straight");
+      }
+    },
+  );
+}
+
 export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   // create graph if it doesn't exist
   if (!sigma) {
@@ -128,7 +172,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
         graph.addNode(element.id, {
           x: x,
           y: y,
-          size: 5,
+          size: 20,
           label: element.label,
           color: color,
           image: getIcon(element.type)
@@ -163,6 +207,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
       }
     }
   }
+  curveEdges(graph);
   return sigma;
 }
 
