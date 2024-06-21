@@ -7,7 +7,7 @@ import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
-import { max } from "lodash";
+import * as net from "node:net";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
@@ -78,6 +78,13 @@ function getOptions(options?: GraphOptions): Options {
         roundness: 0
       }
     }
+    edges.forEach(x => {
+      if (!options.isPhysicsEnabled) {
+        curveEdges(edges);
+      } else {
+        network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
+      }
+    })
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -130,6 +137,37 @@ function getCurvature(index: number, maxIndex: number): number {
   return curve
 }
 
+function curveEdges(edges: DataSet<Edge>) {
+  const map = new Map<string, number>()
+  const edgeCount = new Map<IdType, number>()
+  edges.get().forEach(x => {
+    const key = String([x.to!, x.from!])
+    const reverseKey = String([x.from!, x.to!])
+    const count = map.get(key)
+    const countReverse = map.get(reverseKey)
+    map.set(key, (count || 0) + 1)
+    const value = (count || 0) + (countReverse || 0) + 1;
+    if (x.to! > x.from!) {
+      edgeCount.set(x.id, value)
+    } else {
+      edgeCount.set(x.id, -value)
+    }
+  })
+  edges.get().forEach(x => {
+    const key = String([x.to!, x.from!])
+    const reverseKey = String([x.from!, x.to!])
+    const roundness = getCurvature(Math.abs(edgeCount.get(x.id)!), map.get(key)! + (map.get(reverseKey) || 0))
+    const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
+    network?.updateEdge(x.id, {
+      ...x,
+      smooth: {
+        enabled: true,
+        type: type,
+        roundness: roundness
+      }
+    })
+  })
+}
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (network) {
@@ -140,14 +178,14 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
-    for (let e of data?.edges || []) {
-      if (!edges!.get(e.id as Id)) {
-        edges.add(toVisEdge(e))
-      }
-    }
     for (let e of edges.stream().keys()) {
       if (!data?.edges.map(x => x.id).includes(e)) {
         edges.remove(e)
+      }
+    }
+    for (let e of data?.edges || []) {
+      if (!edges!.get(e.id as Id)) {
+        edges.add(toVisEdge(e))
       }
     }
     for (let n of nodes.stream().keys()) {
@@ -157,50 +195,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     }
     if (options) {
       network.setOptions(getOptions(options));
-      if (!options.isPhysicsEnabled) {
-        const map = new Map<string, number>()
-        const edgeCount = new Map<IdType, number>()
-        edges.get().forEach(x => {
-          const key = String([x.to!, x.from!])
-          const reverseKey = String([x.from!, x.to!])
-          const count = map.get(key)
-          const countReverse = map.get(reverseKey)
-          map.set(key, (count || 0) + 1)
-          const value = (count || 0) + (countReverse || 0) + 1;
-          if (x.to! > x.from!) {
-            edgeCount.set(x.id, value)
-          } else {
-            edgeCount.set(x.id, -value)
-          }
-        })
-        edges.get().forEach(x => {
-          const key = String([x.to!, x.from!])
-          const reverseKey = String([x.from!, x.to!])
-          const roundness = getCurvature(Math.abs(edgeCount.get(x.id)!), map.get(key)! + (map.get(reverseKey) || 0))
-          const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
-          network?.updateEdge(x.id, {
-            ...x,
-            smooth: {
-              enabled: true,
-              type: type,
-              roundness: roundness
-            }
-          })
-        })
-      } else {
-        edges.get().forEach(e => {
-          network?.updateEdge(e.id, {
-            ...e, smooth: {
-              enabled: true,
-              type: 'dynamic',
-              roundness: 0
-            }
-          })
-        })
-      }
     }
-
-    console.log(edges.get())
 
     return network;
   }

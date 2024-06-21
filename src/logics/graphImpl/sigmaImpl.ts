@@ -218,7 +218,7 @@ export function applyLayout(name: string) {
   switch (name) {
     case 'circular': {
       sigmaLayout = null
-      const circularPosition = circular(graph)
+      const circularPosition = circular(graph, {scale: 10})
       animateNodes(graph, circularPosition, { duration: 1000 })
       store.dispatch(setIsPhysicsEnabled(false))
       break
