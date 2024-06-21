@@ -106,10 +106,8 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       }
     })
 
-    graph.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
-      let { position } = event;
+    graph.on('ehcomplete', (_event, sourceNode, targetNode, addedEdge) => {
       addedEdge.remove();
-      console.log(sourceNode.id());
       const edgeFrom = sourceNode.id();
       const edgeTo = targetNode.id();
       store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
