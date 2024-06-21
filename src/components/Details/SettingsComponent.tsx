@@ -1,8 +1,11 @@
 import {
-  Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Box,
   Divider,
-  FormControlLabel,
   Fab,
   FormControl,
   Grid,
@@ -21,7 +24,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNodeLabel,
@@ -34,9 +37,9 @@ import {
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { refreshNodeLabels } from "../../reducers/graphReducer";
-import { applyLayout, layoutOptions } from "../../logics/graph";
-
+import { addWorkspace, refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
+import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
+import { GRAPH_IMPL } from "../../constants";
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
@@ -101,6 +104,14 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
+  const workspaces = useSelector(selectGraph).workspaces
+
+  const [ loadWorkspace, setLoadWorkspace ] = useState(false);
+  const [ saveWorkspace, setSaveWorkspace ] = useState(false);
+  const [ workspaceToLoad, setWorkspaceToLoad ] = useState<string>('');
+  const [ workspaceSaveName, setWorkspaceSaveName ] = useState<string>('');
+  const [ workspaceSaveNameConflict, setWorkspaceSaveNameConflict ] = useState(false);
+
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -137,6 +148,62 @@ export const Settings = () => {
   function onLayoutChange(x: SelectChangeEvent) {
     applyLayout(x.target.value)
     dispatch(setLayout(x.target.value))
+  }
+
+
+  function onSelectWorkspace(event: { target: { value: React.SetStateAction<string>; }; }) {
+    setWorkspaceToLoad(event.target.value);
+  }
+
+  function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault()
+    let workspace = workspaces.find(workspace => workspace.name === workspaceToLoad)
+    setNodePositions(workspace)
+    onCancelLoadWorkspace()
+  }
+
+  function onCancelLoadWorkspace() {
+    setLoadWorkspace(false);
+    setWorkspaceToLoad('');
+  }
+
+  function loadWorkspaceOptions() {
+    const workspaceOptions = workspaces.filter(workspace => workspace.impl === GRAPH_IMPL);
+    if (workspaceOptions.length > 0) return workspaceOptions.map(workspace => {
+      return <MenuItem key={workspace.name} value={workspace.name}>{workspace.name}</MenuItem>;
+    });
+    else return <MenuItem disabled value={''}>No workspaces saved</MenuItem>;
+  }
+
+  function onCancelSaveWorkspace() {
+    setSaveWorkspace(false);
+    setWorkspaceSaveName('')
+    setWorkspaceSaveNameConflict(false)
+  }
+
+  function onConfirmSaveWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault()
+    if (workspaces.find(workspace => workspace.name == workspaceSaveName)) {
+      setWorkspaceSaveNameConflict(true)
+      return;
+    }
+    finishSaveWorkspace(null)
+  }
+
+  function finishSaveWorkspace(event: { preventDefault: () => void; } | null) {
+    event?.preventDefault()
+    let savedWorkspace = {
+      name: workspaceSaveName,
+      impl: GRAPH_IMPL,
+      ...getNodePositions()
+    }
+    dispatch(addWorkspace(savedWorkspace))
+    onCancelSaveWorkspace()
+  }
+
+  function onWorkspaceSaveNameChange(event: { target: { value: React.SetStateAction<string>; }; }) {
+    setWorkspaceSaveName(event.target.value)
+    setWorkspaceSaveNameConflict(false)
   }
 
   return (
@@ -213,6 +280,23 @@ export const Settings = () => {
         <Divider />
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
+        <Button
+          variant='contained'
+          onClick={() => setSaveWorkspace(true)}
+          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+            Save Workspace
+        </Button>
+        <Button
+          variant='contained'
+          onClick={() => setLoadWorkspace(true)}
+          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+          Load Workspace
+        </Button>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
         <Typography>Node Labels</Typography>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
@@ -237,6 +321,87 @@ export const Settings = () => {
           Add Node Label
         </Button>
       </Grid>
+      <Dialog
+        id='loadWorkspaceDialog'
+        open={loadWorkspace}
+        onClose={onCancelLoadWorkspace}
+        PaperProps={{
+          component: 'form',
+          onSubmit: onConfirmLoadWorkspace,
+        }}
+      >
+        <DialogTitle>Load Workspace</DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid item>
+              <TextField
+                  select
+                  required
+                  id="workspaceSelect"
+                  label="Workspace"
+                  margin="dense"
+                  variant="standard"
+                  value={workspaceToLoad}
+                  style={{width: '300px'}}
+                  onChange={onSelectWorkspace}
+                >
+                  {loadWorkspaceOptions()}
+                </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelLoadWorkspace}>Cancel</Button>
+          <Button type='submit' variant='contained'>Load</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        id='saveWorkspaceDialog'
+        open={saveWorkspace}
+        onClose={onCancelSaveWorkspace}
+        PaperProps={{
+          component: 'form',
+          onSubmit: onConfirmSaveWorkspace,
+        }}
+      >
+        <DialogTitle>Save Workspace</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="workspaceName"
+              label="Workspace Name"
+              variant="standard"
+              style={{ width: '300px' }}
+              onChange={onWorkspaceSaveNameChange}
+            />
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelSaveWorkspace}>Cancel</Button>
+          <Button type='submit' variant='contained'>Save</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        id='workspaceSaveNameConflictDialog'
+        open={workspaceSaveNameConflict}
+        onClose={() => setWorkspaceSaveNameConflict(false)}
+        PaperProps={{
+          component: 'form',
+          onSubmit: finishSaveWorkspace,
+        }}
+      >
+        <DialogTitle>Workspace Name Conflict</DialogTitle>
+        <DialogContent>
+          <Typography>A workspace with the name "{workspaceSaveName}" already exists. Would you like to overwrite this workspace?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelSaveWorkspace}>No</Button>
+          <Button type='submit' variant='contained'>Yes</Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   )
 }

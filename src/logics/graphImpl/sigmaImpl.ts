@@ -2,12 +2,12 @@ import FA2Layout from "graphology-layout-forceatlas2/worker";
 import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
-import { getColor, GraphData, GraphOptions, GraphTypes } from "../utils";
+import { setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
+import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
-import { openNodeDialog } from "../../reducers/dialogReducer";
+import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
 import { EdgeArrowProgram } from "sigma/rendering";
@@ -58,28 +58,50 @@ function createSigmaGraph(container: HTMLElement) {
   let draggedNode: string | null = null;
   let isDragging = false;
 
+  //State for creating edge
+  let shiftKeyDown = false;
+  let draggingEdge = false;
+  let startNode : string | null = null;
+
   // On mouse down on a node
   //  - we enable the drag mode
   //  - save in the dragged node in the state
   //  - highlight the node
   //  - disable the camera so its state is not updated
   sigma.on("downNode", (e) => {
+    if (shiftKeyDown) {
+      draggingEdge = true;
+      startNode = e.node;
+    }
+    else {
+      isDragging = true;
+      draggedNode = e.node;
+      graph!.setNodeAttribute(draggedNode, "highlighted", true);
+    }
     sigmaLayout?.stop()
     store.dispatch(setIsPhysicsEnabled(false))
-    isDragging = true;
-    draggedNode = e.node;
-    graph!.setNodeAttribute(draggedNode, "highlighted", true);
+  });
+  sigma.on("upNode", (e) => {
+    if (shiftKeyDown && draggingEdge && startNode) {
+      const edgeFrom = startNode;
+      const edgeTo = e.node;
+      store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
+      startNode = null;
+      draggingEdge = false;
+    }
   });
 
   // On mouse move, if the drag mode is enabled, we change the position of the draggedNode
   sigma.getMouseCaptor().on("mousemovebody", (e) => {
-    if (!isDragging || !draggedNode) return;
+    if ((!isDragging || !draggedNode) && (!shiftKeyDown || !draggingEdge)) return;
 
     // Get new position of node
-    const pos = sigma!.viewportToGraph(e);
+    if (isDragging && draggedNode) {
+      const pos = sigma!.viewportToGraph(e);
 
-    graph!.setNodeAttribute(draggedNode, "x", pos.x);
-    graph!.setNodeAttribute(draggedNode, "y", pos.y);
+      graph!.setNodeAttribute(draggedNode, "x", pos.x);
+      graph!.setNodeAttribute(draggedNode, "y", pos.y);
+    }
 
     // Prevent sigma to move camera:
     e.preventSigmaDefault();
@@ -103,8 +125,21 @@ function createSigmaGraph(container: HTMLElement) {
 
   sigma.on('clickStage', function (params) {
     let jsEvent = params.event.original;
-    if (jsEvent.shiftKey) {
+    if (jsEvent.shiftKey && !draggingEdge) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Shift' && shiftKeyDown !== true) {
+      shiftKeyDown = true;
+    }
+  }
+  );
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'Shift' && shiftKeyDown === true) {
+      shiftKeyDown = false;
+      startNode = null;
+      draggingEdge = false;
     }
   });
   return sigma
@@ -235,4 +270,42 @@ export function applyLayout(name: string) {
       console.warn(`Unknown layout ${name} applied`)
     }
   }
+}
+
+export function getNodePositions() {
+  sigmaLayout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  let positions: Record<string, { x: number, y: number }> = {};
+  sigma?.getGraph().forEachNode((node, attributes) => {
+    positions[node] = { x: attributes.x, y: attributes.y }
+  })
+  return {
+    layout: positions,
+    zoom: sigma?.getCamera().ratio,
+    view: {
+      x: sigma?.getCamera().x,
+      y: sigma?.getCamera().y
+    }
+  }
+}
+
+export function setNodePositions(workspace: Workspace | undefined) {
+  sigmaLayout?.stop()
+  store.dispatch(setIsPhysicsEnabled(false))
+  graph.forEachNode((node, attributes) => {
+    let newPosition = workspace?.layout[node]
+    if (newPosition !== undefined) graph.updateNode(node, attributes => {
+      return {
+        ...attributes,
+        x: newPosition?.x,
+        y: newPosition?.y
+      }
+    })
+  })
+  sigma?.getCamera().setState({
+    ...sigma?.getCamera().getState(),
+    x: workspace?.view.x,
+    y: workspace?.view.y,
+    ratio: workspace?.zoom
+  })
 }

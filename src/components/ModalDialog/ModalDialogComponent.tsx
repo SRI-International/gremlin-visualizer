@@ -6,6 +6,7 @@ import axios from 'axios';
 import { manualAddElement } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import { ArrowForward } from '@mui/icons-material';
+import Autocomplete from '@mui/material/Autocomplete';
 import {
   COMMON_GREMLIN_ERROR,
   QUERY_ENDPOINT,
@@ -26,10 +27,11 @@ export const ModalDialogComponent = () => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo} = useSelector(selectDialog);
+  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo, suggestions} = useSelector(selectDialog);
   const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
+  const [autocompleteOptions, setAutocompleteOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -59,6 +61,35 @@ export const ModalDialogComponent = () => {
           </DialogContentText>);
       default:
         return null;
+    }
+  }
+  const handleAutocompleteFocus = (suggestionsCategory: string, type : string) => (_event: any) => {
+    switch (suggestionsCategory) {
+      case "labels":
+        setAutocompleteOptions(suggestions[dialogType]?.labels[type] ?? []); 
+        break;
+      case "types":
+        setAutocompleteOptions(suggestions[dialogType]?.types ?? []);
+        break;
+      default:
+        setAutocompleteOptions([]);
+        break;
+    }
+  }
+  const handleAutocompleteChange = (name : string, index : number) => (event: any, newValue: any) => {
+    switch (name) {
+      case "propertyName":
+        setFormFields(prevFormFields => 
+          prevFormFields.map((formField, i) =>
+            i === index ? { ...formField, [name]: newValue} : formField
+          )
+        );
+        break;
+      case "type":
+        setType(newValue);
+        break;
+      default:
+        return;
     }
   }
 
@@ -153,33 +184,49 @@ export const ModalDialogComponent = () => {
         <DialogTitle>{getDialogTitle(dialogType)}</DialogTitle>
         <DialogContent>
           {getDialogText(dialogType)}
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            name="type"
-            label="Type"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            fullWidth
-            variant="standard"
-            sx={{ paddingBottom: 2 }}
+          <Autocomplete
+            freeSolo
+            options = {autocompleteOptions}
+            onChange = {handleAutocompleteChange("type", -1)}
+            onFocus = {handleAutocompleteFocus("types", type)}
+            renderInput = {(params) => (
+            <TextField
+              {...params}
+              autoFocus
+              required
+              margin="dense"
+              name="type"
+              label="Type"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              fullWidth
+              variant="standard"
+              sx={{ paddingBottom: 2 }}
+            />)}
           />
           {duplicateError && <p style={{ color: 'red' }}>{duplicateError}</p>}
           <Grid container spacing={2}>
             {formFields.map((form, index) => (
               <React.Fragment key={index}>
-                <Grid item xs={5}>
-                  <TextField
-                    required
-                    margin="dense"
-                    name="propertyName"
-                    label="Property Name"
-                    value={form.propertyName}
-                    onChange={event => handleFormChange(event, index)}
-                    fullWidth
-                    variant="standard"
-                  />
+                <Grid item xs={5}> 
+                  <Autocomplete
+                    freeSolo
+                    options= {autocompleteOptions}
+                    onChange = {handleAutocompleteChange("propertyName", index)}
+                    onFocus = {handleAutocompleteFocus("labels", type)}
+                    renderInput = {(params) =>(
+                    <TextField
+                      {...params}
+                      required
+                      margin="dense"
+                      name="propertyName"
+                      label="Property Name"
+                      value={form.propertyName}
+                      onChange={event => handleFormChange(event, index)}
+                      fullWidth
+                      variant="standard"
+                    />)}
+                    />
                 </Grid>
                 <Grid item xs={5}>
                   <TextField
