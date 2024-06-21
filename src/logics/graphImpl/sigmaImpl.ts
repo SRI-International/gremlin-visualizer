@@ -12,7 +12,7 @@ import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
 
 export const layoutOptions = ['force-directed', 'circular']
-const graph: Graph = new Graph();
+const graph: Graph = new Graph({multi: true});
 let sigma: Sigma | null = null;
 let sigmaLayout: FA2Layout | null = null;
 let layoutName = 'force-directed'
@@ -119,13 +119,13 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
         store.dispatch(updateColorMap(nodeColorMap))
       }
       let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
-      if (!graph.nodes().includes(element.id!.toString())) {
+      if (!graph.nodes().includes(element.id.toString())) {
         let pos = { x: Math.random(), y: Math.random() }
         if (element.x && element.y) {
           pos = sigma.viewportToGraph({ x: element.x, y: element.y })
         }
-        let {x, y} = pos
-        graph.addNode(element.id!, {
+        let { x, y } = pos
+        graph.addNode(element.id, {
           x: x,
           y: y,
           size: 5,
@@ -134,7 +134,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
           image: getIcon(element.type)
         })
       } else {
-        graph.updateNode(element.id!, attr => {
+        graph.updateNode(element.id, attr => {
           return {
             ...attr,
             label: element.label,
@@ -144,7 +144,7 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
       }
     }
     for (let id of graph!.nodes()) {
-      if (!data.nodes.map(x => x.id!.toString()).includes(id)) {
+      if (!data.nodes.map(x => x.id.toString()).includes(id)) {
         graph.dropNode(id)
       }
     }
@@ -155,6 +155,11 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
           type: 'arrow',
           label: element.label
         })
+      }
+    }
+    for (let edge of graph!.edges()) {
+      if (!data.edges.map(x => x.id.toString()).includes(edge)) {
+        graph.dropEdge(edge)
       }
     }
   }

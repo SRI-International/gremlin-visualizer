@@ -127,6 +127,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         graph.add(e)
       }
     }
+    for(let e of graph.edges().map(x => x.id())) {
+      if(!data.edges.map(x => x.id.toString()).includes(e)) {
+        graph.remove(e)
+      }
+    }
   }
   if (options) {
     if (options.isPhysicsEnabled) applyLayout(layoutName)
