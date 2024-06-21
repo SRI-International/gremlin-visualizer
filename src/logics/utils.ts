@@ -3,6 +3,10 @@ import { Edge, Network, Node } from 'vis-network';
 import { NodeLabel } from '../reducers/optionReducer';
 import cytoscape from "cytoscape";
 import Sigma from "sigma";
+import { setSuggestions, Suggestions } from '../reducers/dialogReducer';
+import store from '../app/store';
+import { DIALOG_TYPES } from '../components/ModalDialog/ModalDialogComponent';
+import { types } from 'util';
 
 let convert = require('color-convert')
 
@@ -59,6 +63,56 @@ const selectRandomField = (obj: any) => {
   return firstKey;
 };
 
+export interface TempFieldSuggestions {
+  [dialogType : string] : {
+    [label: string] : Set<string>;
+  }
+}
+
+const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
+  const suggestions: Suggestions = {
+    [DIALOG_TYPES.NODE]: { types: [], labels: {} },
+    [DIALOG_TYPES.EDGE]: { types: [], labels: {} }
+  };
+
+  const nodeSuggestions = suggestions[DIALOG_TYPES.NODE];
+  nodes.forEach(node => {
+    nodeSuggestions.types.push(node.type);
+    if (!nodeSuggestions.labels[node.type]) {
+      nodeSuggestions.labels[node.type] = []
+    }
+    Object.keys(node.properties).forEach(field => {
+      nodeSuggestions.labels[node.type].push(field);
+    });
+  })
+  Object.keys(nodeSuggestions.labels).forEach(label => {
+    const tempLabelSet = new Set(nodeSuggestions.labels[label]);
+    suggestions[DIALOG_TYPES.NODE].labels[label] = Array.from(tempLabelSet);
+  });
+  let tempTypeSet = new Set(nodeSuggestions.types);
+  suggestions[DIALOG_TYPES.NODE].types = Array.from(tempTypeSet)
+
+
+  const edgeSuggestions = suggestions[DIALOG_TYPES.EDGE];
+  edges.forEach(edge => {
+    edgeSuggestions.types.push(edge.type);
+    if (!edgeSuggestions.labels[edge.type]) {
+      edgeSuggestions.labels[edge.type] = [];
+    }
+    Object.keys(edge.properties).forEach(field => {
+      edgeSuggestions.labels[edge.type].push(field);
+    });
+  })
+  Object.keys(edgeSuggestions.labels).forEach(label => {
+    const tempLabelSet = new Set(edgeSuggestions.labels[label]);
+    suggestions[DIALOG_TYPES.EDGE].labels[label] = Array.from(tempLabelSet);
+  });
+  tempTypeSet = new Set(edgeSuggestions.types);
+  suggestions[DIALOG_TYPES.EDGE].types = Array.from(tempTypeSet)
+
+  store.dispatch(setSuggestions(suggestions));
+};
+
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
   const nodes: Node[] = [];
@@ -85,6 +139,7 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
       edges = edges.concat(_.map(node.edges, edge => ({ ...edge, type: edge.label })));
     }
   });
+  storeSuggestions(nodes as NodeData[], edges as EdgeData[]);
   return { edges, nodes, nodeLabels };
 };
 

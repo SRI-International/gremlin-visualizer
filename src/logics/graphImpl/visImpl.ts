@@ -1,12 +1,13 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
 import {openNodeDialog, openEdgeDialog} from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
+import { networkDOTParser } from "vis-network/esnext";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
@@ -189,4 +190,29 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
 
 export function applyLayout(name: string) {
   network?.setOptions(getOptions(store.getState().options.graphOptions))
+}
+
+export function getNodePositions() {
+  store.dispatch(setIsPhysicsEnabled(false))
+  return {
+    layout: network?.getPositions(),
+    zoom: network?.getScale(),
+    view: network?.getViewPosition(),
+  }
+}
+
+export function setNodePositions(workspace: Workspace | undefined) {
+  store.dispatch(setIsPhysicsEnabled(false))
+  if (workspace !== undefined) {
+    let nodeIds = Object.keys(workspace.layout);
+    nodeIds.forEach((id => {
+      if (network?.findNode(id) !== undefined && network?.findNode(id).length > 0)
+        network?.moveNode(parseInt(id), workspace.layout[id].x, workspace.layout[id].y)
+    }))
+    network?.moveTo({
+      position: workspace.view,
+      scale: workspace.zoom
+    })
+  }
+
 }

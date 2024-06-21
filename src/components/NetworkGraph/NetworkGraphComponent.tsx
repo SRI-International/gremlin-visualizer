@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   selectGraph,
 } from '../../reducers/graphReducer';
 import { selectOptions } from '../../reducers/optionReducer';
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { getGraph } from "../../logics/graph";
+import { GraphTypes } from "../../logics/utils";
 
 interface NetworkGraphComponentProps {
   panelWidth: number
@@ -18,13 +19,14 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
 
   useEffect(() => {
     if (myRef.current != null) {
-      getGraph(
+      let graph = getGraph(
         myRef.current,
         { nodes, edges },
         graphOptions
       );
     }
   }, [nodes, edges, graphOptions]);
+
   return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)` }}>
     <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
   </Box>;
