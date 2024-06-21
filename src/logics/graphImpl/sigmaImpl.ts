@@ -53,18 +53,16 @@ function createSigmaGraph(container: HTMLElement) {
   //  - disable the camera so its state is not updated
   sigma.on("downNode", (e) => {
     if (shiftKeyDown) {
-      sigmaLayout?.stop()
-      store.dispatch(setIsPhysicsEnabled(false))
       draggingEdge = true;
       startNode = e.node;
     }
     else {
-      sigmaLayout?.stop()
-      store.dispatch(setIsPhysicsEnabled(false))
       isDragging = true;
       draggedNode = e.node;
       graph!.setNodeAttribute(draggedNode, "highlighted", true);
     }
+    sigmaLayout?.stop()
+    store.dispatch(setIsPhysicsEnabled(false))
   });
   sigma.on("upNode", (e) => {
     if (shiftKeyDown && draggingEdge && startNode) {
