@@ -1,3 +1,4 @@
+
 declare module "*.jpg";
 declare module "*.png";
 declare module "cytoscape-cola" {
@@ -46,3 +47,25 @@ declare module "cytoscape-cola" {
   const cola: cytoscape.Ext;
   export = cola
 }
+
+
+
+declare module 'cytoscape-edgehandles' {
+  import cytoscape from "cytoscape";
+
+  export interface EdgeHandlesOptions {
+    preview?: boolean;
+    handleSize?: number;
+    handleLineWidth?: number;
+    enabled?: boolean;
+  }
+
+  type EdgeHandles = {
+    (cy: cytoscape.Core, options?: EdgeHandlesOptions): void;  // Function type
+  } & cytoscape.Ext;  // Intersection with cytoscape.Ext
+
+  // Now declare that edgehandles matches the EdgeHandles type
+  const edgehandles: EdgeHandles;
+  export = edgehandles;
+};
+

@@ -2,7 +2,7 @@ const SERVER_URL = 'http://localhost:3001';
 export const QUERY_ENDPOINT = `${SERVER_URL}/query`;
 export const QUERY_RAW_ENDPOINT = `${SERVER_URL}/query-raw`;
 export const COMMON_GREMLIN_ERROR = 'Invalid query. Please execute a query to get a set of vertices';
-export let GRAPH_IMPL = "vis" // 'vis' | 'cytoscape' | 'sigma'
+export let GRAPH_IMPL = "sigma" // 'vis' | 'cytoscape' | 'sigma'
 export const ACTIONS = {
   SET_HOST: 'SET_HOST',
   SET_PORT: 'SET_PORT',

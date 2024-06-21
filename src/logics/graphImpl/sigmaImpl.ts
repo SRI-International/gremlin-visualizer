@@ -11,6 +11,7 @@ import { openNodeDialog } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";
 
+let shiftKeyDown = false;
 export const layoutOptions = ['force-directed', 'circular']
 const graph: Graph = new Graph();
 let sigma: Sigma | null = null;
@@ -47,6 +48,9 @@ function createSigmaGraph(container: HTMLElement) {
   //  - highlight the node
   //  - disable the camera so its state is not updated
   sigma.on("downNode", (e) => {
+    if (shiftKeyDown) {
+      console.log(e.node);
+    }
     sigmaLayout?.stop()
     store.dispatch(setIsPhysicsEnabled(false))
     isDragging = true;
@@ -88,6 +92,17 @@ function createSigmaGraph(container: HTMLElement) {
     let jsEvent = params.event.original;
     if (jsEvent.shiftKey) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Shift' && shiftKeyDown !== true) {
+      shiftKeyDown = true;
+    }
+  }
+  );
+  document.addEventListener('keyup', function (e) {
+    if (e.key === 'Shift' && shiftKeyDown === true) {
+      shiftKeyDown = false;
     }
   });
   return sigma

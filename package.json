@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "cytoscape": "^3.29.2",
     "cytoscape-cola": "^2.5.1",
+    "cytoscape-edgehandles": "^4.0.1",
     "express": "^4.17.1",
     "graphology": "^0.25.4",
     "graphology-layout": "^0.6.1",
@@ -45,7 +46,8 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@types/cytoscape": "^3.21.2",
+    "@types/cytoscape": "^3.21.4",
+    "@types/cytoscape-edgehandles": "^4.0.4",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.14.1",
     "@types/properties-reader": "^2.1.3",

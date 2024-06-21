@@ -1,12 +1,14 @@
-import cy, { NodeDefinition } from "cytoscape";
+import cy, { NodeDefinition} from "cytoscape";
+import edgehandles, {EdgeHandlesOptions} from 'cytoscape-edgehandles';
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
-import { openNodeDialog } from "../../reducers/dialogReducer";
+import { openNodeDialog, openEdgeDialog } from "../../reducers/dialogReducer";
 
+let shiftKeyDown = false;
 export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
@@ -19,7 +21,10 @@ const opts: ColaLayoutOptions = {
   fit: false,
 }
 
+
 cy.use(cola)
+cy.use(edgehandles)
+
 
 function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
@@ -82,6 +87,9 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       }
     );
     layout = graph.layout(opts)
+
+    let eh = (graph as any).edgehandles()
+
     layout.start()
     graph.on('tap', 'node', (event) => {
       store.dispatch(setSelectedNode(event.target.id()))
@@ -97,6 +105,31 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
       }
     })
+
+    graph.on('ehcomplete', (event, sourceNode, targetNode, addedEdge) => {
+      let { position } = event;
+      addedEdge.remove();
+      console.log(sourceNode.id());
+      const edgeFrom = sourceNode.id();
+      const edgeTo = targetNode.id();
+      store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        eh.enableDrawMode();
+      }
+    }
+    );
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'Shift' && shiftKeyDown === true) {
+        shiftKeyDown = false;
+       eh.disableDrawMode();
+      }
+    });
+    
+
     return graph;
   }
   if (container && data) {
@@ -132,7 +165,6 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     if (options.isPhysicsEnabled) applyLayout(layoutName)
     else layout?.stop();
   }
-
   return graph;
 }
 
