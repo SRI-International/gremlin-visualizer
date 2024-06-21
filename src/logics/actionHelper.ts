@@ -1,8 +1,7 @@
 import { extractEdgesAndNodes } from './utils';
-import { addEdges, addNodes, setSelectedNode, setSelectedEdge } from '../reducers/graphReducer';
-import { NodeLabel, addQueryHistory, setNodeLabels } from '../reducers/optionReducer';
+import { addEdges, addNodes, setSelectedEdge, setSelectedNode, updateEdge, updateNode } from '../reducers/graphReducer';
+import { addQueryHistory, NodeLabel, setNodeLabels } from '../reducers/optionReducer';
 import store, { AppDispatch } from '../app/store';
-import { updateNode, updateEdge } from "../reducers/graphReducer"
 import { IdType } from "vis-network";
 
 export const onFetchQuery = (result: any, query: string, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
@@ -31,18 +30,16 @@ export const updateOnConfirm = (elementType: string | null, updateId: IdType | u
   store.dispatch(addQueryHistory(query));
 };
 
-export const manualAddElement = (isNode : boolean, result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
+export const manualAddElement = (isNode: boolean, result: any, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(
     result,
     oldNodeLabels
-
   );
   if (isNode) {
     dispatch(addNodes(nodes));
     dispatch(setNodeLabels(nodeLabels));
     dispatch(setSelectedNode(nodes[0].id));
-  }
-  else {
+  } else {
     dispatch(addNodes(nodes));
     dispatch(addEdges(edges));
     dispatch(setSelectedEdge(edges[0].id));

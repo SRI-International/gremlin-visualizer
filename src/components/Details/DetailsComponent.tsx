@@ -1,39 +1,41 @@
 import {
-  Fab,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableRow,
-  Typography,
-  Button,
-  Tooltip,
-  TextField, Dialog, DialogTitle, DialogContent, DialogActions, IconButton
+  TextField,
+  Typography
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { IdType } from "vis-network";
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectGremlin, setError } from "../../reducers/gremlinReducer";
 import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
-import _, { add } from "lodash";
+import _ from "lodash";
 import { stringifyObjectValues } from "../../logics/utils";
 import {
   COMMON_GREMLIN_ERROR,
-  QUERY_ENDPOINT,
   DISABLE_NODE_EDGE_EDIT,
-  QUERY_RAW_ENDPOINT,
-  EDGE_ID_APPEND
+  EDGE_ID_APPEND,
+  QUERY_ENDPOINT,
+  QUERY_RAW_ENDPOINT
 } from "../../constants";
-import { updateOnConfirm, onFetchQuery } from "../../logics/actionHelper";
-import { EditText, EditTextarea } from 'react-edit-text';
+import { onFetchQuery, updateOnConfirm } from "../../logics/actionHelper";
+import { EditText } from 'react-edit-text';
 import 'react-edit-text/dist/index.css';
 import '@mui/icons-material/Delete';
 import DeleteIcon from "@mui/icons-material/Delete";
-import { setEnvironmentData } from "node:worker_threads";
 
 type EditEvent = {
   name: string;
@@ -89,12 +91,12 @@ export const DetailsComponent = () => {
     return Object.entries(data).map(e => {
 
       return <TableRow>
-        <TableCell style={{width: 1}}><strong>{String(e[0])}</strong></TableCell>
-        <TableCell style={{paddingRight: 5}}>
+        <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{ paddingRight: 5 }}>
           {!DISABLE_NODE_EDGE_EDIT ? (
             <EditText
               name={String(e[0])}
-              style={{ fontSize: '14px', border: '1px solid #ccc', height: '28px', lineHeight: '28px'}}
+              style={{ fontSize: '14px', border: '1px solid #ccc', height: '28px', lineHeight: '28px' }}
               onSave={onConfirmEdit}
               defaultValue={String(e[1])}
               showEditButton
@@ -103,7 +105,7 @@ export const DetailsComponent = () => {
           }
         </TableCell>
         {!DISABLE_NODE_EDGE_EDIT ? (
-          <TableCell style={{ width:1 }} padding='none'>
+          <TableCell style={{ width: 1 }} padding='none'>
             <IconButton onClick={() => {
               updateElementProperty(String(e[0]), String(e[1]), true)
             }}>
@@ -201,7 +203,7 @@ export const DetailsComponent = () => {
     }
 
     sendRawQuery(rawQuery)
-      .then(()=> sendUpdateQuery(updateQuery))
+      .then(() => sendUpdateQuery(updateQuery))
 
   }
 

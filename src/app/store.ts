@@ -6,7 +6,6 @@ import dialogReducer from '../reducers/dialogReducer';
 import { useDispatch } from "react-redux";
 
 
-
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = configureStore({

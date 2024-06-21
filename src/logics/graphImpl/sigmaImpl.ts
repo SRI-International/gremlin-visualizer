@@ -3,7 +3,7 @@ import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
-import { GraphData, GraphTypes, GraphOptions, getColor } from "../utils";
+import { getColor, GraphData, GraphOptions, GraphTypes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
 import getIcon from "../../assets/icons";
@@ -61,7 +61,7 @@ function createSigmaGraph(container: HTMLElement) {
   //State for creating edge
   let shiftKeyDown = false;
   let draggingEdge = false;
-  let startNode : string | null = null;
+  let startNode: string | null = null;
 
   // On mouse down on a node
   //  - we enable the drag mode
@@ -72,8 +72,7 @@ function createSigmaGraph(container: HTMLElement) {
     if (shiftKeyDown) {
       draggingEdge = true;
       startNode = e.node;
-    }
-    else {
+    } else {
       isDragging = true;
       draggedNode = e.node;
       graph!.setNodeAttribute(draggedNode, "highlighted", true);
@@ -85,7 +84,7 @@ function createSigmaGraph(container: HTMLElement) {
     if (shiftKeyDown && draggingEdge && startNode) {
       const edgeFrom = startNode;
       const edgeTo = e.node;
-      store.dispatch(openEdgeDialog({edgeFrom : edgeFrom, edgeTo: edgeTo}));
+      store.dispatch(openEdgeDialog({ edgeFrom: edgeFrom, edgeTo: edgeTo }));
       startNode = null;
       draggingEdge = false;
     }
@@ -130,10 +129,10 @@ function createSigmaGraph(container: HTMLElement) {
     }
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Shift' && shiftKeyDown !== true) {
-      shiftKeyDown = true;
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+      }
     }
-  }
   );
   document.addEventListener('keyup', function (e) {
     if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -253,7 +252,7 @@ export function applyLayout(name: string) {
   switch (name) {
     case 'circular': {
       sigmaLayout = null
-      const circularPosition = circular(graph, {scale: 10})
+      const circularPosition = circular(graph, { scale: 10 })
       animateNodes(graph, circularPosition, { duration: 1000 })
       store.dispatch(setIsPhysicsEnabled(false))
       break

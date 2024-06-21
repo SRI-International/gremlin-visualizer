@@ -1,13 +1,12 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, IdType, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
-import {openNodeDialog, openEdgeDialog} from "../../reducers/dialogReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData, extractEdgesAndNodes } from "../utils";
+import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
+import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
-import { networkDOTParser } from "vis-network/esnext";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;

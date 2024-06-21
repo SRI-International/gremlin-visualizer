@@ -1,10 +1,10 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Box,
   Divider,
   Fab,
   FormControl,
@@ -106,11 +106,11 @@ export const Settings = () => {
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
   const workspaces = useSelector(selectGraph).workspaces
 
-  const [ loadWorkspace, setLoadWorkspace ] = useState(false);
-  const [ saveWorkspace, setSaveWorkspace ] = useState(false);
-  const [ workspaceToLoad, setWorkspaceToLoad ] = useState<string>('');
-  const [ workspaceSaveName, setWorkspaceSaveName ] = useState<string>('');
-  const [ workspaceSaveNameConflict, setWorkspaceSaveNameConflict ] = useState(false);
+  const [loadWorkspace, setLoadWorkspace] = useState(false);
+  const [saveWorkspace, setSaveWorkspace] = useState(false);
+  const [workspaceToLoad, setWorkspaceToLoad] = useState<string>('');
+  const [workspaceSaveName, setWorkspaceSaveName] = useState<string>('');
+  const [workspaceSaveNameConflict, setWorkspaceSaveNameConflict] = useState(false);
 
 
   function onHostChanged(host: string) {
@@ -283,13 +283,13 @@ export const Settings = () => {
         <Button
           variant='contained'
           onClick={() => setSaveWorkspace(true)}
-          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
-            Save Workspace
+          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
+          Save Workspace
         </Button>
         <Button
           variant='contained'
           onClick={() => setLoadWorkspace(true)}
-          style={{width: 'calc(50% - 10px)', margin: '5px'}}>
+          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
           Load Workspace
         </Button>
       </Grid>
@@ -335,18 +335,18 @@ export const Settings = () => {
           <Grid container>
             <Grid item>
               <TextField
-                  select
-                  required
-                  id="workspaceSelect"
-                  label="Workspace"
-                  margin="dense"
-                  variant="standard"
-                  value={workspaceToLoad}
-                  style={{width: '300px'}}
-                  onChange={onSelectWorkspace}
-                >
-                  {loadWorkspaceOptions()}
-                </TextField>
+                select
+                required
+                id="workspaceSelect"
+                label="Workspace"
+                margin="dense"
+                variant="standard"
+                value={workspaceToLoad}
+                style={{ width: '300px' }}
+                onChange={onSelectWorkspace}
+              >
+                {loadWorkspaceOptions()}
+              </TextField>
             </Grid>
           </Grid>
         </DialogContent>
@@ -395,7 +395,8 @@ export const Settings = () => {
       >
         <DialogTitle>Workspace Name Conflict</DialogTitle>
         <DialogContent>
-          <Typography>A workspace with the name "{workspaceSaveName}" already exists. Would you like to overwrite this workspace?</Typography>
+          <Typography>A workspace with the name "{workspaceSaveName}" already exists. Would you like to overwrite this
+            workspace?</Typography>
         </DialogContent>
         <DialogActions>
           <Button variant='outlined' onClick={onCancelSaveWorkspace}>No</Button>

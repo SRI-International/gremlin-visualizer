@@ -1,8 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import {
-  selectGremlin,
-} from '../../reducers/gremlinReducer';
+import { selectGremlin } from '../../reducers/gremlinReducer';
 
 export const HeaderComponent = ({}) => {
   const { error } = useSelector(selectGremlin);

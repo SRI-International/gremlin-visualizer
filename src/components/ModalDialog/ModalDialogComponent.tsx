@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDialog, closeDialog, } from '../../reducers/dialogReducer';
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Grid, DialogContentText } from '@mui/material';
+import { closeDialog, selectDialog, } from '../../reducers/dialogReducer';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  TextField
+} from '@mui/material';
 import axios from 'axios';
 import { manualAddElement } from '../../logics/actionHelper';
 import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 import { ArrowForward } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
-import {
-  COMMON_GREMLIN_ERROR,
-  QUERY_ENDPOINT,
-} from "../../constants";
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT, } from "../../constants";
 import { selectOptions } from '../../reducers/optionReducer';
 
 type FormField = {
@@ -27,7 +33,7 @@ export const ModalDialogComponent = () => {
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo, suggestions} = useSelector(selectDialog);
+  const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo, suggestions } = useSelector(selectDialog);
   const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
@@ -41,7 +47,7 @@ export const ModalDialogComponent = () => {
     }
   }, [isDialogOpen]);
 
-  const getDialogTitle = (dialogType : any) => {
+  const getDialogTitle = (dialogType: any) => {
     switch (dialogType) {
       case DIALOG_TYPES.NODE:
         return "Add New Node";
@@ -51,22 +57,23 @@ export const ModalDialogComponent = () => {
         return "";
     }
   }
-  const getDialogText = (dialogType : any) => {
+  const getDialogText = (dialogType: any) => {
     switch (dialogType) {
       case DIALOG_TYPES.NODE:
         return null;
       case DIALOG_TYPES.EDGE:
-        return (<DialogContentText style = {{textAlign:'center', fontSize:'20px', fontWeight: 'bold', color:'black' }}>
-          Node Id : {edgeFrom} <ArrowForward style={{verticalAlign: "middle"}} /> Node Id : {edgeTo}
+        return (
+          <DialogContentText style={{ textAlign: 'center', fontSize: '20px', fontWeight: 'bold', color: 'black' }}>
+            Node Id : {edgeFrom} <ArrowForward style={{ verticalAlign: "middle" }} /> Node Id : {edgeTo}
           </DialogContentText>);
       default:
         return null;
     }
   }
-  const handleAutocompleteFocus = (suggestionsCategory: string, type : string) => (_event: any) => {
+  const handleAutocompleteFocus = (suggestionsCategory: string, type: string) => (_event: any) => {
     switch (suggestionsCategory) {
       case "labels":
-        setAutocompleteOptions(suggestions[dialogType]?.labels[type] ?? []); 
+        setAutocompleteOptions(suggestions[dialogType]?.labels[type] ?? []);
         break;
       case "types":
         setAutocompleteOptions(suggestions[dialogType]?.types ?? []);
@@ -76,12 +83,12 @@ export const ModalDialogComponent = () => {
         break;
     }
   }
-  const handleAutocompleteChange = (name : string, index : number) => (event: any, newValue: any) => {
+  const handleAutocompleteChange = (name: string, index: number) => (event: any, newValue: any) => {
     switch (name) {
       case "propertyName":
-        setFormFields(prevFormFields => 
+        setFormFields(prevFormFields =>
           prevFormFields.map((formField, i) =>
-            i === index ? { ...formField, [name]: newValue} : formField
+            i === index ? { ...formField, [name]: newValue } : formField
           )
         );
         break;
@@ -136,8 +143,7 @@ export const ModalDialogComponent = () => {
     let query = '';
     if (isNodeDialog) {
       query = `g.addV('${type}')`;
-    }
-    else {
+    } else {
       query = `g.V(${edgeFrom}).as('a').addE('${type}').to(__.V('${edgeTo}'))`;
     }
     for (const [key, value] of Object.entries(formFields)) {
@@ -158,7 +164,7 @@ export const ModalDialogComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        const addedElement = isNodeDialog? [{...response.data[0], x, y}] : response.data
+        const addedElement = isNodeDialog ? [{ ...response.data[0], x, y }] : response.data
         manualAddElement(isNodeDialog, addedElement, nodeLabels, dispatch);
       })
       .catch((error) => {
@@ -186,47 +192,47 @@ export const ModalDialogComponent = () => {
           {getDialogText(dialogType)}
           <Autocomplete
             freeSolo
-            options = {autocompleteOptions}
-            onChange = {handleAutocompleteChange("type", -1)}
-            onFocus = {handleAutocompleteFocus("types", type)}
-            renderInput = {(params) => (
-            <TextField
-              {...params}
-              autoFocus
-              required
-              margin="dense"
-              name="type"
-              label="Type"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              fullWidth
-              variant="standard"
-              sx={{ paddingBottom: 2 }}
-            />)}
+            options={autocompleteOptions}
+            onChange={handleAutocompleteChange("type", -1)}
+            onFocus={handleAutocompleteFocus("types", type)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                autoFocus
+                required
+                margin="dense"
+                name="type"
+                label="Type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                fullWidth
+                variant="standard"
+                sx={{ paddingBottom: 2 }}
+              />)}
           />
           {duplicateError && <p style={{ color: 'red' }}>{duplicateError}</p>}
           <Grid container spacing={2}>
             {formFields.map((form, index) => (
               <React.Fragment key={index}>
-                <Grid item xs={5}> 
+                <Grid item xs={5}>
                   <Autocomplete
                     freeSolo
-                    options= {autocompleteOptions}
-                    onChange = {handleAutocompleteChange("propertyName", index)}
-                    onFocus = {handleAutocompleteFocus("labels", type)}
-                    renderInput = {(params) =>(
-                    <TextField
-                      {...params}
-                      required
-                      margin="dense"
-                      name="propertyName"
-                      label="Property Name"
-                      value={form.propertyName}
-                      onChange={event => handleFormChange(event, index)}
-                      fullWidth
-                      variant="standard"
-                    />)}
-                    />
+                    options={autocompleteOptions}
+                    onChange={handleAutocompleteChange("propertyName", index)}
+                    onFocus={handleAutocompleteFocus("labels", type)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        margin="dense"
+                        name="propertyName"
+                        label="Property Name"
+                        value={form.propertyName}
+                        onChange={event => handleFormChange(event, index)}
+                        fullWidth
+                        variant="standard"
+                      />)}
+                  />
                 </Grid>
                 <Grid item xs={5}>
                   <TextField
