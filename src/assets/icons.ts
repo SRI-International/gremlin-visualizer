@@ -1,4 +1,3 @@
-
 const icons: Record<string, string> = {
   // insert label to icon map here
   // person: require("./icons/person.jpg"),

@@ -6,7 +6,6 @@ import Sigma from "sigma";
 import { setSuggestions, Suggestions } from '../reducers/dialogReducer';
 import store from '../app/store';
 import { DIALOG_TYPES } from '../components/ModalDialog/ModalDialogComponent';
-import { types } from 'util';
 
 let convert = require('color-convert')
 
@@ -64,8 +63,8 @@ const selectRandomField = (obj: any) => {
 };
 
 export interface TempFieldSuggestions {
-  [dialogType : string] : {
-    [label: string] : Set<string>;
+  [dialogType: string]: {
+    [label: string]: Set<string>;
   }
 }
 

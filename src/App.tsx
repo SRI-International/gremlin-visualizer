@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { NetworkGraphComponent } from './components/NetworkGraph/NetworkGraphComponent';
 import { HeaderComponent } from './components/Header/HeaderComponent';
 import { SidebarComponent } from './components/Details/SidebarComponent';
-import { GraphTypes } from "./logics/utils";
-import { Network } from "vis-network";
-import Sigma from "sigma";
 import { ModalDialogComponent } from './components/ModalDialog/ModalDialogComponent';
 
 export const App = () => {
@@ -26,7 +23,7 @@ export const App = () => {
       setPanelWidth(offsetRight);
     }
   }
-  
+
   const handlePanelDragUnselect = () => {
     document.removeEventListener('mousemove', handlePanelDrag)
     document.removeEventListener('mouseup', handlePanelDragUnselect)

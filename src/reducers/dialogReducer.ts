@@ -3,9 +3,9 @@ import { RootState } from '../app/store';
 import { DIALOG_TYPES } from "../components/ModalDialog/ModalDialogComponent";
 
 export interface Suggestions {
-  [dialogType : string] : {
-    types : string[]
-    labels : {[label: string] : string[]}
+  [dialogType: string]: {
+    types: string[]
+    labels: { [label: string]: string[] }
   }
 }
 
@@ -63,7 +63,7 @@ const slice = createSlice({
         if (!state.suggestions[dialogType]) {
           state.suggestions[dialogType] = {
             types: [],
-            labels : {}
+            labels: {}
           };
         }
 

@@ -70,7 +70,7 @@ const slice = createSlice({
     },
     addEdges: (state, action) => {
       state = Object.assign({}, state);
-      const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.from},${edge.to}`);
+      const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.id}`);
       state.edges = [...state.edges, ...newEdges];
       return state;
     },

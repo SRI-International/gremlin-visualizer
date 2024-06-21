@@ -23,7 +23,7 @@ const slice = createSlice({
       state.error = null;
     },
     setError: (state, action) => {
-      if(action.payload != null) {
+      if (action.payload != null) {
         console.warn(action.payload);
       }
       state.error = action.payload;
