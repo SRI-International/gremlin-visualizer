@@ -259,3 +259,25 @@ export function setNodePositions(workspace: Workspace | undefined) {
     ratio: workspace?.zoom
   })
 }
+
+export function zoomIn() {
+  let camera = sigma?.getCamera();
+  camera?.animate({
+    ratio: camera.ratio / 1.5
+}, {
+    duration: 200
+});
+}
+
+export function zoomOut() {
+  let camera = sigma?.getCamera();
+  camera?.animate({
+    ratio: camera.ratio * 1.5
+}, {
+    duration: 200 
+});
+}
+export function fitTo() {
+ let camera = sigma?.getCamera();
+ camera?.animatedReset({duration: 200});
+};

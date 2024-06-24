@@ -214,5 +214,17 @@ export function setNodePositions(workspace: Workspace | undefined) {
       scale: workspace.zoom
     })
   }
-
 }
+
+export function zoomIn() {
+   const scale = network!.getScale();
+   network?.moveTo({ scale: scale + 0.1 });
+}
+
+export function zoomOut() {
+    const scale = network!.getScale();
+    network?.moveTo({ scale: scale - 0.1 });
+}
+export function fitTo() {
+    network?.fit();
+};
