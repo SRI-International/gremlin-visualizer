@@ -53,12 +53,11 @@ const GraphControls = () => {
         </Tooltip>
       ))
       } 
-      <Tooltip title="Automatically stabilize the graph">
-        <Fab size='small' color='primary' style={{ padding: '5px'}}
-              onClick={() => handleTogglePhysics()}>
-          {graphOptions.isPhysicsEnabled && <StopIcon style={{ fontSize: '18px' }}/> || <PlayArrowIcon style={{ fontSize: '18px' }} />}
-        </Fab>
-      </Tooltip>
+    <Tooltip title="Toggle Physics">
+      <ButtonGroupIconButton onClick = {handleTogglePhysics()}>
+      {graphOptions.isPhysicsEnabled && <StopIcon/> || <PlayArrowIcon/>}
+      </ButtonGroupIconButton>
+    </Tooltip>
     </ButtonGroup>
   );
 };
