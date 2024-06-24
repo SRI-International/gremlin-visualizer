@@ -4,12 +4,14 @@ import {
   selectGraph,
 } from '../../reducers/graphReducer';
 import { selectOptions, setIsPhysicsEnabled } from '../../reducers/optionReducer';
-import { Box, Button, ButtonGroup, IconButton, Switch, Tooltip } from "@mui/material";
-import { fitTo, getGraph, zoomIn, zoomOut } from "../../logics/graph";
+import { Box, Button, ButtonGroup, Fab, IconButton, Switch, Tooltip } from "@mui/material";
+import { getControls, getGraph} from "../../logics/graph";
 import { GraphTypes } from "../../logics/utils";
 import { Add, CenterFocusStrong, Remove } from '@mui/icons-material';
 import { Network } from 'vis-network';
 import store from '../../app/store';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 
 
 interface NetworkGraphComponentProps {
@@ -21,7 +23,7 @@ type BasicProps = {
 };
 
 const ButtonGroupIconButton = React.forwardRef(({ ...props }: BasicProps, _ref) => {
-  // intercept props only implemented by `Button`
+
   const { disableElevation, fullWidth, variant, ...iconButtonProps } = props;
   return <IconButton {...iconButtonProps}/>;
 });
@@ -29,17 +31,8 @@ const ButtonGroupIconButton = React.forwardRef(({ ...props }: BasicProps, _ref) 
 const GraphControls = () => {
   const { graphOptions } = useSelector(selectOptions);
   const dispatch = useDispatch();
-  const handleZoomIn = () => {
-    zoomIn();
-  };
+  const controls = getControls();
 
-  const handleZoomOut = () => {
-    zoomOut();
-  };
-
-  const handleFitTo = () => {
-    fitTo();
-  };
   const handleTogglePhysics = () => () => {
     dispatch(setIsPhysicsEnabled(!graphOptions.isPhysicsEnabled));
 
@@ -52,28 +45,19 @@ const GraphControls = () => {
       orientation="vertical"
       className={"graph-controls"}
     >
-      <Tooltip title="Zoom In">
-        <ButtonGroupIconButton onClick={handleZoomIn}>
-          <Add />
-        </ButtonGroupIconButton>
-      </Tooltip>
-      <Tooltip title="Reset View">
-        <ButtonGroupIconButton onClick={handleFitTo}>
-          <CenterFocusStrong />
-        </ButtonGroupIconButton>
-      </Tooltip>
-      <Tooltip title="Zoom Out">
-        <ButtonGroupIconButton onClick={handleZoomOut}>
-          <Remove />
-        </ButtonGroupIconButton>
-      </Tooltip>
-      <Tooltip title="Toggle Physics">
-        <Switch
-        checked={graphOptions.isPhysicsEnabled}
-        onChange={handleTogglePhysics()}
-        size="small"
-        inputProps={{ 'aria-label': 'controlled' }}
-        />
+      {controls.map((button, _index) => (
+        <Tooltip title = {button.name}>
+          <ButtonGroupIconButton onClick={button.callback}>
+            <button.icon/>
+          </ButtonGroupIconButton>
+        </Tooltip>
+      ))
+      } 
+      <Tooltip title="Automatically stabilize the graph">
+        <Fab size='small' color='primary' style={{ padding: '5px'}}
+              onClick={() => handleTogglePhysics()}>
+          {graphOptions.isPhysicsEnabled && <StopIcon style={{ fontSize: '18px' }}/> || <PlayArrowIcon style={{ fontSize: '18px' }} />}
+        </Fab>
       </Tooltip>
     </ButtonGroup>
   );
