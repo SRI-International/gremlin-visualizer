@@ -34,18 +34,34 @@ export const ModalDialogComponent = () => {
   const { nodeLabels, nodeLimit } = useSelector(selectOptions);
   const dispatch = useDispatch();
   const { isDialogOpen, x, y, dialogType, edgeFrom, edgeTo, suggestions } = useSelector(selectDialog);
-  const [formFields, setFormFields] = useState<FormField[]>([{ propertyName: '', propertyValue: '' }]);
+  const [formFields, setFormFields] = useState<FormField[]>([]);
   const [type, setType] = useState<string>('');
   const [duplicateError, setDuplicateError] = useState<string>('');
   const [autocompleteOptions, setAutocompleteOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (isDialogOpen) {
-      setFormFields([{ propertyName: '', propertyValue: '' }]);
-      setType('');
+      setFormFields([]);
+      setType(suggestions[dialogType]?.types[0]);
       setDuplicateError('');
     }
   }, [isDialogOpen]);
+
+  useEffect(() => {
+    if (suggestions[dialogType]?.labels[type]) {
+      const newFormFields = suggestions[dialogType]?.labels[type].map(field => {
+        return {
+          propertyName: field,
+          propertyValue: ''
+        }
+      }
+    )
+      setFormFields(newFormFields);
+    }
+    else {
+      setFormFields([]);
+    }
+  }, [type, isDialogOpen]);
 
   const getDialogTitle = (dialogType: any) => {
     switch (dialogType) {
@@ -193,6 +209,7 @@ export const ModalDialogComponent = () => {
           <Autocomplete
             freeSolo
             options={autocompleteOptions}
+            value={type || ''} 
             onChange={handleAutocompleteChange("type", -1)}
             onFocus={handleAutocompleteFocus("types", type)}
             renderInput={(params) => (
@@ -203,7 +220,6 @@ export const ModalDialogComponent = () => {
                 margin="dense"
                 name="type"
                 label="Type"
-                value={type}
                 onChange={(e) => setType(e.target.value)}
                 fullWidth
                 variant="standard"
@@ -218,6 +234,7 @@ export const ModalDialogComponent = () => {
                   <Autocomplete
                     freeSolo
                     options={autocompleteOptions}
+                    value={form.propertyName || ''} 
                     onChange={handleAutocompleteChange("propertyName", index)}
                     onFocus={handleAutocompleteFocus("labels", type)}
                     renderInput={(params) => (
@@ -227,7 +244,6 @@ export const ModalDialogComponent = () => {
                         margin="dense"
                         name="propertyName"
                         label="Property Name"
-                        value={form.propertyName}
                         onChange={event => handleFormChange(event, index)}
                         fullWidth
                         variant="standard"
