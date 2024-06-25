@@ -42,7 +42,7 @@ export const ModalDialogComponent = () => {
   useEffect(() => {
     if (isDialogOpen) {
       setFormFields([]);
-      setType('');
+      setType(suggestions[dialogType]?.types[0]);
       setDuplicateError('');
     }
   }, [isDialogOpen]);
@@ -61,7 +61,7 @@ export const ModalDialogComponent = () => {
     else {
       setFormFields([]);
     }
-  }, [type]);
+  }, [type, isDialogOpen]);
 
   const getDialogTitle = (dialogType: any) => {
     switch (dialogType) {
@@ -209,6 +209,7 @@ export const ModalDialogComponent = () => {
           <Autocomplete
             freeSolo
             options={autocompleteOptions}
+            value={type || ''} 
             onChange={handleAutocompleteChange("type", -1)}
             onFocus={handleAutocompleteFocus("types", type)}
             renderInput={(params) => (
@@ -219,7 +220,6 @@ export const ModalDialogComponent = () => {
                 margin="dense"
                 name="type"
                 label="Type"
-                value={type}
                 onChange={(e) => setType(e.target.value)}
                 fullWidth
                 variant="standard"
