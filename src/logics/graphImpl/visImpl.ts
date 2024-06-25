@@ -78,13 +78,13 @@ function getOptions(options?: GraphOptions): Options {
         roundness: 0
       }
     }
-    edges.forEach(x => {
-      if (!options.isPhysicsEnabled) {
-        curveEdges(edges);
-      } else {
+    if (!options.isPhysicsEnabled && options.layout != 'hierarchical') {
+      curveEdges(edges);
+    } else {
+      edges.forEach(x => {
         network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
-      }
-    })
+      })
+    }
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -184,7 +184,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       }
     }
     for (let e of data?.edges || []) {
-      if (!edges!.get(e.id as Id)) {
+      if (!edges!.get(e.id as Id) && nodes.map(x => x.id).includes(e.to)) {
         edges.add(toVisEdge(e))
       }
     }
@@ -282,17 +282,18 @@ export function setNodePositions(workspace: Workspace | undefined) {
 }
 
 export function zoomIn() {
-   const scale = network!.getScale();
-   network?.moveTo({ scale: scale + 0.1 });
+  const scale = network!.getScale();
+  network?.moveTo({ scale: scale + 0.1 });
 }
 
 export function zoomOut() {
-    const scale = network!.getScale();
-    network?.moveTo({ scale: scale - 0.1 });
+  const scale = network!.getScale();
+  network?.moveTo({ scale: scale - 0.1 });
 }
+
 export function fitTo() {
-    network?.fit();
-};
+  network?.fit();
+}
 
 export function exportIMG() {
   const container = document.querySelector('.mynetwork');
@@ -305,7 +306,7 @@ export function exportIMG() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-} else {
+  } else {
     console.error('No canvas found!');
-}
+  }
 }

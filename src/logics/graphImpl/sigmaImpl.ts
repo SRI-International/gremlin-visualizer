@@ -314,23 +314,24 @@ export function zoomIn() {
   let camera = sigma?.getCamera();
   camera?.animate({
     ratio: camera.ratio / 1.5
-}, {
+  }, {
     duration: 200
-});
+  });
 }
 
 export function zoomOut() {
   let camera = sigma?.getCamera();
   camera?.animate({
     ratio: camera.ratio * 1.5
-}, {
-    duration: 200 
-});
+  }, {
+    duration: 200
+  });
 }
+
 export function fitTo() {
- let camera = sigma?.getCamera();
- camera?.animatedReset({duration: 200});
-};
+  let camera = sigma?.getCamera();
+  camera?.animatedReset({ duration: 200 });
+}
 
 export function exportIMG() {
   const inputLayers = ["edges", "nodes", "edgeLabels", "labels"];
@@ -393,4 +394,4 @@ export function exportIMG() {
     tmpRenderer.kill();
     tmpRoot.remove();
   }, "image/png");
-};
+}

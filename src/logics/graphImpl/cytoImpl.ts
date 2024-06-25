@@ -241,10 +241,11 @@ export function zoomOut() {
   const newZoom = currentZoom! * 0.9;
   graph?.zoom(newZoom);
 }
+
 export function fitTo() {
- graph?.reset();
- graph?.center();
-};
+  graph?.reset();
+  graph?.center();
+}
 
 export function exportIMG() {
   const imageUrl = graph?.png();
