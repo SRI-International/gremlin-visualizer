@@ -245,3 +245,13 @@ export function fitTo() {
  graph?.reset();
  graph?.center();
 };
+
+export function exportIMG() {
+  const imageUrl = graph?.png();
+  const link = document.createElement('a');
+  link.href = imageUrl!;
+  link.download = "graph.png";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

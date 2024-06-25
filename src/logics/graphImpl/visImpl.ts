@@ -13,6 +13,7 @@ let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
 let shiftKeyDown = false;
+let canvas: CanvasRenderingContext2D | null = null;
 
 const defaultOptions: Options = {
   manipulation: {
@@ -243,6 +244,10 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         network!.disableEditMode();
       }
     });
+    network.on('afterDrawing', (ctx: CanvasRenderingContext2D) => {
+      canvas = ctx;
+    });
+
   }
 
   return network;
@@ -288,3 +293,19 @@ export function zoomOut() {
 export function fitTo() {
     network?.fit();
 };
+
+export function exportIMG() {
+  const container = document.querySelector('.mynetwork');
+  const canvas = container?.querySelector('canvas');
+  if (canvas) {
+    const imageUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = 'graph.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+} else {
+    console.error('No canvas found!');
+}
+}
