@@ -229,3 +229,30 @@ export function setNodePositions(workspace: Workspace | undefined) {
   graph?.zoom(workspace?.zoom)
   graph?.pan(workspace?.view)
 }
+
+export function zoomIn() {
+  const currentZoom = graph?.zoom();
+  const newZoom = currentZoom! * 1.1;
+  graph?.zoom(newZoom);
+}
+
+export function zoomOut() {
+  const currentZoom = graph?.zoom();
+  const newZoom = currentZoom! * 0.9;
+  graph?.zoom(newZoom);
+}
+
+export function fitTo() {
+  graph?.reset();
+  graph?.center();
+}
+
+export function exportIMG() {
+  const imageUrl = graph?.png();
+  const link = document.createElement('a');
+  link.href = imageUrl!;
+  link.download = "graph.png";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
