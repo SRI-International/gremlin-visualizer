@@ -28,14 +28,11 @@ const SavedQueries = ({ }) => {
 
     const handleListItemClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
         setSelectedIndex(index);
-        console.log("YE")
         setShowDetails(true);
     };
 
 
     const handlePlay = (index: number) => {
-        console.log(queries[index]);
-        console.log("PLAY")
         const query = queries[index].code;
         dispatch(setError(null));
         axios
