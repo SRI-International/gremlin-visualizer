@@ -5,6 +5,7 @@ import { selectOptions, } from '../../reducers/optionReducer';
 import Query from "./QueryComponent";
 import { Settings } from "./SettingsComponent";
 import { DetailsComponent } from "./DetailsComponent";
+import CollapsibleTable from "./TableComponent";
 
 type QueryHistoryProps = {
   list: Array<string>;
@@ -75,6 +76,7 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
           <Tab value={0} label='Query' />
           <Tab value={1} label='Details' />
           <Tab value={2} label='Settings' />
+          <Tab value={3} label='Table' />
         </Tabs>
         <Divider />
 
@@ -87,6 +89,9 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
         </TabPanel>
         <TabPanel index={1} value={value}>
           <DetailsComponent />
+        </TabPanel>
+        <TabPanel index={3} value={value}>
+          <CollapsibleTable />
         </TabPanel>
       </Drawer>
     </Box>
