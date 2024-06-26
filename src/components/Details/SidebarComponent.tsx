@@ -85,41 +85,42 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
 
         <Tabs variant="fullWidth" orientation="vertical" value={value} onChange={handleChange} sx={{
           '.MuiTab-root': {
-            minWidth: 60,
+            minWidth: 40,
             padding: '6px',
-            minHeight: 60,
+            minHeight: 40,
             width: 'fit-content'
           },
         }} >
           <Tooltip title="Query" placement="left" arrow>
             <Tab icon={<PlayCircleFilledIcon sx={{ color: 'grey' }} />} value={0} />
           </Tooltip>
+          <Tooltip title="Saved Queries" placement="left" arrow>
+            <Tab icon={<GradeIcon />} value={1} />
+          </Tooltip>
           <Tooltip title="Details" placement="left" arrow>
-            <Tab icon={<TocIcon />} value={1} />
+            <Tab icon={<TocIcon />} value={2} />
           </Tooltip>
           <Tooltip title="Settings" placement="left" arrow>
-            <Tab icon={<SettingsIcon />} value={2} />
+            <Tab icon={<SettingsIcon />} value={3} />
           </Tooltip>
-          <Tooltip title="Saved Queries" placement="left" arrow>
-            <Tab icon={<GradeIcon />} value={3} />
-          </Tooltip>
+
         </Tabs>
 
         <Divider orientation="vertical" flexItem />
 
-        <Box sx={{ flexGrow: 1, overflowY: 'auto', width: `calc(${props.panelWidth}px - 60px)` }}>
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', width: `calc(${props.panelWidth}px - 40px)` }}>
           <TabPanel index={0} value={value}>
             <Query />
             <QueryHistoryList list={queryHistory} />
           </TabPanel>
           <TabPanel index={1} value={value}>
-            <DetailsComponent />
+            <SavedQueries />
           </TabPanel>
           <TabPanel index={2} value={value}>
-            <Settings />
+            <DetailsComponent />
           </TabPanel>
           <TabPanel index={3} value={value}>
-            <SavedQueries />
+            <Settings />
           </TabPanel>
         </Box>
       </Drawer>
