@@ -6,7 +6,7 @@ import Query from "./QueryComponent";
 import { Settings } from "./SettingsComponent";
 import { DetailsComponent } from "./DetailsComponent";
 import SavedQueries from "./SavedQueriesComponent"
-import SearchIcon from '@mui/icons-material/Search';
+import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import TocIcon from '@mui/icons-material/Toc';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GradeIcon from '@mui/icons-material/Grade';
@@ -92,7 +92,7 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
           },
         }} >
           <Tooltip title="Query" placement="left" arrow>
-            <Tab icon={<SearchIcon />} value={0} />
+            <Tab icon={<PlayCircleFilledIcon sx={{ color: 'grey' }} />} value={0} />
           </Tooltip>
           <Tooltip title="Details" placement="left" arrow>
             <Tab icon={<TocIcon />} value={1} />
