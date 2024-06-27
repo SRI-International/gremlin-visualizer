@@ -17,7 +17,7 @@ import { useSelector } from 'react-redux';
 import { EdgeData, NodeData } from '../../logics/utils';
 import { Data, IdType } from 'vis-network';
 import { Key } from '@mui/icons-material';
-import { Checkbox, FormControlLabel, Switch, TablePagination, TableSortLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, Grid, Switch, TablePagination, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
 
@@ -245,10 +245,10 @@ export default function CollapsibleTable() {
         [order, orderBy, page, rowsPerPage],
     );
     return (
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '98vh' }}>
-            <Paper sx={{ width: '100%', height: '100%', mb: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <TableContainer component={Paper} sx={{ flex: 1, overflow: 'auto' }}>
-                    <Table aria-label="collapsible table" size="small">
+        <Grid sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)' }}>
+            <Paper sx={{ width: '100%', overflow: 'auto', flex: 1 }}>
+                <TableContainer sx={{ flex: 1 }}>
+                    <Table stickyHeader aria-label="collapsible table" size="small">
                         <EnhancedTableHead
                             order={order}
                             orderBy={orderBy}
@@ -267,17 +267,17 @@ export default function CollapsibleTable() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    sx={{ mt: 'auto' }}
-                />
+
             </Paper>
-        </Box>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                component="div"
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </Grid>
     );
 }
