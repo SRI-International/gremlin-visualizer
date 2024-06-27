@@ -22,8 +22,6 @@ import { visuallyHidden } from '@mui/utils';
 
 
 type RowData = {
-    id: IdType,
-    elementType: string,
     type: string,
     displayLabel: string,
     additionalAttributes: { [key: string]: any };
@@ -36,18 +34,6 @@ interface HeadCell {
 }
 
 const headCells: readonly HeadCell[] = [
-    {
-        id: 'id',
-        numeric: true,
-        disablePadding: true,
-        label: 'ID',
-    },
-    {
-        id: 'elementType',
-        numeric: false,
-        disablePadding: false,
-        label: 'Element Type',
-    },
     {
         id: 'type',
         numeric: false,
@@ -65,11 +51,11 @@ const headCells: readonly HeadCell[] = [
 function createData(nodes: Array<NodeData>, edges: Array<EdgeData>) {
     let rows: RowData[] = [];
     nodes.forEach((node) => {
-        let data: RowData = { id: node.id, elementType: 'node', type: node.type, displayLabel: node.label, additionalAttributes: node.properties };
+        let data: RowData = { type: node.type, displayLabel: node.label, additionalAttributes: { id: node.id, elementType: 'node', ...node.properties } };
         rows.push(data);
     })
     edges.forEach((edge) => {
-        let data: RowData = { id: edge.id, elementType: 'edge', type: edge.type, displayLabel: edge.label, additionalAttributes: { ...edge.properties, from: edge.from, to: edge.to } };
+        let data: RowData = { type: edge.type, displayLabel: edge.label, additionalAttributes: { id: edge.id, elementType: 'edge', from: edge.from, to: edge.to, ...edge.properties } };
         rows.push(data);
     })
     return rows;
@@ -93,11 +79,7 @@ function Row(props: { row: RowData }) {
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell component="th" scope="row">
-                    {row.id}
-                </TableCell>
-                <TableCell align="right">{row.elementType}</TableCell>
-                <TableCell align="right">{row.type}</TableCell>
+                <TableCell align="right" component="th" scope="row">{row.type}</TableCell>
                 <TableCell align="right">{row.displayLabel}</TableCell>
             </TableRow>
             <TableRow>
@@ -229,9 +211,9 @@ export default function CollapsibleTable() {
     const { nodes, edges } = useSelector(selectGraph);
     const rows = createData(nodes as NodeData[], edges as EdgeData[]);
     const [order, setOrder] = React.useState<Order>('asc');
-    const [orderBy, setOrderBy] = React.useState<SortableKeys>('id');
+    const [orderBy, setOrderBy] = React.useState<SortableKeys>('type');
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -263,9 +245,9 @@ export default function CollapsibleTable() {
         [order, orderBy, page, rowsPerPage],
     );
     return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ width: '100%', mb: 2 }}>
-                <TableContainer component={Paper}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <Paper sx={{ width: '100%', height: '100%', mb: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <TableContainer component={Paper} sx={{ flex: 1 }}>
                     <Table aria-label="collapsible table" size="small">
                         <EnhancedTableHead
                             order={order}
@@ -275,7 +257,7 @@ export default function CollapsibleTable() {
                         />
                         <TableBody>
                             {visibleRows.map((row) => (
-                                <Row key={row.id} row={row} />
+                                <Row key={row.additionalAttributes.id} row={row} />
                             ))}
                             {emptyRows > 0 && (
                                 <TableRow>
@@ -286,13 +268,14 @@ export default function CollapsibleTable() {
                     </Table>
                 </TableContainer>
                 <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
+                    rowsPerPageOptions={[5, 10, 25, 50]}
                     component="div"
                     count={rows.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={{ mt: 'auto' }}
                 />
             </Paper>
         </Box>
