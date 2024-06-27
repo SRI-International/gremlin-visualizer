@@ -70,7 +70,7 @@ function Row(props: { row: RowData }) {
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' }, '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell>
+                <TableCell sx={{ padding: '8px 0px', width: '10px' }}>
                     <IconButton
                         aria-label="expand row"
                         size="small"
@@ -79,8 +79,8 @@ function Row(props: { row: RowData }) {
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell align="right" component="th" scope="row">{row.displayLabel}</TableCell>
-                <TableCell align="right">{row.type}</TableCell>
+                <TableCell align="left" component="th" scope="row">{row.displayLabel}</TableCell>
+                <TableCell align="left">{row.type}</TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -185,7 +185,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
-                        align="right"
+                        align="left"
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
                         <TableSortLabel
