@@ -35,17 +35,17 @@ interface HeadCell {
 
 const headCells: readonly HeadCell[] = [
     {
-        id: 'type',
-        numeric: false,
-        disablePadding: false,
-        label: 'Type',
-    },
-    {
         id: 'displayLabel',
         numeric: false,
         disablePadding: false,
         label: 'Label',
     },
+    {
+        id: 'type',
+        numeric: false,
+        disablePadding: false,
+        label: 'Type',
+    }
 ];
 
 function createData(nodes: Array<NodeData>, edges: Array<EdgeData>) {
@@ -79,8 +79,8 @@ function Row(props: { row: RowData }) {
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell align="right" component="th" scope="row">{row.type}</TableCell>
-                <TableCell align="right">{row.displayLabel}</TableCell>
+                <TableCell align="right" component="th" scope="row">{row.displayLabel}</TableCell>
+                <TableCell align="right">{row.type}</TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -245,9 +245,9 @@ export default function CollapsibleTable() {
         [order, orderBy, page, rowsPerPage],
     );
     return (
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '98vh' }}>
             <Paper sx={{ width: '100%', height: '100%', mb: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <TableContainer component={Paper} sx={{ flex: 1 }}>
+                <TableContainer component={Paper} sx={{ flex: 1, overflow: 'auto' }}>
                     <Table aria-label="collapsible table" size="small">
                         <EnhancedTableHead
                             order={order}
