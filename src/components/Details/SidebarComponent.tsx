@@ -1,11 +1,17 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Box, Divider, Drawer, List, ListItem, ListItemText, Tab, Tabs, } from '@mui/material';
+import { Box, Divider, Drawer, List, ListItem, ListItemText, Tab, Tabs, Tooltip, } from '@mui/material';
 import { selectOptions, } from '../../reducers/optionReducer';
 import Query from "./QueryComponent";
 import { Settings } from "./SettingsComponent";
 import { DetailsComponent } from "./DetailsComponent";
 import CollapsibleTable from "./TableComponent";
+import SavedQueries from "./SavedQueriesComponent"
+import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
+import TocIcon from '@mui/icons-material/Toc';
+import SettingsIcon from '@mui/icons-material/Settings';
+import GradeIcon from '@mui/icons-material/Grade';
+import DatasetIcon from '@mui/icons-material/Dataset';
 
 type QueryHistoryProps = {
   list: Array<string>;
@@ -65,34 +71,66 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
     <Box>
       <Drawer anchor='right' variant='permanent' open={true} sx={{
         display: { xs: 'none', sm: 'block' },
-        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.panelWidth },
+        '& .MuiDrawer-paper': {
+          boxSizing: 'border-box',
+          width: props.panelWidth,
+          display: 'flex',
+          flexDirection: 'row-reverse',
+        },
       }} className='details'>
+
         <div
           id="dragger"
           onMouseDown={props.handleMouseDown}
           className={'dragger'}
         />
-        <Tabs variant="fullWidth" value={value} onChange={handleChange}>
-          <Tab value={0} label='Query' />
-          <Tab value={1} label='Details' />
-          <Tab value={2} label='Settings' />
-          <Tab value={3} label='Table' />
-        </Tabs>
-        <Divider />
 
-        <TabPanel index={0} value={value}>
-          <Query />
-          <QueryHistoryList list={queryHistory} />
-        </TabPanel>
-        <TabPanel index={2} value={value}>
-          <Settings />
-        </TabPanel>
-        <TabPanel index={1} value={value}>
-          <DetailsComponent />
-        </TabPanel>
-        <TabPanel index={3} value={value}>
-          <CollapsibleTable />
-        </TabPanel>
+        <Tabs variant="fullWidth" orientation="vertical" value={value} onChange={handleChange} sx={{
+          '.MuiTab-root': {
+            minWidth: 40,
+            padding: '6px',
+            minHeight: 40,
+            width: 'fit-content'
+          },
+        }} >
+          <Tooltip title="Query" placement="left" arrow>
+            <Tab icon={<PlayCircleFilledIcon sx={{ color: 'grey' }} />} value={0} />
+          </Tooltip>
+          <Tooltip title="Saved Queries" placement="left" arrow>
+            <Tab icon={<GradeIcon />} value={1} />
+          </Tooltip>
+          <Tooltip title="Details" placement="left" arrow>
+            <Tab icon={<TocIcon />} value={2} />
+          </Tooltip>
+          <Tooltip title="Settings" placement="left" arrow>
+            <Tab icon={<SettingsIcon />} value={3} />
+          </Tooltip>
+          <Tooltip title="Table View" placement="left" arrow>
+            <Tab icon={<DatasetIcon />} value={4} />
+          </Tooltip>
+
+        </Tabs>
+
+        <Divider orientation="vertical" flexItem />
+
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', width: `calc(${props.panelWidth}px - 40px)` }}>
+          <TabPanel index={0} value={value}>
+            <Query />
+            <QueryHistoryList list={queryHistory} />
+          </TabPanel>
+          <TabPanel index={1} value={value}>
+            <SavedQueries />
+          </TabPanel>
+          <TabPanel index={2} value={value}>
+            <DetailsComponent />
+          </TabPanel>
+          <TabPanel index={3} value={value}>
+            <Settings />
+          </TabPanel>
+          <TabPanel index={4} value={value}>
+            <CollapsibleTable />
+          </TabPanel>
+        </Box>
       </Drawer>
     </Box>
   );

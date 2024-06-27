@@ -35,3 +35,8 @@ export const INITIAL_LABEL_MAPPINGS = {
   //  software: 'lang'
 }
 
+export const SAVED_QUERIES = {
+  // "get node with name marko" : "g.V().has('name', 'marko')",
+  // "get person nodes that marko has outgoing edges to" : "g.V().has('name', 'marko').out().hasLabel('person')"
+}
+

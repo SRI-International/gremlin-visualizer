@@ -83,7 +83,7 @@ function Row(props: { row: RowData }) {
 
     return (
         <React.Fragment>
-            <TableRow sx={{ '& > *': { borderBottom: 'unset' }, '&:last-child td, &:last-child th': { border: 0 }}}>
+            <TableRow sx={{ '& > *': { borderBottom: 'unset' }, '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
                     <IconButton
                         aria-label="expand row"
