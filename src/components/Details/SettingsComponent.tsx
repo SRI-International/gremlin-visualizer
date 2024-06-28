@@ -86,7 +86,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
     <List dense={true}>
       {indexedLabels.map((nodeLabel: any, ndx: number) => (
         <ListItem key={ndx}>
-          <TextField 
+          <TextField
             sx={{ width: '50%' }}
             id="standard-basic"
             label="Node Type"
