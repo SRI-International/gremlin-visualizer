@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -40,12 +41,19 @@ import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
 import { addWorkspace, refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
 import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
 import { GRAPH_IMPL } from "../../constants";
+import { type } from "os";
+import { selectDialog } from "../../reducers/dialogReducer";
+import { DIALOG_TYPES } from "../../components/ModalDialog/ModalDialogComponent";
+
+
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
 };
 const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   const dispatch = useDispatch();
+  const [autocompleteOptions, setAutocompleteOptions] = useState<string[]>([]);
+  const { suggestions } = useSelector(selectDialog);
   const indexedLabels = nodeLabels.map((nodeLabel: any, ndx: number) => {
     return {
       ...nodeLabel,
@@ -60,12 +68,26 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   function onEditNodeLabel(index: number, nodeLabel: any) {
     dispatch(editNodeLabel({ id: index, nodeLabel }));
   }
+  const handleAutocompleteFocus = (type: string) => (_event: any) => {
+    setAutocompleteOptions(suggestions[DIALOG_TYPES.NODE]?.labels[type] ?? []);
+  }
+
+  const handleAutocompleteChange = (index: number, type: string) => (event: any, newValue: any) => {
+    const field = newValue;
+    const nodeLabel = { type, field };
+    dispatch(editNodeLabel({ id: index, nodeLabel }));
+
+
+
+  }
+
 
   return (
     <List dense={true}>
       {indexedLabels.map((nodeLabel: any, ndx: number) => (
         <ListItem key={ndx}>
           <TextField
+            sx={{ width: '50%' }}
             id="standard-basic"
             label="Node Type"
             InputLabelProps={{ shrink: true }}
@@ -76,16 +98,25 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
               onEditNodeLabel(nodeLabel.index, { type, field });
             }}
           />
-          <TextField
-            id="standard-basic"
-            label="Label Field"
-            InputLabelProps={{ shrink: true }}
-            value={nodeLabel.field}
-            onChange={(event) => {
-              const field = event.target.value;
-              const type = nodeLabel.type;
-              onEditNodeLabel(nodeLabel.index, { type, field });
-            }}
+          <Autocomplete
+            sx={{ width: '50%' }}
+            freeSolo
+            options={autocompleteOptions}
+            value={nodeLabel.field || ''}
+            onChange={handleAutocompleteChange(nodeLabel.index, nodeLabel.type)}
+            onFocus={handleAutocompleteFocus(nodeLabel.type)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                id="standard-basic"
+                label="Label Field"
+                InputLabelProps={{ shrink: true }}
+                onChange={(event) => {
+                  const field = event.target.value;
+                  const type = nodeLabel.type;
+                  onEditNodeLabel(nodeLabel.index, { type, field });
+                }}
+              />)}
           />
           <IconButton
             aria-label="delete"
@@ -111,7 +142,6 @@ export const Settings = () => {
   const [workspaceToLoad, setWorkspaceToLoad] = useState<string>('');
   const [workspaceSaveName, setWorkspaceSaveName] = useState<string>('');
   const [workspaceSaveNameConflict, setWorkspaceSaveNameConflict] = useState(false);
-
 
   function onHostChanged(host: string) {
     dispatch(setHost(host));
@@ -270,7 +300,7 @@ export const Settings = () => {
             aria-label="add"
           >
             <Fab size='small' color='primary' style={{ minWidth: '40px' }}
-                 onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
+              onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
               {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
             </Fab>
           </Tooltip>
@@ -302,11 +332,11 @@ export const Settings = () => {
       <Grid item xs={12} sm={12} md={12}>
         <NodeLabelList nodeLabels={nodeLabels} />
       </Grid>
-      <Grid item xs={12} sm={12} md={12}>
+      <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', flexWrap: 'wrap' }}>
         <Button
           variant='contained'
           color="primary"
-          style={{ marginRight: '8px' }}
+          style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
           startIcon={<RefreshIcon />}
           onClick={onRefresh.bind(this)}
         >
@@ -317,6 +347,7 @@ export const Settings = () => {
           color='primary'
           onClick={onAddNodeLabel.bind(this)}
           startIcon={<AddIcon />}
+          style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
         >
           Add Node Label
         </Button>
