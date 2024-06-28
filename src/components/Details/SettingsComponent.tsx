@@ -75,14 +75,6 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   const handleAutocompleteChange = (index: number, type: string) => (event: any, newValue: any) => {
     const field = newValue;
     const nodeLabel = { type, field };
-
-    // indexedLabels.forEach(label => {
-    //   if (label.index===index) {
-    //     type = label.type;
-    //     field = label.field;
-    //     break;
-    //   }
-    // })
     dispatch(editNodeLabel({ id: index, nodeLabel }));
 
 
@@ -94,7 +86,8 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
     <List dense={true}>
       {indexedLabels.map((nodeLabel: any, ndx: number) => (
         <ListItem key={ndx}>
-          <TextField
+          <TextField 
+            sx={{ width: '50%' }}
             id="standard-basic"
             label="Node Type"
             InputLabelProps={{ shrink: true }}
@@ -106,6 +99,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
             }}
           />
           <Autocomplete
+            sx={{ width: '50%' }}
             freeSolo
             options={autocompleteOptions}
             value={nodeLabel.field || ''}
