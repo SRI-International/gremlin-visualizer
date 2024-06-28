@@ -9,6 +9,7 @@
     "allowJs": true,
     "lib": [
       "DOM",
+      "webworker",
       "DOM.Iterable",
       "ES2015.Iterable",
       "ES6",

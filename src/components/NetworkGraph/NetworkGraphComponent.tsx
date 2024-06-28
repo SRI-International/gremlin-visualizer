@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -67,14 +68,34 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { nodes, edges } = useSelector(selectGraph);
   const { graphOptions } = useSelector(selectOptions);
   const myRef = useRef(null);
+  const first = "hi"
+const second = "hi"
+const result = "hi"
+
+
 
   useEffect(() => {
     if (myRef.current != null) {
+
       getGraph(
         myRef.current,
         { nodes, edges },
         graphOptions
       );
+      if (window.Worker) {
+        const myWorker = new Worker("worker.js");
+   
+            myWorker.postMessage([first, second]);
+            console.log('Message posted to worker');
+      
+      
+        myWorker.onmessage = function(e) {
+          result.textContent = e.data;
+          console.log('Message received from worker');
+        }
+      } else {
+        console.log('Your browser doesn\'t support web workers.');
+      }
     }
   }, [nodes, edges, graphOptions]);
 
