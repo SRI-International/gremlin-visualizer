@@ -270,7 +270,7 @@ export const Settings = () => {
             aria-label="add"
           >
             <Fab size='small' color='primary' style={{ minWidth: '40px' }}
-                 onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
+              onClick={() => onTogglePhysics(!graphOptions.isPhysicsEnabled)}>
               {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
             </Fab>
           </Tooltip>
@@ -302,11 +302,11 @@ export const Settings = () => {
       <Grid item xs={12} sm={12} md={12}>
         <NodeLabelList nodeLabels={nodeLabels} />
       </Grid>
-      <Grid item xs={12} sm={12} md={12}>
+      <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', flexWrap: 'wrap' }}>
         <Button
           variant='contained'
           color="primary"
-          style={{ marginRight: '8px' }}
+          style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
           startIcon={<RefreshIcon />}
           onClick={onRefresh.bind(this)}
         >
@@ -317,6 +317,7 @@ export const Settings = () => {
           color='primary'
           onClick={onAddNodeLabel.bind(this)}
           startIcon={<AddIcon />}
+          style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
         >
           Add Node Label
         </Button>

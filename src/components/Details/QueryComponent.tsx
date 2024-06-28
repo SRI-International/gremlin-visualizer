@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { Button, TextField } from "@mui/material";
+import { Button, Grid, TextField } from "@mui/material";
 import { clearGraph } from '../../reducers/graphReducer';
 import { clearQueryHistory } from '../../reducers/optionReducer';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,7 +9,7 @@ import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
 import { onFetchQuery } from "../../logics/actionHelper";
 import { RootState } from "../../app/store";
 
-const Query = ({}) => {
+const Query = ({ }) => {
   const dispatch = useDispatch()
   const { host, port, query } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit } = useSelector(
@@ -57,22 +57,24 @@ const Query = ({}) => {
           multiline={true}
           sx={{ fontFamily: 'monospace' }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={sendQuery.bind(this)}
-          style={{ width: '150px' }}
-        >
-          Execute
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleClearGraph.bind(this)}
-          style={{ width: '150px' }}
-        >
-          Clear Graph
-        </Button>
+        <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', flexWrap: 'wrap' }} >
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={sendQuery.bind(this)}
+            style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
+          >
+            Execute
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClearGraph.bind(this)}
+            style={{ width: 'calc(50% - 10px)', flexGrow: 1, margin: '5px' }}
+          >
+            Clear Graph
+          </Button>
+        </Grid>
       </form>
     </div>);
 }
