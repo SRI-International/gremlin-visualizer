@@ -18,7 +18,7 @@ export const App = () => {
     let offsetRight =
       document.body.offsetWidth - (event.clientX - document.body.offsetLeft) + 20;
     let minWidth = 50;
-    let maxWidth = 600;
+    let maxWidth = document.body.offsetWidth;
     if (offsetRight > minWidth && offsetRight < maxWidth) {
       setPanelWidth(offsetRight);
     }

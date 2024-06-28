@@ -214,13 +214,13 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 export default function CollapsibleTable() {
     const { nodes, edges } = useSelector(selectGraph);
-    const [rows, setRows] = React.useState(createData(nodes as NodeData[], edges as EdgeData[], true, true));
+    const [rows, setRows] = React.useState(createData(nodes as NodeData[], edges as EdgeData[], true, false));
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<SortableKeys>('type');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [nodesChecked, setNodesChecked] = React.useState(true);
-    const [edgesChecked, setEdgesChecked] = React.useState(true);
+    const [edgesChecked, setEdgesChecked] = React.useState(false);
 
     useEffect(() => {
         setRows(createData(nodes, edges, nodesChecked, edgesChecked));
@@ -280,7 +280,6 @@ export default function CollapsibleTable() {
                         control={<Checkbox checked={nodesChecked} onChange={handleNodesToggle} />}
                         label="Nodes"
                         labelPlacement="end"
-                        checked={nodesChecked}
                     />
                     <FormControlLabel
                         control={<Checkbox checked={edgesChecked} onChange={handleEdgesToggle} />}
