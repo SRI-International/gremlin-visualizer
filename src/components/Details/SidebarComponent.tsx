@@ -102,11 +102,11 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
           <Tooltip title="Details" placement="left" arrow>
             <Tab icon={<TocIcon />} value={2} />
           </Tooltip>
-          <Tooltip title="Settings" placement="left" arrow>
-            <Tab icon={<SettingsIcon />} value={3} />
-          </Tooltip>
           <Tooltip title="Table View" placement="left" arrow>
-            <Tab icon={<DatasetIcon />} value={4} />
+            <Tab icon={<DatasetIcon />} value={3} />
+          </Tooltip>
+          <Tooltip title="Settings" placement="left" arrow>
+            <Tab icon={<SettingsIcon />} value={4} />
           </Tooltip>
 
         </Tabs>
@@ -125,10 +125,10 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
             <DetailsComponent />
           </TabPanel>
           <TabPanel index={3} value={value}>
-            <Settings />
+            <CollapsibleTable />
           </TabPanel>
           <TabPanel index={4} value={value}>
-            <CollapsibleTable />
+            <Settings />
           </TabPanel>
         </Box>
       </Drawer>
