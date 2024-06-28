@@ -17,8 +17,9 @@ import { useSelector } from 'react-redux';
 import { EdgeData, NodeData } from '../../logics/utils';
 import { Data, IdType } from 'vis-network';
 import { Key } from '@mui/icons-material';
-import { Checkbox, FormControlLabel, Grid, Switch, TablePagination, TableSortLabel } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, Switch, TablePagination, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
+import { useEffect } from 'react';
 
 
 type RowData = {
@@ -48,16 +49,20 @@ const headCells: readonly HeadCell[] = [
     }
 ];
 
-function createData(nodes: Array<NodeData>, edges: Array<EdgeData>) {
+function createData(nodes: Array<NodeData>, edges: Array<EdgeData>, showNodes: boolean, showEdges: boolean) {
     let rows: RowData[] = [];
-    nodes.forEach((node) => {
-        let data: RowData = { type: node.type, displayLabel: node.label, additionalAttributes: { id: node.id, elementType: 'node', ...node.properties } };
-        rows.push(data);
-    })
-    edges.forEach((edge) => {
-        let data: RowData = { type: edge.type, displayLabel: edge.label, additionalAttributes: { id: edge.id, elementType: 'edge', from: edge.from, to: edge.to, ...edge.properties } };
-        rows.push(data);
-    })
+    if (showNodes) {
+        nodes.forEach((node) => {
+            let data: RowData = { type: node.type, displayLabel: node.label, additionalAttributes: { id: node.id, elementType: 'node', ...node.properties } };
+            rows.push(data);
+        })
+    }
+    if (showEdges) {
+        edges.forEach((edge) => {
+            let data: RowData = { type: edge.type, displayLabel: edge.label, additionalAttributes: { id: edge.id, elementType: 'edge', from: edge.from, to: edge.to, ...edge.properties } };
+            rows.push(data);
+        })
+    }
     return rows;
 }
 
@@ -80,7 +85,7 @@ function Row(props: { row: RowData }) {
                     </IconButton>
                 </TableCell>
                 <TableCell align="left" component="th" scope="row">{row.displayLabel}</TableCell>
-                <TableCell align="left">{row.type}</TableCell>
+                <TableCell align="right">{row.type}</TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -182,10 +187,10 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         <TableHead>
             <TableRow>
                 <TableCell />
-                {headCells.map((headCell) => (
+                {headCells.map((headCell, index) => (
                     <TableCell
                         key={headCell.id}
-                        align="left"
+                        align={index % 2 === 0 ? "left" : "right"}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
                         <TableSortLabel
@@ -209,11 +214,17 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 export default function CollapsibleTable() {
     const { nodes, edges } = useSelector(selectGraph);
-    const rows = createData(nodes as NodeData[], edges as EdgeData[]);
+    const [rows, setRows] = React.useState(createData(nodes as NodeData[], edges as EdgeData[], true, true));
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<SortableKeys>('type');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [nodesChecked, setNodesChecked] = React.useState(true);
+    const [edgesChecked, setEdgesChecked] = React.useState(true);
+
+    useEffect(() => {
+        setRows(createData(nodes, edges, nodesChecked, edgesChecked));
+    }, [nodesChecked, edgesChecked]);
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -242,10 +253,43 @@ export default function CollapsibleTable() {
                 page * rowsPerPage,
                 page * rowsPerPage + rowsPerPage,
             ),
-        [order, orderBy, page, rowsPerPage],
+        [order, orderBy, page, rowsPerPage, rows],
     );
+
+    const handleNodesToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setNodesChecked(event.target.checked);
+        if (!event.target.checked && edgesChecked === false) {
+            setEdgesChecked(true);
+        }
+    };
+
+    const handleEdgesToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setEdgesChecked(event.target.checked);
+        if (!event.target.checked && nodesChecked === false) {
+            setNodesChecked(true);
+        }
+    };
+
     return (
         <Grid sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 16px)' }}>
+
+            <FormControl component="fieldset">
+                <FormLabel component="legend">Filter</FormLabel>
+                <FormGroup aria-label="position" row>
+                    <FormControlLabel
+                        control={<Checkbox checked={nodesChecked} onChange={handleNodesToggle} />}
+                        label="Nodes"
+                        labelPlacement="end"
+                        checked={nodesChecked}
+                    />
+                    <FormControlLabel
+                        control={<Checkbox checked={edgesChecked} onChange={handleEdgesToggle} />}
+                        label="Edges"
+                        labelPlacement="end"
+                    />
+                </FormGroup>
+            </FormControl>
+
             <Paper sx={{ width: '100%', overflow: 'auto', flex: 1 }}>
                 <TableContainer sx={{ flex: 1 }}>
                     <Table stickyHeader aria-label="collapsible table" size="small">
@@ -267,8 +311,8 @@ export default function CollapsibleTable() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-
             </Paper>
+
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 component="div"
