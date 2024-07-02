@@ -15,6 +15,7 @@ const edges = new DataSet<Edge>({})
 let shiftKeyDown = false;
 let canvas: CanvasRenderingContext2D | null = null;
 
+
 const defaultOptions: Options = {
   manipulation: {
     addEdge: function (data: any, _callback: any) {
@@ -65,26 +66,26 @@ function getOptions(options?: GraphOptions): Options {
   const opts = { ...defaultOptions }
   if (options) {
     opts.physics.enabled = options.isPhysicsEnabled
-    if (!options.isPhysicsEnabled) {
-      opts.edges!.smooth = {
-        enabled: true,
-        type: 'continuous',
-        roundness: 1
-      }
-    } else {
-      opts.edges!.smooth = {
-        enabled: true,
-        type: 'dynamic',
-        roundness: 0
-      }
-    }
-    if (!options.isPhysicsEnabled && options.layout != 'hierarchical') {
-      curveEdges(edges);
-    } else {
-      edges.forEach(x => {
-        network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
-      })
-    }
+    // if (!options.isPhysicsEnabled) {
+    //   opts.edges!.smooth = {
+    //     enabled: false,
+    //     type: 'discrete',
+    //     roundness: 0
+    //   }
+    // } else {
+      // opts.edges!.smooth = {
+      //   enabled: true,
+      //   type: 'dynamic',
+      //   roundness: 0
+      // }
+    // }
+    // if (!options.isPhysicsEnabled && options.layout != 'hierarchical') {
+    //   curveEdges(edges);
+    // } else {
+    //   edges.forEach(x => {
+    //     network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
+    //   })
+    // }
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -156,21 +157,28 @@ function curveEdges(edges: DataSet<Edge>) {
   edges.get().forEach(x => {
     const key = String([x.to!, x.from!])
     const reverseKey = String([x.from!, x.to!])
-    const roundness = getCurvature(Math.abs(edgeCount.get(x.id)!), map.get(key)! + (map.get(reverseKey) || 0))
-    const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
-    network?.updateEdge(x.id, {
-      ...x,
-      smooth: {
-        enabled: true,
-        type: type,
-        roundness: roundness
-      }
-    })
+    const edgeCountGet = edgeCount.get(x.id)
+    const mapGetKey = map.get(key)
+    const mapGetReverse = map.get(reverseKey)
+
+    if (edgeCountGet !== 1 || mapGetKey !== 1) {
+      const roundness = getCurvature(Math.abs(edgeCountGet!), mapGetKey! + (mapGetReverse || 0))
+      const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
+      network?.updateEdge(x.id, {
+        ...x,
+        smooth: {
+          enabled: true,
+          type: type,
+          roundness: roundness
+        }
+      })
+    }
   })
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (network) {
+    let start = performance.now();
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
         nodes.add(toVisNode(n))
@@ -178,24 +186,47 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
+    let end = performance.now();
+console.log(`node add/updates: ${end - start} milliseconds`);
+
+
+ start = performance.now();
     for (let e of edges.stream().keys()) {
       if (!data?.edges.map(x => x.id).includes(e)) {
         edges.remove(e)
       }
     }
+    end = performance.now();
+    console.log(`edges stream: ${end - start} milliseconds`);
+
+
+    
+ start = performance.now();
     for (let e of data?.edges || []) {
       if (!edges!.get(e.id as Id) && nodes.map(x => x.id).includes(e.to)) {
         edges.add(toVisEdge(e))
       }
     }
+    end = performance.now();
+    console.log(`edges add: ${end - start} milliseconds`);
+
+
+    start = performance.now();
     for (let n of nodes.stream().keys()) {
       if (!data?.nodes.map(x => x.id).includes(n)) {
         nodes.remove(n)
       }
     }
+    end = performance.now();
+    console.log(`node stream: ${end - start} milliseconds`);
+
+    
+    start = performance.now();
     if (options) {
       network.setOptions(getOptions(options));
     }
+    end = performance.now();
+    console.log(`options: ${end - start} milliseconds`);
 
     return network;
   }
@@ -231,12 +262,13 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         store.dispatch(openNodeDialog({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
       }
     });
+
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Shift' && shiftKeyDown !== true) {
-          shiftKeyDown = true;
-          network!.addEdgeMode();
-        }
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        network!.addEdgeMode();
       }
+    }
     );
     document.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -245,10 +277,15 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       }
     });
     network.on('afterDrawing', (ctx: CanvasRenderingContext2D) => {
-      canvas = ctx;
+ 
+      console.log("Redraw detected");
+
     });
 
+  
+
   }
+
 
   return network;
 }
