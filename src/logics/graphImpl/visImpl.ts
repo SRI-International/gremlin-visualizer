@@ -66,26 +66,26 @@ function getOptions(options?: GraphOptions): Options {
   const opts = { ...defaultOptions }
   if (options) {
     opts.physics.enabled = options.isPhysicsEnabled
-    // if (!options.isPhysicsEnabled) {
-    //   opts.edges!.smooth = {
-    //     enabled: false,
-    //     type: 'discrete',
-    //     roundness: 0
-    //   }
-    // } else {
-      // opts.edges!.smooth = {
-      //   enabled: true,
-      //   type: 'dynamic',
-      //   roundness: 0
-      // }
-    // }
-    // if (!options.isPhysicsEnabled && options.layout != 'hierarchical') {
-    //   curveEdges(edges);
-    // } else {
-    //   edges.forEach(x => {
-    //     network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
-    //   })
-    // }
+    if (!options.isPhysicsEnabled) {
+      opts.edges!.smooth = {
+        enabled: true,
+        type: 'continuous',
+        roundness: 1
+      }
+    } else {
+      opts.edges!.smooth = {
+        enabled: true,
+        type: 'dynamic',
+        roundness: 0
+      }
+    }
+    if (!options.isPhysicsEnabled && options.layout != 'hierarchical') {
+      curveEdges(edges);
+    } else {
+      edges.forEach(x => {
+        network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
+      })
+    }
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -177,56 +177,48 @@ function curveEdges(edges: DataSet<Edge>) {
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+  let updateNodesArray = [];
+  let addNodesArray = [];
+  let addEdgesArray = [];
+  let removeNodesArray = [];
+  let removeEdgesArray = [];
+
   if (network) {
-    let start = performance.now();
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
-        nodes.add(toVisNode(n))
+        addNodesArray.push(toVisNode(n))
       } else {
-        nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
+        updateNodesArray.push(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
-    let end = performance.now();
-console.log(`node add/updates: ${end - start} milliseconds`);
+    nodes.add(addNodesArray);
+    nodes.update(updateNodesArray);
 
-
- start = performance.now();
     for (let e of edges.stream().keys()) {
       if (!data?.edges.map(x => x.id).includes(e)) {
-        edges.remove(e)
+        removeEdgesArray.push(e);
       }
     }
-    end = performance.now();
-    console.log(`edges stream: ${end - start} milliseconds`);
+    edges.remove(removeEdgesArray);
 
-
-    
- start = performance.now();
     for (let e of data?.edges || []) {
       if (!edges!.get(e.id as Id) && nodes.map(x => x.id).includes(e.to)) {
-        edges.add(toVisEdge(e))
+        addEdgesArray.push(toVisEdge(e))
       }
     }
-    end = performance.now();
-    console.log(`edges add: ${end - start} milliseconds`);
+    edges.add(addEdgesArray);
 
 
-    start = performance.now();
     for (let n of nodes.stream().keys()) {
       if (!data?.nodes.map(x => x.id).includes(n)) {
-        nodes.remove(n)
+        removeNodesArray.push(n);
       }
     }
-    end = performance.now();
-    console.log(`node stream: ${end - start} milliseconds`);
+    nodes.remove(removeNodesArray);
 
-    
-    start = performance.now();
     if (options) {
       network.setOptions(getOptions(options));
     }
-    end = performance.now();
-    console.log(`options: ${end - start} milliseconds`);
 
     return network;
   }
@@ -276,14 +268,6 @@ console.log(`node add/updates: ${end - start} milliseconds`);
         network!.disableEditMode();
       }
     });
-    network.on('afterDrawing', (ctx: CanvasRenderingContext2D) => {
- 
-      console.log("Redraw detected");
-
-    });
-
-  
-
   }
 
 
