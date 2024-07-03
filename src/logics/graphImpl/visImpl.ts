@@ -83,9 +83,15 @@ function getOptions(options?: GraphOptions): Options {
       curveEdges(edges);
     } else {
       edges.forEach(x => {
-        network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
-      })
+        var allEdgeIds = (network as any).getClusteredEdges(x.id!);
+        for (var i = 0; i < allEdgeIds.length; i++) {
+          var edge = (network as any).body.edges[allEdgeIds[i]];
+          edge.setOptions({ smooth: opts.edges?.smooth });
+        }
+      });
+      (network as any)?.body.emitter.emit("_dataChanged");
     }
+
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -164,16 +170,21 @@ function curveEdges(edges: DataSet<Edge>) {
     if (edgeCountGet !== 1 || mapGetKey !== 1) {
       const roundness = getCurvature(Math.abs(edgeCountGet!), mapGetKey! + (mapGetReverse || 0))
       const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
-      network?.updateEdge(x.id, {
-        ...x,
-        smooth: {
-          enabled: true,
-          type: type,
-          roundness: roundness
-        }
-      })
+      var allEdgeIds = (network as any).getClusteredEdges(x.id!);
+      for (var i = 0; i < allEdgeIds.length; i++) {
+        var edge = (network as any).body.edges[allEdgeIds[i]];
+        edge.setOptions({
+          ...x,
+          smooth: {
+            enabled: true,
+            type: type,
+            roundness: roundness
+          }
+        });
+      }
     }
-  })
+  });
+  (network as any)?.body.emitter.emit("_dataChanged");
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
