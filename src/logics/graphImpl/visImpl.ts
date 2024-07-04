@@ -83,12 +83,15 @@ function getOptions(options?: GraphOptions): Options {
       curveEdges(edges);
     } else {
       edges.forEach(x => {
-        var allEdgeIds = (network as any).getClusteredEdges(x.id!);
-        for (var i = 0; i < allEdgeIds.length; i++) {
-          var edge = (network as any).body.edges[allEdgeIds[i]];
+        // vis does not provide a batch edge update method, so we must manually update the edges using internal api to
+        // avoid many unnecessary redraws that kills performance
+        const allEdgeIds = (network as any).getClusteredEdges(x.id!);
+        for (let i = 0; i < allEdgeIds.length; i++) {
+          const edge = (network as any).body.edges[allEdgeIds[i]];
           edge.setOptions({ smooth: opts.edges?.smooth });
         }
       });
+      // trigger redraw
       (network as any)?.body.emitter.emit("_dataChanged");
     }
 
@@ -170,9 +173,11 @@ function curveEdges(edges: DataSet<Edge>) {
     if (edgeCountGet !== 1 || mapGetKey !== 1) {
       const roundness = getCurvature(Math.abs(edgeCountGet!), mapGetKey! + (mapGetReverse || 0))
       const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
-      var allEdgeIds = (network as any).getClusteredEdges(x.id!);
-      for (var i = 0; i < allEdgeIds.length; i++) {
-        var edge = (network as any).body.edges[allEdgeIds[i]];
+      // vis does not provide a batch edge update method, so we must manually update the edges using internal api to
+      // avoid many unnecessary redraws that kills performance
+      const allEdgeIds = (network as any).getClusteredEdges(x.id!);
+      for (let i = 0; i < allEdgeIds.length; i++) {
+        const edge = (network as any).body.edges[allEdgeIds[i]];
         edge.setOptions({
           ...x,
           smooth: {
@@ -184,6 +189,7 @@ function curveEdges(edges: DataSet<Edge>) {
       }
     }
   });
+  // trigger the redraw
   (network as any)?.body.emitter.emit("_dataChanged");
 }
 
