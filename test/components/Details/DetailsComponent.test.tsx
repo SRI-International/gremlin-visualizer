@@ -3,16 +3,16 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { SidebarComponent } from '../../src/components/Details/SidebarComponent';
+import { SidebarComponent } from '../../../src/components/Details/SidebarComponent';
 import userEvent from '@testing-library/user-event';
-import { defaultNodeLabel, EdgeData, NodeData } from "../../src/logics/utils";
-import { setupStore } from "../../src/app/store";
+import { defaultNodeLabel, EdgeData, NodeData } from "../../../src/logics/utils";
+import { setupStore } from "../../../src/app/store";
 import axios from 'axios';
-import { QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../src/constants';
+import { QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../../src/constants';
 import { Store, AnyAction } from 'redux';
-import { updateNode } from '../../src/reducers/graphReducer';
-import { onFetchQuery } from '../../src/logics/actionHelper';
-jest.mock('../../src/logics/graph', () => ({
+import { updateNode } from '../../../src/reducers/graphReducer';
+import { onFetchQuery } from '../../../src/logics/actionHelper';
+jest.mock('../../../src/logics/graph', () => ({
     applyLayout: jest.fn(),
     getNodePositions: jest.fn(),
     setNodePositions: jest.fn(),
