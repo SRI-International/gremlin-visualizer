@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">73.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>11/15</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>5/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">73.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>11/15</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -155,11 +155,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">109x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,28 +168,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,11 +236,11 @@ import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
 import { onFetchQuery } from "../../logics/actionHelper";
 import { RootState } from "../../app/store";
 &nbsp;
-const Query = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> }) =&gt; {</span>
-  const dispatch = <span class="cstat-no" title="statement not covered" >useDispatch()</span>
-  const { host, port, query } = <span class="cstat-no" title="statement not covered" >useSelector(selectGremlin);</span>
-  const { nodeLabels, nodeLimit } = <span class="cstat-no" title="statement not covered" >useSelector(</span>
-<span class="fstat-no" title="function not covered" >    (s</span>tate: RootState) =&gt; <span class="cstat-no" title="statement not covered" >state.options</span>
+const Query = ({ }) =&gt; {
+  const dispatch = useDispatch()
+  const { host, port, query } = useSelector(selectGremlin);
+  const { nodeLabels, nodeLimit } = useSelector(
+    (state: RootState) =&gt; state.options
   );
 &nbsp;
   function <span class="fstat-no" title="function not covered" >handleClearGraph(</span>) {
@@ -248,16 +248,16 @@ const Query = <span class="cstat-no" title="statement not covered" ><span class=
 <span class="cstat-no" title="statement not covered" >    dispatch(clearQueryHistory());</span>
   }
 &nbsp;
-  function <span class="fstat-no" title="function not covered" >sendQuery(</span>) {
-<span class="cstat-no" title="statement not covered" >    dispatch(setError(null));</span>
-<span class="cstat-no" title="statement not covered" >    axios</span>
+  function sendQuery() {
+    dispatch(setError(null));
+    axios
       .post(
         QUERY_ENDPOINT,
         { host, port, query, nodeLimit },
         { headers: { 'Content-Type': 'application/json' } }
       )
-      .then(<span class="fstat-no" title="function not covered" >(r</span>esponse) =&gt; {
-<span class="cstat-no" title="statement not covered" >        onFetchQuery(response, query, nodeLabels, dispatch);</span>
+      .then((response) =&gt; {
+        onFetchQuery(response, query, nodeLabels, dispatch);
       })
       .catch(<span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {
 <span class="cstat-no" title="statement not covered" >        console.warn(error)</span>
@@ -265,12 +265,12 @@ const Query = <span class="cstat-no" title="statement not covered" ><span class=
       });
   }
 &nbsp;
-  function <span class="fstat-no" title="function not covered" >onQueryChanged(</span>query: ChangeEvent&lt;HTMLTextAreaElement&gt;): void {
-<span class="cstat-no" title="statement not covered" >    dispatch(setQuery(query.target.value));</span>
-<span class="cstat-no" title="statement not covered" >    return</span>
+  function onQueryChanged(query: ChangeEvent&lt;HTMLTextAreaElement&gt;): void {
+    dispatch(setQuery(query.target.value));
+    return
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div&gt;
       &lt;form noValidate autoComplete="off"&gt;
         &lt;TextField
@@ -313,7 +313,7 @@ export default Query</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-07-02T22:02:47.909Z
+                at 2024-07-10T18:46:18.126Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

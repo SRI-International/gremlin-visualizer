@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">20.31% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/64</span>
+                <span class='fraction'>13/64</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">15.78% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>3/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">21.81% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/55</span>
+                <span class='fraction'>12/55</span>
             </div>
         
             
@@ -221,7 +221,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,7 +230,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -243,20 +243,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -273,6 +263,16 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -328,9 +328,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// import vis from 'vis-network';
@@ -356,7 +356,7 @@ type GraphState = {
   workspaces: Workspace[]
 };
 &nbsp;
-const initialState: GraphState = <span class="cstat-no" title="statement not covered" >{</span>
+const initialState: GraphState = {
   nodes: [],
   edges: [],
   selectedNode: undefined,
@@ -365,7 +365,7 @@ const initialState: GraphState = <span class="cstat-no" title="statement not cov
   workspaces: []
 };
 &nbsp;
-const slice = <span class="cstat-no" title="statement not covered" >createSlice({</span>
+const slice = createSlice({
   name: 'graph',
   initialState,
   reducers: {
@@ -377,11 +377,11 @@ const slice = <span class="cstat-no" title="statement not covered" >createSlice(
 <span class="cstat-no" title="statement not covered" >      state.selectedEdge = undefined;</span>
 <span class="cstat-no" title="statement not covered" >      return state;</span>
     },
-    addNodes: <span class="fstat-no" title="function not covered" >(s</span>tate, action) =&gt; {
-<span class="cstat-no" title="statement not covered" >      state = Object.assign({}, state);</span>
-      const newNodes = <span class="cstat-no" title="statement not covered" >_.differenceBy(action.payload, state.nodes, <span class="fstat-no" title="function not covered" >(n</span>ode: any) =&gt; <span class="cstat-no" title="statement not covered" >node.id)</span>;</span>
-<span class="cstat-no" title="statement not covered" >      state.nodes = [...state.nodes, ...newNodes];</span>
-<span class="cstat-no" title="statement not covered" >      return state;</span>
+    addNodes: (state, action) =&gt; {
+      state = Object.assign({}, state);
+      const newNodes = _.differenceBy(action.payload, state.nodes, <span class="fstat-no" title="function not covered" >(n</span>ode: any) =&gt; <span class="cstat-no" title="statement not covered" >node.id)</span>;
+      state.nodes = [...state.nodes, ...newNodes];
+      return state;
     },
     updateNode: <span class="fstat-no" title="function not covered" >(s</span>tate, action) =&gt; {
       const { updateId, updatedElement } = <span class="cstat-no" title="statement not covered" >action.payload;</span>
@@ -403,11 +403,11 @@ const slice = <span class="cstat-no" title="statement not covered" >createSlice(
 <span class="cstat-no" title="statement not covered" >        console.error("Edge not found in state or updatedNodes");</span>
       }
     },
-    addEdges: <span class="fstat-no" title="function not covered" >(s</span>tate, action) =&gt; {
-<span class="cstat-no" title="statement not covered" >      state = Object.assign({}, state);</span>
-      const newEdges = <span class="cstat-no" title="statement not covered" >_.differenceBy(action.payload, state.edges, <span class="fstat-no" title="function not covered" >(e</span>dge: any) =&gt; <span class="cstat-no" title="statement not covered" >`${edge.id}`)</span>;</span>
-<span class="cstat-no" title="statement not covered" >      state.edges = [...state.edges, ...newEdges];</span>
-<span class="cstat-no" title="statement not covered" >      return state;</span>
+    addEdges: (state, action) =&gt; {
+      state = Object.assign({}, state);
+      const newEdges = _.differenceBy(action.payload, state.edges, <span class="fstat-no" title="function not covered" >(e</span>dge: any) =&gt; <span class="cstat-no" title="statement not covered" >`${edge.id}`)</span>;
+      state.edges = [...state.edges, ...newEdges];
+      return state;
     },
     setSelectedNode: <span class="fstat-no" title="function not covered" >(s</span>tate, action) =&gt; {
       const nodeId = <span class="cstat-no" title="statement not covered" >action.payload;</span>
@@ -463,9 +463,9 @@ export const {
   refreshNodeLabels,
   updateColorMap,
   addWorkspace
-} = <span class="cstat-no" title="statement not covered" >slice.actions;</span>
+} = slice.actions;
 &nbsp;
-export const selectGraph = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>tate: RootState) =&gt; <span class="cstat-no" title="statement not covered" >state.graph;</span></span>
+export const selectGraph = (state: RootState) =&gt; state.graph;
 &nbsp;
 export default slice.reducer;
 &nbsp;</pre></td></tr></table></pre>
@@ -475,7 +475,7 @@ export default slice.reducer;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-07-02T22:02:47.909Z
+                at 2024-07-10T18:46:18.126Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

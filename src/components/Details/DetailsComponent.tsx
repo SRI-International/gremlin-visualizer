@@ -55,6 +55,7 @@ export const DetailsComponent = () => {
   const [addPropertyName, setAddPropertyName] = useState<null | string>(null);
   const [addPropertyValue, setAddPropertyValue] = useState<null | string>(null);
 
+
   let hasSelected = false;
   let selectedType: any = null;
   let selectedId: IdType | undefined = undefined;
@@ -89,7 +90,6 @@ export const DetailsComponent = () => {
   function getRows(data: any) {
     if (data == null) return;
     return Object.entries(data).map(e => {
-
       return <TableRow>
         <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
         <TableCell style={{ paddingRight: 5 }}>
@@ -108,7 +108,8 @@ export const DetailsComponent = () => {
           <TableCell style={{ width: 1 }} padding='none'>
             <IconButton onClick={() => {
               updateElementProperty(String(e[0]), String(e[1]), true)
-            }}>
+            }}
+            data-testid={`deleteButton-${e[0]}`}>
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -208,8 +209,6 @@ export const DetailsComponent = () => {
   }
 
   function onConfirmEdit({ name, value, previousValue }: EditEvent) {
-    setEditField(null);
-    setEditValue(null);
     value = value.replace(/"/g, '\\"');
     updateElementProperty(name, value, false)
   }

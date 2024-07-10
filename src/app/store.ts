@@ -8,10 +8,12 @@ import { useDispatch } from "react-redux";
 
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = configureStore({
+export const setupStore = (preloadedState: any = {}) => configureStore({
   reducer: { gremlin: gremlinReducer, graph: graphReducer, options: optionReducer, dialog: dialogReducer },
+  preloadedState
   // composeEnhancers(applyMiddleware(createLogger()))
 });
+const store = setupStore({});
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

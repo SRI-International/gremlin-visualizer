@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -219,12 +219,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -238,11 +236,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">71x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">70x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,14 +260,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -356,10 +356,10 @@ type QueryHistoryProps = {
   list: Array&lt;string&gt;;
 };
 &nbsp;
-const QueryHistoryList = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> list }: QueryHistoryProps) =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >  &lt;List dense={true}&gt;</span>
-    {list.map(<span class="fstat-no" title="function not covered" >(v</span>alue: string, ndx: number) =&gt; (
-<span class="cstat-no" title="statement not covered" >      &lt;ListItem key={ndx}&gt;</span>
+const QueryHistoryList = ({ list }: QueryHistoryProps) =&gt; (
+  &lt;List dense={true}&gt;
+    {list.map((value: string, ndx: number) =&gt; (
+      &lt;ListItem key={ndx}&gt;
         &lt;ListItemText primary={value} primaryTypographyProps={{ style: { fontFamily: 'monospace' } }} /&gt;
       &lt;/ListItem&gt;
     ))}
@@ -374,10 +374,10 @@ interface TabPanelProps {
   value: number;
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >TabPanel(</span>props: TabPanelProps) {
-  const { children, value, index, ...other } = <span class="cstat-no" title="statement not covered" >props;</span>
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div
       role="tabpanel"
       hidden={value !== index}
@@ -399,14 +399,14 @@ interface SidebarComponentProps {
   handleMouseDown: (event: React.MouseEvent&lt;HTMLDivElement, MouseEvent&gt;) =&gt; void
 }
 &nbsp;
-export const SidebarComponent = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>rops: SidebarComponentProps) =&gt; {</span>
-  const { queryHistory } = <span class="cstat-no" title="statement not covered" >useSelector(selectOptions);</span>
-  const [value, setValue] = <span class="cstat-no" title="statement not covered" >React.useState(0);</span>
-  const handleChange = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(_</span>event: React.SyntheticEvent, newValue: number) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    setValue(newValue);</span>
+export const SidebarComponent = (props: SidebarComponentProps) =&gt; {
+  const { queryHistory } = useSelector(selectOptions);
+  const [value, setValue] = React.useState(0);
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) =&gt; {
+    setValue(newValue);
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;Box&gt;
       &lt;Drawer anchor='right' variant='permanent' open={true} sx={{
         display: { xs: 'none', sm: 'block' },
@@ -481,7 +481,7 @@ export const SidebarComponent = <span class="cstat-no" title="statement not cove
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-07-02T22:02:47.909Z
+                at 2024-07-10T18:46:18.126Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
