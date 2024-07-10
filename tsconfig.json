@@ -29,5 +29,5 @@
   "include": [
     "./src/",
     "./types/"
-  ]
+, "test/components/QueryComponent.test.tsx", "test/components/DetailsComponent.test.tsx"  ]
 }

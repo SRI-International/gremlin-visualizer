@@ -8,7 +8,7 @@ export const App = () => {
 
   const [panelWidth, setPanelWidth] = useState(350);
 
-  const handlePanelDragSelect = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+   const handlePanelDragSelect = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     document.addEventListener('mousemove', handlePanelDrag)
     document.addEventListener('mouseup', handlePanelDragUnselect)
     document.body.style.userSelect = 'none'
