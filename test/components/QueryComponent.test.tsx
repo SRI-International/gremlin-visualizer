@@ -3,19 +3,19 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Query from './QueryComponent';
+import Query from '../../src/components/Details/QueryComponent';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
-import { selectGremlin, setError, setQuery, } from '../../reducers/gremlinReducer';
-import { setupStore } from '../../app/store';
-import { SidebarComponent } from './SidebarComponent';
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../src/constants";
+import { selectGremlin, setError, setQuery, } from '../../src/reducers/gremlinReducer';
+import { setupStore } from '../../src/app/store';
+import { SidebarComponent } from '../../src/components/Details/SidebarComponent';
 
 jest.mock("axios", () => ({
   ...jest.requireActual("axios"),
   post: jest.fn(),
 }));
-jest.mock('../../logics/graph', () => ({
+jest.mock('../../src/logics/graph', () => ({
   applyLayout: jest.fn(),
   getNodePositions: jest.fn(),
   setNodePositions: jest.fn(),
