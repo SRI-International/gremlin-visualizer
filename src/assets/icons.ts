@@ -2,6 +2,9 @@ const icons: Record<string, string> = {
   // insert label to icon map here
   // person: require("./icons/person.jpg"),
   // place: require("./icons/place.jpg")
+  Material: require("./icons/processing.png"),
+  Component: require("./icons/abstract.png"),
+  Entity: require("./icons/businessman.png")
 };
 
 interface IconProvider {

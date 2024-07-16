@@ -2,7 +2,7 @@ const SERVER_URL = 'http://localhost:3001';
 export const QUERY_ENDPOINT = `${SERVER_URL}/query`;
 export const QUERY_RAW_ENDPOINT = `${SERVER_URL}/query-raw`;
 export const COMMON_GREMLIN_ERROR = 'Invalid query. Please execute a query to get a set of vertices';
-export let GRAPH_IMPL = "vis" // 'vis' | 'cytoscape' | 'sigma'
+export let GRAPH_IMPL = "cytoscape" // 'vis' | 'cytoscape' | 'sigma'
 export const ACTIONS = {
   SET_HOST: 'SET_HOST',
   SET_PORT: 'SET_PORT',
@@ -36,6 +36,19 @@ export const INITIAL_LABEL_MAPPINGS = {
 }
 
 export const SAVED_QUERIES = {
+  'Get materials or components only supplied by China': `g.V().and(
+       in('supplies').has('country', 'China'),
+       in('supplies').not(has('country', 'China')).
+       count().is(eq(0))
+    )`,
+    'Get materials or components with at least one supplier from China': `g.V().
+      or(
+         repeat(in('yields')).until(in('supplies').
+           has('country', 'China')),
+         in('supplies').has('country', 'China')
+      )`,
+      'Get materials or components with only one supplier': `g.V().as('a').
+        where(__.in('supplies').count().is(eq(1)))`
   // "get node with name marko" : "g.V().has('name', 'marko')",
   // "get person nodes that marko has outgoing edges to" : "g.V().has('name', 'marko').out().hasLabel('person')"
 }
