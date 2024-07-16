@@ -43,6 +43,7 @@ const slice = createSlice({
       return state;
     },
     addNodes: (state, action) => {
+      console.log('addNodes');
       state = Object.assign({}, state);
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];

@@ -68,7 +68,8 @@ export interface TempFieldSuggestions {
   }
 }
 
-const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
+export const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
+  console.log("storeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
   const suggestions: Suggestions = {
     [DIALOG_TYPES.NODE]: { types: [], labels: {} },
     [DIALOG_TYPES.EDGE]: { types: [], labels: {} }
@@ -139,6 +140,9 @@ export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: N
     }
   });
   storeSuggestions(nodes as NodeData[], edges as EdgeData[]);
+  console.log(JSON.stringify(nodes, null, 2));
+  console.log(JSON.stringify(edges, null, 2));
+  console.log(JSON.stringify(nodeLabels, null, 2));
   return { edges, nodes, nodeLabels };
 };
 

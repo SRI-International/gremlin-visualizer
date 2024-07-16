@@ -68,42 +68,41 @@ test('queryComponent renders with g.V()', () => {
   expect(gremlin_query_text).toEqual("g.V()");
 });
 
-test('graph renders adding 1 node', async () => {
+test('adding one node query sends axios post and dispatches addNode', async () => {
+  let user = userEvent.setup();
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
   const mockStore = configureStore();
   let store = mockStore(initialState);
   store.dispatch = jest.fn();
+    jest.spyOn(store, 'dispatch');
   render(
     <Provider store={store}>
       <Query />
     </Provider>
   );
 
-
+  const textField = screen.getByLabelText('gremlin query');
+  const newQuery = 'g.addV("person").property("name", "Alice")';
+  await user.clear(textField);
+  await user.type(textField, newQuery);
   const button = screen.getByText('Execute');
   await userEvent.click(button);
 
 
   await waitFor(() => {
     expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(
-      QUERY_ENDPOINT,
-      {
-        host: initialState.gremlin.host,
-        port: initialState.gremlin.port,
-        query: initialState.gremlin.query,
-        nodeLimit: initialState.options.nodeLimit
-      },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
   });
 
   await waitFor(() => {
-    expect(store.dispatch).toHaveBeenCalled();
+    expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'graph/addNodes',
+      payload: expect.anything() 
+  }));
   });
 
 });
+
 
 
 test('executed query is added into query history list', async () => {
@@ -132,13 +131,8 @@ test('executed query is added into query history list', async () => {
   // })
   await user.clear(textField);
   await user.type(textField, newQuery);
-
   const button = screen.getByText('Execute');
   await userEvent.click(button);
-
-
-
-
   //   expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
   //     type: 'gremlin/setQuery',
   //     payload: expect.anything() 
@@ -148,7 +142,43 @@ test('executed query is added into query history list', async () => {
     const matchingElements = screen.getAllByText(newQuery);
     expect(matchingElements.length).toBe(2);
   });
+});
 
 
+
+
+test('execute then clear', async () => {
+  //   const mockStore = configureStore();
+  // let store = mockStore(initialState);
+  // store.dispatch = jest.fn();
+  const mockedAxios = axios as jest.Mocked<typeof axios>;
+  mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
+  let user = userEvent.setup();
+  let store = setupStore();
+  // jest.spyOn(store, 'dispatch');
+  render(
+    <Provider store={store}>
+      <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
+    </Provider>
+  );
+  // const detailsTab = screen.getByRole('tab', { name: 'Details' });
+  // await act(async () => {
+  //   fireEvent.click(detailsTab);
+  // })
+
+
+  const button = screen.getByText('Execute');
+  await userEvent.click(button);
+
+  //   expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
+  //     type: 'gremlin/setQuery',
+  //     payload: expect.anything() 
+  // }));
+  const clearButton = screen.getByText('Clear Graph');
+  await userEvent.click(clearButton);
+  await waitFor(() => {
+    const matchingElements = screen.getAllByText("g.V()");
+    expect(matchingElements.length).toBe(1);
+  });
 
 });

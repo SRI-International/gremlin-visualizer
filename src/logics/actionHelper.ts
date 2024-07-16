@@ -5,10 +5,13 @@ import store, { AppDispatch } from '../app/store';
 import { IdType } from "vis-network";
 
 export const onFetchQuery = (result: any, query: string, oldNodeLabels: NodeLabel[], dispatch: AppDispatch) => {
+  console.log(JSON.stringify(result.data, null, 2));
+  console.log(JSON.stringify(oldNodeLabels, null, 2));
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(
     result.data,
     oldNodeLabels
   );
+
   dispatch(addNodes(nodes));
   dispatch(addEdges(edges));
   dispatch(setNodeLabels(nodeLabels));

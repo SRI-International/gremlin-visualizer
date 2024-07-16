@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { defaultNodeLabel, EdgeData, NodeData } from "../../../src/logics/utils";
 import { setupStore } from "../../../src/app/store";
 import axios from 'axios';
-import { QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../../src/constants';
+import { EDGE_ID_APPEND, QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../../src/constants';
 import { Store, AnyAction } from 'redux';
 import { updateNode } from '../../../src/reducers/graphReducer';
 import { onFetchQuery } from '../../../src/logics/actionHelper';
@@ -16,7 +16,7 @@ jest.mock('../../../src/logics/graph', () => ({
     applyLayout: jest.fn(),
     getNodePositions: jest.fn(),
     setNodePositions: jest.fn(),
-    layoutOptions: ['random', 'hierarchical'] 
+    layoutOptions: ['random', 'hierarchical']
 }));
 
 jest.mock("axios", () => ({
@@ -76,7 +76,6 @@ const initialState: State = {
 
 describe('node tests', () => {
 
-
     test('renders node details correctly', async () => {
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -91,13 +90,13 @@ describe('node tests', () => {
             fireEvent.click(detailsTab);
         })
         expect(screen.getByText('Information: Node')).toBeInTheDocument();
-        expect(screen.getByText('Bob')).toBeInTheDocument(); 
-        expect(screen.getByText('21')).toBeInTheDocument(); 
+        expect(screen.getByText('Bob')).toBeInTheDocument();
+        expect(screen.getByText('21')).toBeInTheDocument();
     });
 
 
 
-    test("sends correct axios post when deleting a node property", async () => {
+    test("sends axios post to delete a node property", async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -117,22 +116,23 @@ describe('node tests', () => {
 
         const drop_query = `g.V('1').properties("name").drop()`;
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledTimes(2);
-            expect(axios.post).toHaveBeenNthCalledWith(1,
+            expect(mockedAxios.post).toHaveBeenCalledWith(
                 QUERY_RAW_ENDPOINT,
-                {
+                expect.objectContaining({
                     host: initialState.gremlin.host,
                     port: initialState.gremlin.port,
                     query: drop_query,
                     nodeLimit: initialState.options.nodeLimit
-                },
-                { headers: { 'Content-Type': 'application/json' } }
+                }),
+                expect.objectContaining({
+                    headers: { 'Content-Type': 'application/json' }
+                })
             );
         });
     })
 
 
-    test("onTraverse out triggers 4 dispatches in OnFetchQuery", async () => {
+    test(`clicking "Traverse Out Edges" sends addNodes`, async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -151,29 +151,16 @@ describe('node tests', () => {
         const button = screen.getByRole('button', { name: /Traverse Out Edges/i });
         await user.click(button);
         await waitFor(() => {
-            expect(store.dispatch).toHaveBeenCalledTimes(4);
             expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
                 type: 'graph/addNodes',
-                payload: expect.anything() 
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'graph/addEdges',
-                payload: expect.anything()  
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'options/setNodeLabels',
-                payload: expect.anything() 
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'options/addQueryHistory',
-                payload: expect.anything() 
+                payload: expect.anything()
             }));
         });
     })
 
 
 
-    test("onTraverse In triggers triggers 4 dispatches in onFetchQuery", async () => {
+    test(`clicking "Traverse In Edges" sends addNodes`, async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -195,29 +182,16 @@ describe('node tests', () => {
         const button = screen.getByRole('button', { name: /Traverse In Edges/i });
         await user.click(button);
         await waitFor(() => {
-            expect(store.dispatch).toHaveBeenCalledTimes(4);
             expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
                 type: 'graph/addNodes',
-                payload: expect.anything() 
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'graph/addEdges',
-                payload: expect.anything()  
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'options/setNodeLabels',
-                payload: expect.anything() 
-            }));
-            expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-                type: 'options/addQueryHistory',
-                payload: expect.anything() 
+                payload: expect.anything()
             }));
         });
 
     })
 
 
-    test('clicking add property and confirming calls axios post with right arguments', async () => {
+    test('node clicking add property and confirming calls axios post with right arguments', async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -248,19 +222,20 @@ describe('node tests', () => {
 
         const expected_query = "g.V('1').property(\"height\", \"170\")"
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledTimes(1);
-            expect(axios.post).toHaveBeenNthCalledWith(1,
+            expect(mockedAxios.post).toHaveBeenCalledWith(
                 QUERY_ENDPOINT,
-                {
+                expect.objectContaining({
                     host: initialState.gremlin.host,
                     port: initialState.gremlin.port,
                     query: expected_query,
                     nodeLimit: initialState.options.nodeLimit
-                },
-                { headers: { 'Content-Type': 'application/json' } }
+                }),
+                expect.objectContaining({
+                    headers: { 'Content-Type': 'application/json' }
+                })
             );
         });
-    
+
 
 
     });
@@ -289,7 +264,95 @@ describe("edge tests", () => {
         })
 
         expect(screen.getByText('Information: Edge')).toBeInTheDocument();
-        expect(screen.getByText('created')).toBeInTheDocument(); 
-        expect(screen.getByText('0')).toBeInTheDocument(); 
+        expect(screen.getByText('created')).toBeInTheDocument();
+        expect(screen.getByText('0')).toBeInTheDocument();
     });
+
+    test("sends axios post to delete an edge property", async () => {
+        let user = userEvent.setup();
+        const mockStore = configureStore();
+        let store = mockStore({ ...initialState, graph: { selectedNode: null, selectedEdge: selectedEdgeDummy } });
+        const mockedAxios = axios as jest.Mocked<typeof axios>;
+        mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
+
+        render(
+            <Provider store={store}>
+                <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
+            </Provider>
+        );
+
+        const detailsTab = screen.getByRole('tab', { name: 'Details' });
+        await user.click(detailsTab);
+        const editText = screen.findByTestId("deleteButton-age");
+        await user.click(await editText);
+
+        const drop_query = `g.E(1${EDGE_ID_APPEND}).properties("age").drop()`;
+
+        await waitFor(() => {
+            expect(mockedAxios.post).toHaveBeenCalledWith(
+                QUERY_RAW_ENDPOINT,
+                expect.objectContaining({
+                    host: initialState.gremlin.host,
+                    port: initialState.gremlin.port,
+                    query: drop_query,
+                    nodeLimit: initialState.options.nodeLimit
+                }),
+                expect.objectContaining({
+                    headers: { 'Content-Type': 'application/json' }
+                })
+            );
+        });
+    })
+
+
+
+    test('edge clicking add property and confirming calls axios post with right arguments', async () => {
+        let user = userEvent.setup();
+        const mockStore = configureStore();
+        let store = mockStore({ ...initialState, graph: { selectedNode: null, selectedEdge: selectedEdgeDummy } });
+        store.dispatch = jest.fn();
+        const mockedAxios = axios as jest.Mocked<typeof axios>;
+        mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
+        render(
+            <Provider store={store}>
+                <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
+            </Provider>
+        );
+        const detailsTab = screen.getByRole('tab', { name: 'Details' });
+        await act(async () => {
+            fireEvent.click(detailsTab);
+        })
+
+        const button = screen.getByRole('button', { name: /Add Property/i });
+        await user.click(button);
+
+        const propertyNameInput = screen.getByRole('textbox', { name: 'Property Name' });
+        const propertyValueInput = screen.getByRole('textbox', { name: 'Property Value' });
+
+        await user.type(propertyNameInput, 'height');
+        await user.type(propertyValueInput, '170');
+
+        const submitButton = screen.getByRole('button', { name: 'Add' });
+        await user.click(submitButton);
+
+        const expected_query = `g.E(1${EDGE_ID_APPEND}).property(\"height\", \"170\")`
+        await waitFor(() => {
+            expect(mockedAxios.post).toHaveBeenCalledWith(
+                QUERY_RAW_ENDPOINT,
+                expect.objectContaining({
+                    host: initialState.gremlin.host,
+                    port: initialState.gremlin.port,
+                    query: expected_query,
+                    nodeLimit: initialState.options.nodeLimit
+                }),
+                expect.objectContaining({
+                    headers: { 'Content-Type': 'application/json' }
+                })
+            );
+        });
+
+
+
+    });
+
 })

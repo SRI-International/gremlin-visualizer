@@ -110,6 +110,7 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
                 {...params}
                 id="standard-basic"
                 label="Label Field"
+                data-testid={`label-field-${ndx}`}
                 InputLabelProps={{ shrink: true }}
                 onChange={(event) => {
                   const field = event.target.value;
@@ -243,7 +244,7 @@ export const Settings = () => {
           <TextField
             value={host}
             onChange={(event) => onHostChanged(event.target.value)}
-            id="standard-basic"
+            id="host-field"
             label="host"
             style={{ width: '100%' }}
             variant="standard"
@@ -251,8 +252,9 @@ export const Settings = () => {
           <TextField
             value={port}
             onChange={(event) => onPortChanged(event.target.value)}
-            id="standard-basic"
+            id="port-field"
             label="port"
+            data-testid = "port-label"
             style={{ width: '100%' }}
             variant="standard"
           />
@@ -319,6 +321,7 @@ export const Settings = () => {
         <Button
           variant='contained'
           onClick={() => setLoadWorkspace(true)}
+          data-testid = "load-workspace-button"
           style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
           Load Workspace
         </Button>
@@ -368,6 +371,7 @@ export const Settings = () => {
               <TextField
                 select
                 required
+                data-testid="workspace-select"
                 id="workspaceSelect"
                 label="Workspace"
                 margin="dense"
