@@ -1,3 +1,4 @@
+/// @ts-nocheck
 import cy, { NodeDefinition } from "cytoscape";
 import edgehandles from 'cytoscape-edgehandles';
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
@@ -20,7 +21,8 @@ const opts: ColaLayoutOptions = {
   centerGraph: false,
   fit: false,
 }
-
+var previous_node_id: number;
+var previous_sel: any;
 
 cy.use(cola)
 cy.use(edgehandles)
@@ -29,6 +31,7 @@ cy.use(edgehandles)
 function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
   let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
+  console.log(color);
   return {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },
@@ -54,37 +57,45 @@ function toCyEdge(e: EdgeData): cy.EdgeDefinition {
 export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (!graph) {
     graph = cy({
-        container: container,
-        elements: {
-          nodes: [],
-          edges: []
-        },
-        minZoom: .1,
-        maxZoom: 10,
-        style: [
-          {
-            selector: 'node',
-            style: {
-              label: 'data(id)'
-            }
-          },
-          {
-            selector: 'node[label]',
-            style: {
-              label: 'data(label)'
-            }
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 1,
-              "curve-style": "bezier",
-              "target-arrow-shape": 'triangle',
-              "label": "data(label)"
-            }
+      container: container,
+      elements: {
+        nodes: [],
+        edges: []
+      },
+      minZoom: .1,
+      maxZoom: 10,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(id)'
           }
-        ]
-      }
+        },
+        {
+          selector: 'node[label]',
+          style: {
+            label: 'data(label)'
+          }
+        },
+        {
+          selector: 'node.semitransp',
+          style: { 'opacity': '0.5' }
+        },
+        {
+          selector: 'edge.semitransp',
+          style: { 'opacity': '0.3' }
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 1,
+            "curve-style": "bezier",
+            "target-arrow-shape": 'triangle',
+            "label": "data(label)"
+          }
+        }
+      ]
+    }
     );
     layout = graph.layout(opts)
 
@@ -93,6 +104,19 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     layout.start()
     graph.on('tap', 'node', (event) => {
       store.dispatch(setSelectedNode(event.target.id()))
+      var sel = event.target;
+      var id = event.target.id();
+      if ((id != previous_node_id) && (previous_node_id != undefined) && (previous_sel != undefined)) {
+        graph!.elements().removeClass("semitransp");
+        graph!.elements().difference(sel.connectedEdges()).not(sel).addClass("semitransp");
+        previous_sel = sel;
+        previous_node_id = id;
+      }
+      else {
+        graph!.elements().difference(sel.connectedEdges()).not(sel).addClass("semitransp");
+        previous_sel = sel;
+        previous_node_id = id;
+      }
     })
     graph.on('tap', 'edge', (event) => {
       store.dispatch(setSelectedEdge(event.target.id()))
@@ -104,6 +128,9 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       if (e.target == graph && e.originalEvent.shiftKey) {
         store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
       }
+      else if (e.target == graph) {
+        graph!.elements().removeClass("semitransp");
+      }
     })
 
     graph.on('ehcomplete', (_event, sourceNode, targetNode, addedEdge) => {
@@ -114,11 +141,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Shift' && shiftKeyDown !== true) {
-          shiftKeyDown = true;
-          eh.enableDrawMode();
-        }
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        eh.enableDrawMode();
       }
+    }
     );
     document.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && shiftKeyDown === true) {

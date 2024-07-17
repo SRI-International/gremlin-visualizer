@@ -13,6 +13,7 @@ import { animateNodes } from "sigma/utils";
 import { EdgeArrowProgram } from "sigma/rendering";
 import { DEFAULT_EDGE_CURVATURE, EdgeCurvedArrowProgram, indexParallelEdgesIndex } from "@sigma/edge-curve";
 import FileSaver from "file-saver";
+import { EdgeDisplayData, NodeDisplayData } from "sigma/types";
 
 
 export const layoutOptions = ['force-directed', 'circular']
@@ -48,12 +49,53 @@ function createSigmaGraph(container: HTMLElement) {
       })
     },
   });
+
+  let selectedNode: any;
+  let selectedEdge: any;
   sigma.on("clickEdge", e => {
     store.dispatch(setSelectedEdge(e.edge))
   })
   sigma.on("clickNode", (e) => {
     store.dispatch(setSelectedNode(e.node))
+    selectNode(e.node);
+    
+
   });
+
+  sigma.setSetting("nodeReducer", (node, data) => {
+    const res: Partial<NodeDisplayData> = { ...data };
+
+    if (selectedNode && selectedNode !== node) {
+      res.color = "#f6f6f6";
+    }
+
+    if (selectedNode === node) {  
+      res.highlighted = true;
+    }
+
+    return res;
+  });
+
+  sigma.setSetting("edgeReducer", (edge, data) => {
+    const res: Partial<EdgeDisplayData> = { ...data };
+
+    if (selectedNode && !graph.hasExtremity(edge, selectedNode)) {
+      res.size = 0.1;
+      res.color = "#f2f5f3";
+    }
+    return res;
+  });
+
+  function selectNode(node?: string) {
+    if (node) {
+      selectedNode = node;
+    }
+    if (!node) {
+      selectedNode = undefined;
+    }
+    sigma.refresh();
+  }
+
 
   // State for drag'n'drop
   let draggedNode: string | null = null;
@@ -127,6 +169,10 @@ function createSigmaGraph(container: HTMLElement) {
     let jsEvent = params.event.original;
     if (jsEvent.shiftKey && !draggingEdge) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
+    }
+    else if (selectedNode) {
+      selectedNode = undefined;
+      sigma.refresh();
     }
   });
   document.addEventListener('keydown', function (e) {
