@@ -31,7 +31,6 @@ cy.use(edgehandles)
 function toCyNode(n: NodeData): cy.NodeDefinition {
   let nodeColorMap = store.getState().graph.nodeColorMap
   let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
-  console.log(color);
   return {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },

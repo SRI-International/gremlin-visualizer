@@ -50,36 +50,34 @@ function createSigmaGraph(container: HTMLElement) {
     },
   });
 
-  let selectedNode: any;
-  let selectedEdge: any;
+  let selectedNode: string | undefined;
+  let selectedEdge: string | undefined;
+  let nodesOfSelectedEdge: { source: string, target: string } | undefined;
+
   sigma.on("clickEdge", e => {
     store.dispatch(setSelectedEdge(e.edge))
+    selectedNode = undefined;
+    selectEdge(e.edge);
+
   })
   sigma.on("clickNode", (e) => {
     store.dispatch(setSelectedNode(e.node))
-    selectNode(e.node);
-    
-
   });
 
   sigma.setSetting("nodeReducer", (node, data) => {
     const res: Partial<NodeDisplayData> = { ...data };
-
-    if (selectedNode && selectedNode !== node) {
+    if ((selectedNode && selectedNode !== node) || (!selectedNode && (nodesOfSelectedEdge && nodesOfSelectedEdge.source !== node && nodesOfSelectedEdge.target !== node))) {
       res.color = "#f6f6f6";
     }
-
-    if (selectedNode === node) {  
+    if (selectedNode === node || (nodesOfSelectedEdge && (nodesOfSelectedEdge.source === node || nodesOfSelectedEdge.target === node))) {
       res.highlighted = true;
     }
-
     return res;
   });
 
   sigma.setSetting("edgeReducer", (edge, data) => {
     const res: Partial<EdgeDisplayData> = { ...data };
-
-    if (selectedNode && !graph.hasExtremity(edge, selectedNode)) {
+    if ((selectedEdge && selectedEdge !== edge) || (selectedNode && !graph.hasExtremity(edge, selectedNode))) {
       res.size = 0.1;
       res.color = "#f2f5f3";
     }
@@ -90,8 +88,14 @@ function createSigmaGraph(container: HTMLElement) {
     if (node) {
       selectedNode = node;
     }
-    if (!node) {
-      selectedNode = undefined;
+    sigma.refresh();
+  }
+
+  function selectEdge(edge?: string) {
+    if (edge) {
+      const [source, target] = graph.extremities(edge);
+      nodesOfSelectedEdge = { source: source, target: target };
+      selectedEdge = edge;
     }
     sigma.refresh();
   }
@@ -119,6 +123,9 @@ function createSigmaGraph(container: HTMLElement) {
       isDragging = true;
       draggedNode = e.node;
       graph!.setNodeAttribute(draggedNode, "highlighted", true);
+      selectedEdge = undefined;
+      nodesOfSelectedEdge = undefined;
+      selectNode(e.node);
     }
     sigmaLayout?.stop()
     store.dispatch(setIsPhysicsEnabled(false))
@@ -170,16 +177,18 @@ function createSigmaGraph(container: HTMLElement) {
     if (jsEvent.shiftKey && !draggingEdge) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
     }
-    else if (selectedNode) {
+    else if (selectedNode || selectedEdge || nodesOfSelectedEdge) {
+      nodesOfSelectedEdge = undefined;
+      selectedEdge = undefined;
       selectedNode = undefined;
       sigma.refresh();
     }
   });
   document.addEventListener('keydown', function (e) {
-      if (e.key === 'Shift' && shiftKeyDown !== true) {
-        shiftKeyDown = true;
-      }
+    if (e.key === 'Shift' && shiftKeyDown !== true) {
+      shiftKeyDown = true;
     }
+  }
   );
   document.addEventListener('keyup', function (e) {
     if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -198,23 +207,23 @@ function curveEdges(graph: Graph) {
     edgeMaxIndexAttribute: "parallelMaxIndex",
   });
   graph.forEachEdge((edge, { parallelIndex, parallelMinIndex, parallelMaxIndex, }:
-      | { parallelIndex: number; parallelMinIndex?: number; parallelMaxIndex: number }
-      | { parallelIndex?: null; parallelMinIndex?: null; parallelMaxIndex?: null },
-    ) => {
-      if (typeof parallelMinIndex === "number") {
-        graph.mergeEdgeAttributes(edge, {
-          type: parallelIndex ? "curved" : "straight",
-          curvature: getCurvature(parallelIndex, parallelMaxIndex),
-        });
-      } else if (typeof parallelIndex === "number") {
-        graph.mergeEdgeAttributes(edge, {
-          type: "curved",
-          curvature: getCurvature(parallelIndex, parallelMaxIndex),
-        });
-      } else {
-        graph.setEdgeAttribute(edge, "type", "straight");
-      }
-    },
+    | { parallelIndex: number; parallelMinIndex?: number; parallelMaxIndex: number }
+    | { parallelIndex?: null; parallelMinIndex?: null; parallelMaxIndex?: null },
+  ) => {
+    if (typeof parallelMinIndex === "number") {
+      graph.mergeEdgeAttributes(edge, {
+        type: parallelIndex ? "curved" : "straight",
+        curvature: getCurvature(parallelIndex, parallelMaxIndex),
+      });
+    } else if (typeof parallelIndex === "number") {
+      graph.mergeEdgeAttributes(edge, {
+        type: "curved",
+        curvature: getCurvature(parallelIndex, parallelMaxIndex),
+      });
+    } else {
+      graph.setEdgeAttribute(edge, "type", "straight");
+    }
+  },
   );
 }
 
