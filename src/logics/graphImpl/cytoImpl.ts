@@ -21,8 +21,6 @@ const opts: ColaLayoutOptions = {
   centerGraph: false,
   fit: false,
 }
-var previous_node_id: number;
-var previous_sel: any;
 
 cy.use(cola)
 cy.use(edgehandles)
@@ -102,23 +100,18 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
 
     layout.start()
     graph.on('tap', 'node', (event) => {
-      store.dispatch(setSelectedNode(event.target.id()))
+      store.dispatch(setSelectedNode(event.target.id()));
       var sel = event.target;
       var id = event.target.id();
-      if ((id != previous_node_id) && (previous_node_id != undefined) && (previous_sel != undefined)) {
-        graph!.elements().removeClass("semitransp");
-        graph!.elements().difference(sel.connectedEdges()).not(sel).addClass("semitransp");
-        previous_sel = sel;
-        previous_node_id = id;
-      }
-      else {
-        graph!.elements().difference(sel.connectedEdges()).not(sel).addClass("semitransp");
-        previous_sel = sel;
-        previous_node_id = id;
-      }
+      graph!.elements().removeClass("semitransp");
+      graph!.elements().difference(sel.outgoers().union(sel.incomers())).not(sel).addClass("semitransp");
     })
     graph.on('tap', 'edge', (event) => {
-      store.dispatch(setSelectedEdge(event.target.id()))
+      store.dispatch(setSelectedEdge(event.target.id()));
+      var sel = event.target;
+      var id = event.target.id();
+      graph!.elements().removeClass("semitransp");
+      graph!.elements().difference(sel.connectedNodes()).not(sel).addClass("semitransp");
     })
     graph.on('drag', 'node', e => {
       store.dispatch(setIsPhysicsEnabled(false))
@@ -128,6 +121,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
       }
       else if (e.target == graph) {
+
         graph!.elements().removeClass("semitransp");
       }
     })

@@ -53,10 +53,11 @@ function createSigmaGraph(container: HTMLElement) {
   let selectedNode: string | undefined;
   let selectedEdge: string | undefined;
   let nodesOfSelectedEdge: { source: string, target: string } | undefined;
+  let selectedNeighbors: Set<string> | undefined;
 
   sigma.on("clickEdge", e => {
     store.dispatch(setSelectedEdge(e.edge))
-    selectedNode = undefined;
+    selectNode(undefined);
     selectEdge(e.edge);
 
   })
@@ -66,10 +67,12 @@ function createSigmaGraph(container: HTMLElement) {
 
   sigma.setSetting("nodeReducer", (node, data) => {
     const res: Partial<NodeDisplayData> = { ...data };
-    if ((selectedNode && selectedNode !== node) || (!selectedNode && (nodesOfSelectedEdge && nodesOfSelectedEdge.source !== node && nodesOfSelectedEdge.target !== node))) {
+    if ((selectedNode && selectedNode !== node && (selectedNeighbors && !selectedNeighbors.has(node))) ||
+      (!selectedNode && (nodesOfSelectedEdge && nodesOfSelectedEdge.source !== node && nodesOfSelectedEdge.target !== node))
+    ) {
       res.color = "#f6f6f6";
     }
-    if (selectedNode === node || (nodesOfSelectedEdge && (nodesOfSelectedEdge.source === node || nodesOfSelectedEdge.target === node))) {
+    if (selectedNode === node || (nodesOfSelectedEdge && (nodesOfSelectedEdge.source === node || nodesOfSelectedEdge.target === node)) || (selectedNeighbors && selectedNeighbors.has(node))) {
       res.highlighted = true;
     }
     return res;
@@ -78,8 +81,7 @@ function createSigmaGraph(container: HTMLElement) {
   sigma.setSetting("edgeReducer", (edge, data) => {
     const res: Partial<EdgeDisplayData> = { ...data };
     if ((selectedEdge && selectedEdge !== edge) || (selectedNode && !graph.hasExtremity(edge, selectedNode))) {
-      res.size = 0.1;
-      res.color = "#f2f5f3";
+      res.hidden = true;
     }
     return res;
   });
@@ -87,6 +89,11 @@ function createSigmaGraph(container: HTMLElement) {
   function selectNode(node?: string) {
     if (node) {
       selectedNode = node;
+      selectedNeighbors = new Set(graph.neighbors(node));
+    }
+    else if (!node) {
+      selectedNode = undefined;
+      selectedNeighbors = undefined;
     }
     sigma.refresh();
   }
@@ -96,6 +103,10 @@ function createSigmaGraph(container: HTMLElement) {
       const [source, target] = graph.extremities(edge);
       nodesOfSelectedEdge = { source: source, target: target };
       selectedEdge = edge;
+    }
+    else if (!edge) {
+      selectedEdge = undefined;
+      nodesOfSelectedEdge = undefined;
     }
     sigma.refresh();
   }
@@ -123,8 +134,7 @@ function createSigmaGraph(container: HTMLElement) {
       isDragging = true;
       draggedNode = e.node;
       graph!.setNodeAttribute(draggedNode, "highlighted", true);
-      selectedEdge = undefined;
-      nodesOfSelectedEdge = undefined;
+      selectEdge(undefined);
       selectNode(e.node);
     }
     sigmaLayout?.stop()
@@ -177,11 +187,11 @@ function createSigmaGraph(container: HTMLElement) {
     if (jsEvent.shiftKey && !draggingEdge) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
     }
-    else if (selectedNode || selectedEdge || nodesOfSelectedEdge) {
-      nodesOfSelectedEdge = undefined;
-      selectedEdge = undefined;
-      selectedNode = undefined;
-      sigma.refresh();
+    else if (selectedNode || selectedNeighbors) {
+      selectNode(undefined);
+    }
+    else if (selectedEdge || nodesOfSelectedEdge) {
+      selectEdge(undefined);
     }
   });
   document.addEventListener('keydown', function (e) {

@@ -193,6 +193,92 @@ function curveEdges(edges: DataSet<Edge>) {
   (network as any)?.body.emitter.emit("_dataChanged");
 }
 
+function highlightNodesAndEdges(node: any, edge: any) {
+  const selectedNode = node;
+  const selectedEdge = edge;
+  const allNodesToUpdate: any = [];
+  const allEdgesToUpdate: any = [];
+console.log("highlightentered")
+  if (node) {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: 'rgba(200,200,200,0.5)',
+      });
+    });
+    const connectedNodes = network!.getConnectedNodes(selectedNode);
+    const connectedEdges = network!.getConnectedEdges(selectedNode);
+    connectedNodes.forEach((nodeId) => {
+      allNodesToUpdate.push({
+        id: nodeId,
+        color: undefined
+      });
+    });
+
+    allNodesToUpdate.push({
+      id: selectedNode,
+      color: undefined,
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: 'rgba(200,200,200,0.5)',
+      });
+    });
+    connectedEdges.forEach((edgeId) => {
+      const edge = edges.get(edgeId);
+      allEdgesToUpdate.push({
+        id: edgeId,
+        color: "rgb(48,124,248)"
+      });
+    });
+  }
+  else if (edge) {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: 'rgba(200,200,200,0.5)',
+      });
+    });
+    const connectedNodes = network!.getConnectedNodes(selectedEdge);
+    connectedNodes.forEach((nodeId) => {
+      allNodesToUpdate.push({
+        id: nodeId,
+        color: undefined
+      });
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: 'rgba(200,200,200,0.5)',
+      });
+    });
+    allEdgesToUpdate.push({
+      id: selectedEdge,
+      color: "rgb(48,124,248)"
+    });
+
+    
+  }
+  else {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: undefined,
+      });
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: "rgb(48,124,248)",
+      });
+    });
+  }
+
+  nodes.update(allNodesToUpdate);
+  edges.update(allEdgesToUpdate);
+}
+
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   let updateNodesArray = [];
   let addNodesArray = [];
@@ -263,12 +349,22 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!params.nodes[0]) {
         return
       }
+      highlightNodesAndEdges(params.nodes[0], null);
       store.dispatch(setIsPhysicsEnabled(false))
     });
     network.on('click', function (params) {
       let jsEvent = params.event.srcEvent;
       if ((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
         store.dispatch(openNodeDialog({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
+      }
+      else if (params.edges.length != 0 && params.nodes.length == 0) {
+        highlightNodesAndEdges(null, params.edges[0]);
+      }
+      else if (params.nodes.length != 0) {
+        highlightNodesAndEdges(params.nodes[0], null);
+      }
+      else if ((params.nodes.length == 0) && (params.edges.length == 0)) {
+        highlightNodesAndEdges(null, null);
       }
     });
 
