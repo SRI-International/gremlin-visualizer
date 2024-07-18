@@ -199,7 +199,7 @@ function highlightNodesAndEdges(node: any, edge: any) {
   savedSelectedEdge = edge;
   const allNodesToUpdate: any = [];
   const allEdgesToUpdate: any = [];
-  if (node) {
+  if (node != undefined) {
     nodes.forEach((node) => {
       allNodesToUpdate.push({
         id: node.id,
@@ -232,7 +232,7 @@ function highlightNodesAndEdges(node: any, edge: any) {
       });
     });
   }
-  else if (edge) {
+  else if (edge != undefined) {
     nodes.forEach((node) => {
       allNodesToUpdate.push({
         id: node.id,

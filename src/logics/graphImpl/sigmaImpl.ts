@@ -70,7 +70,7 @@ function createSigmaGraph(container: HTMLElement) {
     if ((selectedNode && selectedNode !== node && (selectedNeighbors && !selectedNeighbors.has(node))) ||
       (!selectedNode && (nodesOfSelectedEdge && nodesOfSelectedEdge.source !== node && nodesOfSelectedEdge.target !== node))
     ) {
-      res.color = "#f6f6f6";
+      res.color = "#b4b8bf";
     }
     if (selectedNode === node || (nodesOfSelectedEdge && (nodesOfSelectedEdge.source === node || nodesOfSelectedEdge.target === node)) || (selectedNeighbors && selectedNeighbors.has(node))) {
       res.highlighted = true;
@@ -81,7 +81,8 @@ function createSigmaGraph(container: HTMLElement) {
   sigma.setSetting("edgeReducer", (edge, data) => {
     const res: Partial<EdgeDisplayData> = { ...data };
     if ((selectedEdge && selectedEdge !== edge) || (selectedNode && !graph.hasExtremity(edge, selectedNode))) {
-      res.hidden = true;
+      res.color = "#b5b8bd";
+      res.size = 2;
     }
     return res;
   });
@@ -295,9 +296,10 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     for (let element of data.edges) {
       if (!graph.edges().includes(element.id!.toString()) && graph.nodes().includes(element.to!.toString())) {
         graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
-          size: 2,
+          size: 3,
           type: 'arrow',
-          label: element.label
+          label: element.label,
+          color: "#7d7f82"
         })
       }
     }
