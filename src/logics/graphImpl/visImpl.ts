@@ -195,37 +195,33 @@ function curveEdges(edges: DataSet<Edge>) {
 }
 
 function highlightNodesAndEdges(node: any, edge: any) {
-  const selectedNode = node;
-  const selectedEdge = edge;
   savedSelectedNode = node;
   savedSelectedEdge = edge;
   const allNodesToUpdate: any = [];
   const allEdgesToUpdate: any = [];
-console.log("highlightentered")
   if (node) {
     nodes.forEach((node) => {
       allNodesToUpdate.push({
         id: node.id,
-        color: 'rgba(200,200,200,0.5)',
+        color: 'rgba(200,200,200)',
       });
     });
-    const connectedNodes = network!.getConnectedNodes(selectedNode);
-    const connectedEdges = network!.getConnectedEdges(selectedNode);
+    const connectedNodes = network!.getConnectedNodes(node);
+    const connectedEdges = network!.getConnectedEdges(node);
     connectedNodes.forEach((nodeId) => {
       allNodesToUpdate.push({
         id: nodeId,
         color: undefined
       });
     });
-
     allNodesToUpdate.push({
-      id: selectedNode,
+      id: node,
       color: undefined,
     });
     edges.forEach((edge) => {
       allEdgesToUpdate.push({
         id: edge.id,
-        color: 'rgba(200,200,200,0.5)',
+        color: 'rgba(200,200,200)',
       });
     });
     connectedEdges.forEach((edgeId) => {
@@ -240,10 +236,10 @@ console.log("highlightentered")
     nodes.forEach((node) => {
       allNodesToUpdate.push({
         id: node.id,
-        color: 'rgba(200,200,200,0.5)',
+        color: 'rgba(200,200,200)',
       });
     });
-    const connectedNodes = network!.getConnectedNodes(selectedEdge);
+    const connectedNodes = network!.getConnectedNodes(edge);
     connectedNodes.forEach((nodeId) => {
       allNodesToUpdate.push({
         id: nodeId,
@@ -253,15 +249,13 @@ console.log("highlightentered")
     edges.forEach((edge) => {
       allEdgesToUpdate.push({
         id: edge.id,
-        color: 'rgba(200,200,200,0.5)',
+        color: 'rgba(200,200,200)',
       });
     });
     allEdgesToUpdate.push({
-      id: selectedEdge,
+      id: edge,
       color: "rgb(48,124,248)"
     });
-
-    
   }
   else {
     nodes.forEach((node) => {
@@ -277,7 +271,6 @@ console.log("highlightentered")
       });
     });
   }
-
   nodes.update(allNodesToUpdate);
   edges.update(allEdgesToUpdate);
 }
@@ -326,8 +319,8 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       network.setOptions(getOptions(options));
     }
 
-      highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
-  
+    highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
+
 
     return network;
   }
