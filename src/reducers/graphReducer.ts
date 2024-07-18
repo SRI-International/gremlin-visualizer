@@ -1,20 +1,33 @@
 // import vis from 'vis-network';
 import { createSlice } from '@reduxjs/toolkit';
-import { Edge, Node } from 'vis-network';
 import { RootState } from '../app/store';
 import _ from 'lodash';
+import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
+
+export type Workspace = {
+  name: string,
+  impl: string,
+  layout: Record<string, { x: number, y: number }>
+  zoom: number,
+  view: { x: number, y: number }
+}
 
 type GraphState = {
-  nodes: Node[];
-  edges: Edge[];
-  selectedNode?: Node;
-  selectedEdge?: Edge;
+  nodes: NodeData[];
+  edges: EdgeData[];
+  selectedNode?: NodeData;
+  selectedEdge?: EdgeData;
+  nodeColorMap: { [index: string]: string };
+  workspaces: Workspace[]
 };
+
 const initialState: GraphState = {
   nodes: [],
   edges: [],
-  selectedNode: {},
-  selectedEdge: {},
+  selectedNode: undefined,
+  selectedEdge: undefined,
+  nodeColorMap: {},
+  workspaces: []
 };
 
 const slice = createSlice({
@@ -22,55 +35,99 @@ const slice = createSlice({
   initialState,
   reducers: {
     clearGraph: (state) => {
+      state = Object.assign({}, state);
       state.nodes = [];
       state.edges = [];
-      state.selectedNode = {};
-      state.selectedEdge = {};
+      state.selectedNode = undefined;
+      state.selectedEdge = undefined;
+      return state;
     },
     addNodes: (state, action) => {
+      state = Object.assign({}, state);
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
+      return state;
+    },
+    updateNode: (state, action) => {
+      const { updateId, updatedElement } = action.payload;
+      const stateNodeIndex = state.nodes.findIndex(node => node.id === updateId);
+      if (stateNodeIndex !== -1) {
+        state.nodes[stateNodeIndex] = { ...state.nodes[stateNodeIndex], ...updatedElement };
+        state.selectedNode = updatedElement;
+      } else {
+        console.error("Node not found in state or updatedNodes");
+      }
+    },
+    updateEdge: (state, action) => {
+      const { updateId, updatedElement } = action.payload;
+      const stateEdgeIndex = state.edges.findIndex(edge => edge.id === updateId);
+      if (stateEdgeIndex !== -1) {
+        state.edges[stateEdgeIndex] = { ...state.edges[stateEdgeIndex], ...updatedElement };
+        state.selectedEdge = updatedElement;
+      } else {
+        console.error("Edge not found in state or updatedNodes");
+      }
     },
     addEdges: (state, action) => {
-      const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.from},${edge.to}`);
+      state = Object.assign({}, state);
+      const newEdges = _.differenceBy(action.payload, state.edges, (edge: any) => `${edge.id}`);
       state.edges = [...state.edges, ...newEdges];
+      return state;
     },
     setSelectedNode: (state, action) => {
       const nodeId = action.payload;
+      state = Object.assign({}, state);
       if (nodeId !== null) {
-        state.selectedNode = _.find(state.nodes, node => node.id === nodeId);
+        state.selectedNode = _.find(state.nodes, node => node.id == nodeId);
       }
-      state.selectedEdge = {};
+      state.selectedEdge = undefined;
+      return state;
     },
     setSelectedEdge: (state, action) => {
       const edgeId = action.payload;
+      state = Object.assign({}, state);
       if (edgeId !== null) {
         state.selectedEdge = _.find(state.edges, edge => edge.id === edgeId);
       }
-      state.selectedNode = {};
+      state.selectedNode = undefined;
+      return state;
     },
     refreshNodeLabels: (state, action) => {
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
-      state.nodes.map((node: any) => {
+      state.nodes = state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
           const label = node.properties[field];
-          return { ...node, label };
+          if (label === undefined)
+            return { ...node, ...{ label: defaultNodeLabel(node) } }
+          else
+            return { ...node, label };
         }
-        return node;
+        return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
-      return state;
     },
+    updateColorMap: (state, action) => {
+      Object.assign(state.nodeColorMap, action.payload);
+    },
+    addWorkspace: (state, action) => {
+      let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
+      if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
+      else state.workspaces.push(action.payload)
+    }
   },
 });
 
 export const {
   clearGraph,
+  updateNode,
+  updateEdge,
   addNodes,
   addEdges,
   setSelectedEdge,
   setSelectedNode,
   refreshNodeLabels,
+  updateColorMap,
+  addWorkspace
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;

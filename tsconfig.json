@@ -24,9 +24,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "plugins": [{ "name": "typescript-plugin-css-modules" }],
-    "downlevelIteration": true
+    "downlevelIteration": true,
   },
   "include": [
-    "./src/"
-  ]
+    "./src/",
+    "./types/"
+, "test/components/QueryComponent.test.tsx", "test/components/DetailsComponent.test.tsx"  ]
 }

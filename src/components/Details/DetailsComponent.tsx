@@ -1,151 +1,123 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import {
-  Accordion,
-  AccordionSummary,
-  Typography,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Fab,
-  IconButton,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
   Table,
   TableBody,
-  TableRow,
   TableCell,
-  FormControlLabel,
-  Switch,
-  Divider,
-  Tooltip,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import _ from 'lodash';
-import { JsonToTable } from 'react-json-to-table';
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
-import axios from 'axios';
-import { onFetchQuery } from '../../logics/actionHelper';
-import { stringifyObjectValues } from '../../logics/utils';
-import { refreshNodeLabels, selectGraph } from '../../reducers/graphReducer';
-import { selectGremlin, setError } from '../../reducers/gremlinReducer';
+  TableRow,
+  TextField,
+  Typography
+} from "@mui/material";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import React, { useEffect, useState } from "react";
+import { IdType } from "vis-network";
+import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import { selectGremlin, setError } from "../../reducers/gremlinReducer";
+import { selectGraph } from "../../reducers/graphReducer";
+import { selectOptions } from "../../reducers/optionReducer";
+import _ from "lodash";
+import { stringifyObjectValues } from "../../logics/utils";
 import {
-  addNodeLabel,
-  editNodeLabel,
-  removeNodeLabel,
-  selectOptions,
-  setIsPhysicsEnabled,
-  setNodeLimit,
-} from '../../reducers/optionReducer';
-import { EdgeOptions, IdType } from 'vis-network';
-import { getNetwork } from '../../logics/network';
+  COMMON_GREMLIN_ERROR,
+  DISABLE_NODE_EDGE_EDIT,
+  EDGE_ID_APPEND,
+  QUERY_ENDPOINT,
+  QUERY_RAW_ENDPOINT
+} from "../../constants";
+import { onFetchQuery, updateOnConfirm } from "../../logics/actionHelper";
+import { EditText } from 'react-edit-text';
+import 'react-edit-text/dist/index.css';
+import '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 
-type QueryHistoryProps = {
-  list: Array<string>;
-};
-
-type NodeLabelListProps = {
-  nodeLabels: Array<any>;
-};
-
-const QueryHistoryList = ({ list }: QueryHistoryProps) => (
-  <List dense={true}>
-    {list.map((value: string, ndx: number) => (
-      <ListItem key={ndx}>
-        <ListItemText primary={value} />
-      </ListItem>
-    ))}
-  </List>
-);
-
-const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
-  const dispatch = useDispatch();
-  const indexedLabels = nodeLabels.map((nodeLabel: any, ndx: number) => {
-    return {
-      ...nodeLabel,
-      index: ndx,
-    };
-  });
-
-  const onRemoveNodeLabel = (index: number) => {
-    dispatch(removeNodeLabel(index));
-  };
-
-  function onEditNodeLabel(index: number, nodeLabel: any) {
-    dispatch(editNodeLabel({ id: index, nodeLabel }));
-  }
-
-  return (
-    <List dense={true}>
-      {indexedLabels.map((nodeLabel: any, ndx: number) => (
-        <ListItem key={ndx}>
-          <TextField
-            id="standard-basic"
-            label="Node Type"
-            InputLabelProps={{ shrink: true }}
-            value={nodeLabel.type}
-            onChange={(event) => {
-              const type = event.target.value;
-              const field = nodeLabel.field;
-              onEditNodeLabel(nodeLabel.index, { type, field });
-            }}
-          />
-          <TextField
-            id="standard-basic"
-            label="Label Field"
-            InputLabelProps={{ shrink: true }}
-            value={nodeLabel.field}
-            onChange={(event) => {
-              const field = event.target.value;
-              const type = nodeLabel.type;
-              onEditNodeLabel(nodeLabel.index, { type, field });
-            }}
-          />
-          <IconButton
-            aria-label="delete"
-            size="small"
-            onClick={() => onRemoveNodeLabel(nodeLabel.index)}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </ListItem>
-      ))}
-    </List>
-  );
+type EditEvent = {
+  name: string;
+  value: string;
+  previousValue: string;
 };
 
 export const DetailsComponent = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { selectedNode, selectedEdge } = useSelector(selectGraph);
-  const { nodeLabels, nodeLimit, queryHistory, isPhysicsEnabled } =
-    useSelector(selectOptions);
-  const network = getNetwork();
+  const { nodeLabels, nodeLimit } = useSelector(selectOptions);
 
-  function onAddNodeLabel() {
-    dispatch(addNodeLabel());
+  const [editField, setEditField] = useState<null | string>(null);
+  const [editValue, setEditValue] = useState<null | string>(null);
+  const [openAddProperty, setOpenAddProperty] = useState<boolean>(false);
+  const [addPropertyName, setAddPropertyName] = useState<null | string>(null);
+  const [addPropertyValue, setAddPropertyValue] = useState<null | string>(null);
+
+
+  let hasSelected = false;
+  let selectedType: any = null;
+  let selectedId: IdType | undefined = undefined;
+  let selectedProperties = null;
+  let selectedHeader: string | null = null;
+  if (!_.isEmpty(selectedNode)) {
+    hasSelected = true;
+    selectedType = _.get(selectedNode, 'type');
+    selectedId = _.get(selectedNode, 'id');
+    selectedProperties = _.get(selectedNode, 'properties');
+    selectedProperties = stringifyObjectValues(selectedProperties);
+    selectedHeader = 'Node';
+  } else if (!_.isEmpty(selectedEdge)) {
+    hasSelected = true;
+    selectedType = _.get(selectedEdge, 'type');
+    selectedId = _.get(selectedEdge, 'id');
+    selectedProperties = _.get(selectedEdge, 'properties');
+    selectedHeader = 'Edge';
+    selectedProperties = stringifyObjectValues(selectedProperties);
   }
 
-  function onEditNodeLabel(index: number, nodeLabel: string) {
-    dispatch(editNodeLabel({ id: index, nodeLabel }));
-  }
+  useEffect(() => {
+    setEditField(null);
+    setEditValue(null);
+  }, [selectedNode, selectedEdge]);
 
-  function onRemoveNodeLabel(index: number) {
-    dispatch(removeNodeLabel(index));
-  }
+  /**
+   * Return a number of table rows with key-value cells for object properties
+   * @param data
+   * @returns
+   */
+  function getRows(data: any) {
+    if (data == null) return;
+    return Object.entries(data).map(e => {
+      return <TableRow>
+        <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
+        <TableCell style={{ paddingRight: 5 }}>
+          {!DISABLE_NODE_EDGE_EDIT ? (
+            <EditText
+              name={String(e[0])}
+              style={{ fontSize: '14px', border: '1px solid #ccc', height: '28px', lineHeight: '28px' }}
+              onSave={onConfirmEdit}
+              defaultValue={String(e[1])}
+              showEditButton
+            />
+          ) : <strong>{String(e[0])}</strong>
+          }
+        </TableCell>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <TableCell style={{ width: 1 }} padding='none'>
+            <IconButton onClick={() => {
+              updateElementProperty(String(e[0]), String(e[1]), true)
+            }}
+            data-testid={`deleteButton-${e[0]}`}>
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
+        ) : <></>
+        }
 
-  function onEditNodeLimit(limit: string) {
-    dispatch(setNodeLimit(limit));
-  }
-
-  function onRefresh() {
-    dispatch(refreshNodeLabels(nodeLabels));
+      </TableRow>;
+    });
   }
 
   function onTraverse(nodeId: IdType | undefined, direction: string) {
@@ -165,191 +137,197 @@ export const DetailsComponent = () => {
         onFetchQuery(response, query, nodeLabels, dispatch);
       })
       .catch((error) => {
+        console.warn(error)
         dispatch(setError(COMMON_GREMLIN_ERROR));
       });
   }
 
-  function onTogglePhysics(enabled: boolean) {
-    dispatch(setIsPhysicsEnabled(enabled));
-    
-    if (network) {
-      const edges : EdgeOptions = {
-        smooth: {
-          enabled,
-          roundness: 10, 
-          type: enabled ? 'dynamic' : 'continuous',
+  function sendUpdateQuery(query: string) {
+    axios
+      .post(
+        QUERY_ENDPOINT,
+        {
+          host,
+          port,
+          query,
+          nodeLimit,
         },
-      };
-      network.setOptions({ physics: enabled, edges });
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        updateOnConfirm(selectedHeader, selectedId, response, query, nodeLabels);
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message || error.message || COMMON_GREMLIN_ERROR;
+        dispatch(setError(errorMessage));
+      });
+  }
+
+  async function sendRawQuery(query: string) {
+    try {
+      await axios
+        .post(
+          QUERY_RAW_ENDPOINT,
+          {
+            host,
+            port,
+            query,
+            nodeLimit,
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      return true;
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.message || (error as any).message || COMMON_GREMLIN_ERROR;
+      dispatch(setError(errorMessage));
+      throw error;
     }
   }
 
-  let hasSelected = false;
-  let selectedType = null;
-  let selectedId: IdType | undefined = undefined;
-  let selectedProperties = null;
-  let selectedHeader = null;
-  if (!_.isEmpty(selectedNode)) {
-    hasSelected = true;
-    selectedType = _.get(selectedNode, 'type');
-    selectedId = _.get(selectedNode, 'id');
-    selectedProperties = _.get(selectedNode, 'properties');
-    stringifyObjectValues(selectedProperties);
-    selectedHeader = 'Node';
-  } else if (!_.isEmpty(selectedEdge)) {
-    hasSelected = true;
-    selectedType = _.get(selectedEdge, 'type');
-    selectedId = _.get(selectedEdge, 'id');
-    selectedProperties = _.get(selectedEdge, 'properties');
-    selectedHeader = 'Edge';
-    stringifyObjectValues(selectedProperties);
+  function updateElementProperty(name: string, value: string, deletion: boolean) {
+
+    let rawQuery = '', updateQuery = '';
+
+    if (selectedHeader === "Node" && !deletion) {             // Editing/adding node property
+      updateQuery = `g.V('${selectedId}').property("${name}", "${value}")`;
+      sendUpdateQuery(updateQuery)
+      return;
+    } else if (selectedHeader === "Node") {                   // Deleting node property
+      rawQuery = `g.V('${selectedId}').properties("${name}").drop()`;
+      updateQuery = `g.V(${selectedId})`;
+    } else if (selectedHeader === "Edge" && !deletion) {      // Editing/adding edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).property("${name}", "${value}")`;
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
+    } else {                                                  // Deleting edge property
+      rawQuery = `g.E(${selectedId}${EDGE_ID_APPEND}).properties("${name}").drop()`
+      updateQuery = `g.V().where(__.outE().hasId(${selectedId}))`;
+    }
+
+    sendRawQuery(rawQuery)
+      .then(() => sendUpdateQuery(updateQuery))
+
   }
 
-  return (
-    <div className={'details'}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={12} md={12}>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Query History</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <QueryHistoryList list={queryHistory} />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Settings</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Automatically stabilize the graph"
-                    aria-label="add"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={isPhysicsEnabled}
-                          onChange={() => {
-                            onTogglePhysics(!isPhysicsEnabled);
-                          }}
-                          value="physics"
-                          color="primary"
-                        />
-                      }
-                      label="Enable Physics"
-                    />
-                  </Tooltip>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Tooltip
-                    title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions."
-                    aria-label="add"
-                  >
-                    <TextField
-                      label="Node Limit"
-                      type="Number"
-                      variant="outlined"
-                      value={nodeLimit}
-                      onChange={(event) => {
-                        const limit = event.target.value;
-                        onEditNodeLimit(limit);
-                      }}
-                    />
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Typography>Node Labels</Typography>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <NodeLabelList nodeLabels={nodeLabels} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                  <Fab
-                    variant="extended"
-                    color="primary"
-                    size="small"
-                    onClick={onRefresh.bind(this)}
-                  >
-                    <RefreshIcon />
-                    Refresh
-                  </Fab>
-                  <Fab
-                    variant="extended"
-                    size="small"
-                    onClick={onAddNodeLabel.bind(this)}
-                  >
-                    <AddIcon />
-                    Add Node Label
-                  </Fab>
-                </Grid>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
-        {hasSelected && (
-          <Grid item xs={12} sm={12} md={12}>
-            <h2>Information: {selectedHeader}</h2>
-            {selectedHeader === 'Node' && (
-              <Grid item xs={12} sm={12} md={12}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'out')}
-                    >
-                      Traverse Out Edges
-                      <ArrowForwardIcon />
-                    </Fab>
-                  </Grid>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Fab
-                      variant="extended"
-                      size="small"
-                      onClick={() => onTraverse(selectedId, 'in')}
-                    >
-                      Traverse In Edges
-                      <ArrowBackIcon />
-                    </Fab>
-                  </Grid>
-                </Grid>
-              </Grid>
-            )}
-            <Grid item xs={12} sm={12} md={12}>
-              <Grid container>
-                <Table aria-label="simple table">
-                  <TableBody>
-                    <TableRow key={'type'}>
-                      <TableCell scope="row">Type</TableCell>
-                      <TableCell align="left">{String(selectedType)}</TableCell>
-                    </TableRow>
-                    <TableRow key={'id'}>
-                      <TableCell scope="row">ID</TableCell>
-                      <TableCell align="left">{String(selectedId)}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                <JsonToTable json={selectedProperties} />
-              </Grid>
+  function onConfirmEdit({ name, value, previousValue }: EditEvent) {
+    value = value.replace(/"/g, '\\"');
+    updateElementProperty(name, value, false)
+  }
+
+  function onConfirmAddProperty(event: { preventDefault: () => void; }) {
+    event.preventDefault()
+    if (addPropertyName === null || addPropertyValue === null) return;
+    updateElementProperty(addPropertyName, addPropertyValue, false)
+    onCancelAddProperty()
+  }
+
+  function onCancelAddProperty() {
+    setOpenAddProperty(false)
+    setAddPropertyName(null)
+    setAddPropertyValue(null)
+  }
+
+  return hasSelected && (<>
+        <h2>Information: {selectedHeader}</h2>
+        {selectedHeader === 'Node' && (
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={6} md={6}>
+              <Button
+                variant="outlined"
+                size='small'
+                onClick={() => onTraverse(selectedId, 'out')}
+              >
+                Traverse Out Edges
+                <ArrowForwardIcon />
+              </Button>
+            </Grid>
+            <Grid item xs={6} sm={6} md={6}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => onTraverse(selectedId, 'in')}
+              >
+                Traverse In Edges
+                <ArrowBackIcon />
+              </Button>
             </Grid>
           </Grid>
         )}
+        <Grid item xs={12} sm={12} md={12}>
+          <Grid container>
+            <Table aria-label="simple table">
+              <TableBody>
+                <TableRow key={'type'}>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>Type</strong></TableCell>
+                  <TableCell align="left">{String(selectedType)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
+                </TableRow>
+                <TableRow key={'id'}>
+                  <TableCell style={{ width: 1, height: 1 }} scope="row"><strong>ID</strong></TableCell>
+                  <TableCell align="left">{String(selectedId)}</TableCell>
+                  {!DISABLE_NODE_EDGE_EDIT ? <TableCell></TableCell> : <></>}
+                </TableRow>
+                {getRows(selectedProperties)}
+              </TableBody>
+            </Table>
+          </Grid>
+        </Grid>
+        {!DISABLE_NODE_EDGE_EDIT ? (
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            paddingTop={2}
+          >
+            <Button variant='contained' onClick={() => setOpenAddProperty(true)}>
+              Add Property
+            </Button>
+          </Grid>
+        ) : <></>
+        }
+        <Dialog
+          open={openAddProperty}
+          onClose={onCancelAddProperty}
+          PaperProps={{
+            component: 'form',
+            onSubmit: onConfirmAddProperty,
+          }}>
+          <DialogTitle>Add Property</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item>
+                <TextField
+                  autoFocus
+                  required
+                  margin="dense"
+                  id="propertyName"
+                  label="Property Name"
+                  variant="standard"
+                  onChange={e => setAddPropertyName(e.target.value)}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  required
+                  margin="dense"
+                  id="propertyValue"
+                  label="Property Value"
+                  variant="standard"
+                  onChange={e => setAddPropertyValue(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button variant='outlined' onClick={onCancelAddProperty}>Cancel</Button>
+            <Button type='submit' variant='contained'>Add</Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    ) ||
+    (<Grid item xs={12} sm={12} md={12}>
+      <Grid container>
+        <Typography>No Nodes Selected</Typography>
       </Grid>
-    </div>
-  );
-};
+    </Grid>)
+
+}

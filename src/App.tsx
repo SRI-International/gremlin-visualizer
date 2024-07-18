@@ -1,21 +1,42 @@
-import React from 'react';
-import { Grid } from '@mui/material';
+import React, { useState } from 'react';
 import { NetworkGraphComponent } from './components/NetworkGraph/NetworkGraphComponent';
 import { HeaderComponent } from './components/Header/HeaderComponent';
-import { DetailsComponent } from './components/Details/DetailsComponent';
+import { SidebarComponent } from './components/Details/SidebarComponent';
+import { ModalDialogComponent } from './components/ModalDialog/ModalDialogComponent';
 
-export const App = () => (
-  <div>
-    <Grid container spacing={1}>
-      <Grid item xs={12} sm={12} md={12}>
-        <HeaderComponent />
-      </Grid>
-      <Grid item xs={12} sm={9} md={9}>
-        <NetworkGraphComponent />
-      </Grid>
-      <Grid item xs={12} sm={3} md={3}>
-        <DetailsComponent />
-      </Grid>
-    </Grid>
-  </div>
-);
+export const App = () => {
+
+  const [panelWidth, setPanelWidth] = useState(350);
+
+   const handlePanelDragSelect = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    document.addEventListener('mousemove', handlePanelDrag)
+    document.addEventListener('mouseup', handlePanelDragUnselect)
+    document.body.style.userSelect = 'none'
+  }
+
+  const handlePanelDrag = (event: MouseEvent) => {
+    let offsetRight =
+      document.body.offsetWidth - (event.clientX - document.body.offsetLeft) + 20;
+    let minWidth = 50;
+    let maxWidth = document.body.offsetWidth;
+    if (offsetRight > minWidth && offsetRight < maxWidth) {
+      setPanelWidth(offsetRight);
+    }
+  }
+
+  const handlePanelDragUnselect = () => {
+    document.removeEventListener('mousemove', handlePanelDrag)
+    document.removeEventListener('mouseup', handlePanelDragUnselect)
+    document.body.style.userSelect = 'auto'
+  }
+
+  return (
+    <div>
+      <HeaderComponent />
+      <NetworkGraphComponent panelWidth={panelWidth} />
+      <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} />
+      <ModalDialogComponent />
+    </div>
+  );
+
+}

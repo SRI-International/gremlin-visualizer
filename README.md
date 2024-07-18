@@ -1,14 +1,12 @@
 # Gremlin-Visualizer
-This project is to visualize the graph network corresponding to a gremlin query.
+This project is to visualize and edit the graph network corresponding to a gremlin query.
 
-![alt text](https://raw.githubusercontent.com/prabushitha/Readme-Materials/master/Gremlin-Visualizer.png)
-
-### Setting Up Gremlin Visualizer
-To setup gremlin visualizer, you need to have `node.js` and `npm` installed in your system.
+## Setting Up Gremlin Visualizer
+To set up gremlin visualizer, you need to have `node.js` and `npm` installed in your system.
 
 * Clone the project
 ```sh
-git clone https://github.com/prabushitha/gremlin-visualizer.git
+git clone https://github.com/SRI-International/gremlin-visualizer.git
 ```
 * Install dependencies
 ```sh
@@ -23,9 +21,9 @@ npm start
 http://localhost:3000
 ```
 
-Note - Frontend starts on port 3000 and simple Node.js server also starts on port 3001. If you need to change the ports, configure in `package.json`, `proxy-server.js`, `src/constants` 
+Note - Frontend starts on port 3000 and simple Node.js server also starts on port 3001. If you need to change the ports, configure in `package.json`, `proxy-server.js`, `src/constants.js` 
 
-#### Setting up with Docker
+### Setting up with Docker
 
 You can build a Docker image of the gremlin visualizer with the included `Dockerfile`.
 This will use the current version of the `master` branch of the source GitHub repository.
@@ -34,8 +32,6 @@ The Docker image can be built by calling the `docker build` command, for example
 ```sh
 docker build --tag=gremlin-visualizer:latest .
 ```
-
-The image can also be downloaded from Docker hub: [`prabushitha/gremlin-visualizer:latest`](https://hub.docker.com/r/prabushitha/gremlin-visualizer).
 
 ```sh
 docker pull prabushitha/gremlin-visualizer:latest
@@ -46,30 +42,61 @@ The Docker image can then be run by calling `docker run` and exposing the necess
 ```sh
 # if you built the image yourself
 docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --network=host gremlin-visualizer:latest
-# if you downloaded from Docker Hub
-docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --network=host prabushitha/gremlin-visualizer:latest
 ```
 Note that `--network=host` is not needed if you don't run your gremlin server in the host machine. 
 
 The Docker container can be stopped by calling `docker stop gremlin-visualizer`.
 
-### Usage
+## Usage
 * Start Gremlin-Visualizer as mentioned above
 * Start or tunnel a gremlin server
 * Specify the host and port of the gremlin server
-* Write an gremlin query to retrieve a set of nodes (eg. `g.V()`)
+* Write a gremlin query to retrieve a set of nodes (eg. `g.V()`)
 
-### Features
+### Adding Nodes and Edges
+Shift-clicking in empty space will open a dialog to add a new node to the graph.
+
+Shift-click-drag between two nodes will add an edge.
+
+### Adding Custom Icons
+Add icons into the src/assets/icons folder.
+Edit src/assets/icons.ts to add a mapping for node type to icon.
+
+Example:
+```typescript
+const icons: Record<string, string> = {
+  person: require("./icons/person.jpg"),
+};
+```
+This would render person.jpg for all nodes with the 'person' type label. Capitalization matters.
+
+### Custom Node Labels
+To configure the initial displayed node labels, edit INITIAL_LABEL_MAPPINGS in src/constants.js.
+Maps the value of the given node property to the display label of the given node type.
+Example:
+```typescript
+export const INITIAL_LABEL_MAPPINGS = {
+  person: 'name'
+}
+```
+This would set the default display label to the name property on nodes with type 'person'. Capitalization matters.
+
+### Changing Graph Visualization Implementation
+The graph can be rendered with vis-network, cytoscapejs, or sigmajs.
+The default is vis-network.
+To change the graph implementation, edit src/constants.js and change GRAPH_IMPL.
+The possible values are 'vis', 'cytoscape', or 'sigma'.
+Available layouts algorithms are specific to each graph implementation.
+
+## Features
 * If you don't clear the graph and execute another gremlin query, results of previous query and new query will be merged and be shown.
 * Node and edge properties are shown once you click on a node/edge
 * Change the labels of nodes to any property
 * View the set of queries executed to generate the graph
 * Traverse in/out from the selected node
-
-### 
-## Contributors
-* Umesh Jayasinghe (Github: prabushitha)
-
-## Something Missing?
-
-If you have new ideas to improve please create a issue and make a pull request
+* Edit, add, or remove properties to existing nodes and edges
+* Add new nodes and edges
+* Change layout algorithm
+* Save and restore node positions into layout
+* Customize node icons and labels base on node types
+* Vis-network, cytoscape, and sigma graph rendering engines
