@@ -13,7 +13,8 @@ let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
 let shiftKeyDown = false;
-let canvas: CanvasRenderingContext2D | null = null;
+let savedSelectedNode: null | Id = null;
+let savedSelectedEdge: null | Id = null;
 
 
 const defaultOptions: Options = {
@@ -196,6 +197,8 @@ function curveEdges(edges: DataSet<Edge>) {
 function highlightNodesAndEdges(node: any, edge: any) {
   const selectedNode = node;
   const selectedEdge = edge;
+  savedSelectedNode = node;
+  savedSelectedEdge = edge;
   const allNodesToUpdate: any = [];
   const allEdgesToUpdate: any = [];
 console.log("highlightentered")
@@ -322,6 +325,9 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     if (options) {
       network.setOptions(getOptions(options));
     }
+
+      highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
+  
 
     return network;
   }
