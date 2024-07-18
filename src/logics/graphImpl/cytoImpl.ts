@@ -1,4 +1,3 @@
-/// @ts-nocheck
 import cy, { NodeDefinition } from "cytoscape";
 import edgehandles from 'cytoscape-edgehandles';
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
@@ -76,11 +75,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         },
         {
           selector: 'node.semitransp',
-          style: { 'opacity': '0.5' }
+          style: { 'opacity': 0.5 }
         },
         {
           selector: 'edge.semitransp',
-          style: { 'opacity': '0.3' }
+          style: { 'opacity': 0.3 }
         },
         {
           selector: 'edge',
