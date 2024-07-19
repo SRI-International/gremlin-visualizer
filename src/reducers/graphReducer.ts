@@ -93,10 +93,7 @@ const slice = createSlice({
       return state;
     },
     refreshNodeLabels: (state, action) => {
-      console.log(state);
-      console.log("ME")
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
-      console.log(JSON.stringify(action.payload, null, 2));
       state.nodes = state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
@@ -104,7 +101,6 @@ const slice = createSlice({
           if (label === undefined)
             return { ...node, ...{ label: defaultNodeLabel(node) } }
           else
-          console.log(JSON.stringify(node, null, 2));
             return { ...node, label };
         }
       
