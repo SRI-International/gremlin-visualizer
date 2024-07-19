@@ -145,20 +145,19 @@ export const Settings = () => {
   const [workspaceSaveName, setWorkspaceSaveName] = useState<string>('');
   const [workspaceSaveNameConflict, setWorkspaceSaveNameConflict] = useState(false);
 
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      try {
-        const response = await axios.get(WORKSPACE_ENDPOINT);
-        if (Array.isArray(response.data)) {
-          setWorkspaces(response.data);
-        } else {
-          console.error('Response data is not an array');
-        }
-      } catch (error) {
-        console.error('Error loading workspaces:', error);
+  const fetchWorkspaces = async () => {
+    try {
+      const response = await axios.get(WORKSPACE_ENDPOINT);
+      if (Array.isArray(response.data)) {
+        setWorkspaces(response.data);
+      } else {
+        console.error('Response data is not an array');
       }
-    };
-
+    } catch (error) {
+      console.error('Error loading workspaces:', error);
+    }
+  };
+  useEffect(() => {
     fetchWorkspaces();
   }, []);
   function onHostChanged(host: string) {
@@ -254,6 +253,9 @@ export const Settings = () => {
       WORKSPACE_ENDPOINT,
       savedWorkspace
     )
+    .then((_response) => {
+      fetchWorkspaces();
+    })
     .catch((error) => {
       const errorMessage = error.response?.data?.message || error.message
     });
