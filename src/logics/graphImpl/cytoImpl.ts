@@ -7,9 +7,10 @@ import { setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
+import dagre from 'cytoscape-dagre';
 
 let shiftKeyDown = false;
-export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'grid']
+export const layoutOptions = ['force-directed', 'hierarchical', 'circle', 'concentric', 'grid', 'breadthfirst']
 let graph: cy.Core | null = null;
 let layout: cy.Layouts | null = null;
 let layoutName: string = 'force-directed'
@@ -24,6 +25,7 @@ const opts: ColaLayoutOptions = {
 
 cy.use(cola)
 cy.use(edgehandles)
+cy.use(dagre)
 
 
 function toCyNode(n: NodeData): cy.NodeDefinition {
@@ -183,12 +185,22 @@ export function applyLayout(name: string) {
       break
     }
     case 'circle': {
-      layout = graph.layout({ name: "circle" })
+      layout = graph.layout({ name: "circle", fit: true })
       store.dispatch(setIsPhysicsEnabled(false))
       break
     }
     case 'hierarchical': {
-      layout = graph.layout({ name: "breadthfirst" })
+      layout = graph.layout({ name: "dagre" })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'concentric': {
+      layout = graph.layout({ name: "concentric" })
+      store.dispatch(setIsPhysicsEnabled(false))
+      break
+    }
+    case 'breadthfirst': {
+      layout = graph.layout({ name: "breadthfirst", fit: true })
       store.dispatch(setIsPhysicsEnabled(false))
       break
     }
@@ -243,8 +255,7 @@ export function zoomOut() {
 }
 
 export function fitTo() {
-  graph?.reset();
-  graph?.center();
+  graph?.fit()
 }
 
 export function exportIMG() {

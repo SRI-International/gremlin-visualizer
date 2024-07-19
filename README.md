@@ -33,17 +33,13 @@ The Docker image can be built by calling the `docker build` command, for example
 docker build --tag=gremlin-visualizer:latest .
 ```
 
-```sh
-docker pull prabushitha/gremlin-visualizer:latest
-```
-
 The Docker image can then be run by calling `docker run` and exposing the necessary ports for communication. See [Docker's documentation](https://docs.docker.com/engine/reference/commandline/run/) for more options on how to run the image.
 
 ```sh
-# if you built the image yourself
-docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --network=host gremlin-visualizer:latest
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --add-host=host.docker.internal:host-gateway gremlin-visualizer:latest
 ```
-Note that `--network=host` is not needed if you don't run your gremlin server in the host machine. 
+Note that `--add-host=host.docker.internal:host-gateway` is not needed if you don't run your gremlin server in the host machine. 
+If trying to access a gremlin server on `localhost`, set `host.docker.internal` in the gremlin-visualizer settings instead.
 
 The Docker container can be stopped by calling `docker stop gremlin-visualizer`.
 

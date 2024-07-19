@@ -15,6 +15,7 @@ const edges = new DataSet<Edge>({})
 let shiftKeyDown = false;
 let canvas: CanvasRenderingContext2D | null = null;
 
+
 const defaultOptions: Options = {
   manipulation: {
     addEdge: function (data: any, _callback: any) {
@@ -82,9 +83,18 @@ function getOptions(options?: GraphOptions): Options {
       curveEdges(edges);
     } else {
       edges.forEach(x => {
-        network?.updateEdge(x.id!, { smooth: opts.edges?.smooth })
-      })
+        // vis does not provide a batch edge update method, so we must manually update the edges using internal api to
+        // avoid many unnecessary redraws that kills performance
+        const allEdgeIds = (network as any).getClusteredEdges(x.id!);
+        for (let i = 0; i < allEdgeIds.length; i++) {
+          const edge = (network as any).body.edges[allEdgeIds[i]];
+          edge.setOptions({ smooth: opts.edges?.smooth });
+        }
+      });
+      // trigger redraw
+      (network as any)?.body.emitter.emit("_dataChanged");
     }
+
     switch (options.layout) {
       case 'force-directed': {
         opts.layout = { hierarchical: false }
@@ -156,43 +166,73 @@ function curveEdges(edges: DataSet<Edge>) {
   edges.get().forEach(x => {
     const key = String([x.to!, x.from!])
     const reverseKey = String([x.from!, x.to!])
-    const roundness = getCurvature(Math.abs(edgeCount.get(x.id)!), map.get(key)! + (map.get(reverseKey) || 0))
-    const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
-    network?.updateEdge(x.id, {
-      ...x,
-      smooth: {
-        enabled: true,
-        type: type,
-        roundness: roundness
+    const edgeCountGet = edgeCount.get(x.id)
+    const mapGetKey = map.get(key)
+    const mapGetReverse = map.get(reverseKey)
+
+    if (edgeCountGet !== 1 || mapGetKey !== 1) {
+      const roundness = getCurvature(Math.abs(edgeCountGet!), mapGetKey! + (mapGetReverse || 0))
+      const type = edgeCount.get(x.id)! < 0 ? 'curvedCW' : 'curvedCCW'
+      // vis does not provide a batch edge update method, so we must manually update the edges using internal api to
+      // avoid many unnecessary redraws that kills performance
+      const allEdgeIds = (network as any).getClusteredEdges(x.id!);
+      for (let i = 0; i < allEdgeIds.length; i++) {
+        const edge = (network as any).body.edges[allEdgeIds[i]];
+        edge.setOptions({
+          ...x,
+          smooth: {
+            enabled: true,
+            type: type,
+            roundness: roundness
+          }
+        });
       }
-    })
-  })
+    }
+  });
+  // trigger the redraw
+  (network as any)?.body.emitter.emit("_dataChanged");
 }
 
 export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+  let updateNodesArray = [];
+  let addNodesArray = [];
+  let addEdgesArray = [];
+  let removeNodesArray = [];
+  let removeEdgesArray = [];
+
   if (network) {
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
-        nodes.add(toVisNode(n))
+        addNodesArray.push(toVisNode(n))
       } else {
-        nodes.update(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
+        updateNodesArray.push(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
     }
+    nodes.add(addNodesArray);
+    nodes.update(updateNodesArray);
+
     for (let e of edges.stream().keys()) {
       if (!data?.edges.map(x => x.id).includes(e)) {
-        edges.remove(e)
+        removeEdgesArray.push(e);
       }
     }
+    edges.remove(removeEdgesArray);
+
     for (let e of data?.edges || []) {
       if (!edges!.get(e.id as Id) && nodes.map(x => x.id).includes(e.to)) {
-        edges.add(toVisEdge(e))
+        addEdgesArray.push(toVisEdge(e))
       }
     }
+    edges.add(addEdgesArray);
+
+
     for (let n of nodes.stream().keys()) {
       if (!data?.nodes.map(x => x.id).includes(n)) {
-        nodes.remove(n)
+        removeNodesArray.push(n);
       }
     }
+    nodes.remove(removeNodesArray);
+
     if (options) {
       network.setOptions(getOptions(options));
     }
@@ -231,12 +271,13 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         store.dispatch(openNodeDialog({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
       }
     });
+
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Shift' && shiftKeyDown !== true) {
-          shiftKeyDown = true;
-          network!.addEdgeMode();
-        }
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        network!.addEdgeMode();
       }
+    }
     );
     document.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -244,11 +285,8 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
         network!.disableEditMode();
       }
     });
-    network.on('afterDrawing', (ctx: CanvasRenderingContext2D) => {
-      canvas = ctx;
-    });
-
   }
+
 
   return network;
 }

@@ -5,7 +5,7 @@ import {
 } from '../../reducers/graphReducer';
 import { selectOptions, setIsPhysicsEnabled } from '../../reducers/optionReducer';
 import { Box, Button, ButtonGroup, Fab, IconButton, Switch, Tooltip } from "@mui/material";
-import { getControls, getGraph} from "../../logics/graph";
+import { getControls, getGraph } from "../../logics/graph";
 import { GraphTypes } from "../../logics/utils";
 import { Add, CenterFocusStrong, Remove } from '@mui/icons-material';
 import { Network } from 'vis-network';
@@ -25,7 +25,7 @@ type BasicProps = {
 const ButtonGroupIconButton = React.forwardRef(({ ...props }: BasicProps, _ref) => {
 
   const { disableElevation, fullWidth, variant, ...iconButtonProps } = props;
-  return <IconButton {...iconButtonProps}/>;
+  return <IconButton {...iconButtonProps} />;
 });
 
 const GraphControls = () => {
@@ -46,18 +46,18 @@ const GraphControls = () => {
       className={"graph-controls"}
     >
       {controls.map((button, _index) => (
-        <Tooltip title = {button.name}>
+        <Tooltip title={button.name}>
           <ButtonGroupIconButton onClick={button.callback}>
-            <button.icon/>
+            <button.icon />
           </ButtonGroupIconButton>
         </Tooltip>
       ))
-      } 
-    <Tooltip title="Toggle Physics">
-      <ButtonGroupIconButton onClick = {handleTogglePhysics()}>
-      {graphOptions.isPhysicsEnabled && <StopIcon/> || <PlayArrowIcon/>}
-      </ButtonGroupIconButton>
-    </Tooltip>
+      }
+      <Tooltip title="Toggle Physics">
+        <ButtonGroupIconButton onClick={handleTogglePhysics()}>
+          {graphOptions.isPhysicsEnabled && <StopIcon /> || <PlayArrowIcon />}
+        </ButtonGroupIconButton>
+      </Tooltip>
     </ButtonGroup>
   );
 };
@@ -68,8 +68,11 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { graphOptions } = useSelector(selectOptions);
   const myRef = useRef(null);
 
+
+
   useEffect(() => {
     if (myRef.current != null) {
+
       getGraph(
         myRef.current,
         { nodes, edges },
@@ -78,10 +81,10 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
     }
   }, [nodes, edges, graphOptions]);
 
-  return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)`, position:'relative' }}>
+  return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' }}>
     <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
     <Box sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1000 }}>
-    {!(nodes.length === 0) && !(edges.length === 0) && <GraphControls />}
-  </Box>
+      <GraphControls />
+    </Box>
   </Box>;
 };
