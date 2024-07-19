@@ -13,6 +13,7 @@ import { animateNodes } from "sigma/utils";
 import { EdgeArrowProgram } from "sigma/rendering";
 import { DEFAULT_EDGE_CURVATURE, EdgeCurvedArrowProgram, indexParallelEdgesIndex } from "@sigma/edge-curve";
 import FileSaver from "file-saver";
+import { EdgeDisplayData, NodeDisplayData } from "sigma/types";
 
 
 export const layoutOptions = ['force-directed', 'circular']
@@ -48,12 +49,69 @@ function createSigmaGraph(container: HTMLElement) {
       })
     },
   });
+
+  let selectedNode: string | undefined;
+  let selectedEdge: string | undefined;
+  let nodesOfSelectedEdge: { source: string, target: string } | undefined;
+  let selectedNeighbors: Set<string> | undefined;
+
   sigma.on("clickEdge", e => {
     store.dispatch(setSelectedEdge(e.edge))
+    selectNode(undefined);
+    selectEdge(e.edge);
+
   })
   sigma.on("clickNode", (e) => {
     store.dispatch(setSelectedNode(e.node))
   });
+
+  sigma.setSetting("nodeReducer", (node, data) => {
+    const res: Partial<NodeDisplayData> = { ...data };
+    if ((selectedNode && selectedNode !== node && (selectedNeighbors && !selectedNeighbors.has(node))) ||
+      (!selectedNode && (nodesOfSelectedEdge && nodesOfSelectedEdge.source !== node && nodesOfSelectedEdge.target !== node))
+    ) {
+      res.color = "#b4b8bf";
+    }
+    if (selectedNode === node || (nodesOfSelectedEdge && (nodesOfSelectedEdge.source === node || nodesOfSelectedEdge.target === node)) || (selectedNeighbors && selectedNeighbors.has(node))) {
+      res.highlighted = true;
+    }
+    return res;
+  });
+
+  sigma.setSetting("edgeReducer", (edge, data) => {
+    const res: Partial<EdgeDisplayData> = { ...data };
+    if ((selectedEdge && selectedEdge !== edge) || (selectedNode && !graph.hasExtremity(edge, selectedNode))) {
+      res.color = "#b5b8bd";
+      res.size = 2;
+    }
+    return res;
+  });
+
+  function selectNode(node?: string) {
+    if (node) {
+      selectedNode = node;
+      selectedNeighbors = new Set(graph.neighbors(node));
+    }
+    else if (!node) {
+      selectedNode = undefined;
+      selectedNeighbors = undefined;
+    }
+    sigma.refresh();
+  }
+
+  function selectEdge(edge?: string) {
+    if (edge) {
+      const [source, target] = graph.extremities(edge);
+      nodesOfSelectedEdge = { source: source, target: target };
+      selectedEdge = edge;
+    }
+    else if (!edge) {
+      selectedEdge = undefined;
+      nodesOfSelectedEdge = undefined;
+    }
+    sigma.refresh();
+  }
+
 
   // State for drag'n'drop
   let draggedNode: string | null = null;
@@ -77,6 +135,8 @@ function createSigmaGraph(container: HTMLElement) {
       isDragging = true;
       draggedNode = e.node;
       graph!.setNodeAttribute(draggedNode, "highlighted", true);
+      selectEdge(undefined);
+      selectNode(e.node);
     }
     sigmaLayout?.stop()
     store.dispatch(setIsPhysicsEnabled(false))
@@ -128,12 +188,18 @@ function createSigmaGraph(container: HTMLElement) {
     if (jsEvent.shiftKey && !draggingEdge) {
       store.dispatch(openNodeDialog({ x: params.event.x, y: params.event.y }));
     }
+    else if (selectedNode || selectedNeighbors) {
+      selectNode(undefined);
+    }
+    else if (selectedEdge || nodesOfSelectedEdge) {
+      selectEdge(undefined);
+    }
   });
   document.addEventListener('keydown', function (e) {
-      if (e.key === 'Shift' && shiftKeyDown !== true) {
-        shiftKeyDown = true;
-      }
+    if (e.key === 'Shift' && shiftKeyDown !== true) {
+      shiftKeyDown = true;
     }
+  }
   );
   document.addEventListener('keyup', function (e) {
     if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -152,23 +218,23 @@ function curveEdges(graph: Graph) {
     edgeMaxIndexAttribute: "parallelMaxIndex",
   });
   graph.forEachEdge((edge, { parallelIndex, parallelMinIndex, parallelMaxIndex, }:
-      | { parallelIndex: number; parallelMinIndex?: number; parallelMaxIndex: number }
-      | { parallelIndex?: null; parallelMinIndex?: null; parallelMaxIndex?: null },
-    ) => {
-      if (typeof parallelMinIndex === "number") {
-        graph.mergeEdgeAttributes(edge, {
-          type: parallelIndex ? "curved" : "straight",
-          curvature: getCurvature(parallelIndex, parallelMaxIndex),
-        });
-      } else if (typeof parallelIndex === "number") {
-        graph.mergeEdgeAttributes(edge, {
-          type: "curved",
-          curvature: getCurvature(parallelIndex, parallelMaxIndex),
-        });
-      } else {
-        graph.setEdgeAttribute(edge, "type", "straight");
-      }
-    },
+    | { parallelIndex: number; parallelMinIndex?: number; parallelMaxIndex: number }
+    | { parallelIndex?: null; parallelMinIndex?: null; parallelMaxIndex?: null },
+  ) => {
+    if (typeof parallelMinIndex === "number") {
+      graph.mergeEdgeAttributes(edge, {
+        type: parallelIndex ? "curved" : "straight",
+        curvature: getCurvature(parallelIndex, parallelMaxIndex),
+      });
+    } else if (typeof parallelIndex === "number") {
+      graph.mergeEdgeAttributes(edge, {
+        type: "curved",
+        curvature: getCurvature(parallelIndex, parallelMaxIndex),
+      });
+    } else {
+      graph.setEdgeAttribute(edge, "type", "straight");
+    }
+  },
   );
 }
 
@@ -230,9 +296,10 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     for (let element of data.edges) {
       if (!graph.edges().includes(element.id!.toString()) && graph.nodes().includes(element.to!.toString())) {
         graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
-          size: 2,
+          size: 3,
           type: 'arrow',
-          label: element.label
+          label: element.label,
+          color: "#7d7f82"
         })
       }
     }
