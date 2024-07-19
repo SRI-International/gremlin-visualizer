@@ -25,7 +25,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addNodeLabel,
@@ -38,12 +38,13 @@ import {
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { addWorkspace, refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
+import { addWorkspace, refreshNodeLabels, selectGraph, Workspace } from "../../reducers/graphReducer";
 import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
-import { GRAPH_IMPL } from "../../constants";
+import { GRAPH_IMPL, WORKSPACE_ENDPOINT } from "../../constants";
 import { type } from "os";
 import { selectDialog } from "../../reducers/dialogReducer";
 import { DIALOG_TYPES } from "../../components/ModalDialog/ModalDialogComponent";
+import axios from 'axios';
 
 
 
@@ -131,18 +132,35 @@ const NodeLabelList = ({ nodeLabels }: NodeLabelListProps) => {
   );
 };
 
+
 export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-  const workspaces = useSelector(selectGraph).workspaces
-
+  // const workspaces = useSelector(selectGraph).workspaces
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loadWorkspace, setLoadWorkspace] = useState(false);
   const [saveWorkspace, setSaveWorkspace] = useState(false);
   const [workspaceToLoad, setWorkspaceToLoad] = useState<string>('');
   const [workspaceSaveName, setWorkspaceSaveName] = useState<string>('');
   const [workspaceSaveNameConflict, setWorkspaceSaveNameConflict] = useState(false);
 
+  useEffect(() => {
+    const fetchWorkspaces = async () => {
+      try {
+        const response = await axios.get(WORKSPACE_ENDPOINT);
+        if (Array.isArray(response.data)) {
+          setWorkspaces(response.data);
+        } else {
+          console.error('Response data is not an array');
+        }
+      } catch (error) {
+        console.error('Error loading workspaces:', error);
+      }
+    };
+
+    fetchWorkspaces();
+  }, []);
   function onHostChanged(host: string) {
     dispatch(setHost(host));
   }
@@ -185,8 +203,9 @@ export const Settings = () => {
     setWorkspaceToLoad(event.target.value);
   }
 
-  function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
-    event.preventDefault()
+  async function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault();
+    console.log(workspaces);
     let workspace = workspaces.find(workspace => workspace.name === workspaceToLoad)
     setNodePositions(workspace)
     onCancelLoadWorkspace()
@@ -198,6 +217,8 @@ export const Settings = () => {
   }
 
   function loadWorkspaceOptions() {
+    // const workspaces = await axios.get(WORKSPACE_ENDPOINT) as Workspace[];
+    console.log(workspaces);
     const workspaceOptions = workspaces.filter(workspace => workspace.impl === GRAPH_IMPL);
     if (workspaceOptions.length > 0) return workspaceOptions.map(workspace => {
       return <MenuItem key={workspace.name} value={workspace.name}>{workspace.name}</MenuItem>;
@@ -212,7 +233,7 @@ export const Settings = () => {
   }
 
   function onConfirmSaveWorkspace(event: { preventDefault: () => void; }) {
-    event.preventDefault()
+    event.preventDefault();
     if (workspaces.find(workspace => workspace.name == workspaceSaveName)) {
       setWorkspaceSaveNameConflict(true)
       return;
@@ -227,7 +248,15 @@ export const Settings = () => {
       impl: GRAPH_IMPL,
       ...getNodePositions()
     }
-    dispatch(addWorkspace(savedWorkspace))
+    // dispatch(addWorkspace(savedWorkspace))
+    axios
+    .post(
+      WORKSPACE_ENDPOINT,
+      savedWorkspace
+    )
+    .catch((error) => {
+      const errorMessage = error.response?.data?.message || error.message
+    });
     onCancelSaveWorkspace()
   }
 

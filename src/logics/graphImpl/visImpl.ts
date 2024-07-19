@@ -194,7 +194,7 @@ function curveEdges(edges: DataSet<Edge>) {
   (network as any)?.body.emitter.emit("_dataChanged");
 }
 
-function highlightNodesAndEdges(node: any, edge: any) {
+export function highlightNodesAndEdges(node: any, edge: any) {
   savedSelectedNode = node;
   savedSelectedEdge = edge;
   const allNodesToUpdate: any = [];
@@ -318,10 +318,12 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     if (options) {
       network.setOptions(getOptions(options));
     }
-
-    highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
-
-
+    if (nodes.length == 0) {
+      highlightNodesAndEdges(null, null);
+    }
+    else {
+      highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
+    }
     return network;
   }
 
