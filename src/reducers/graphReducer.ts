@@ -12,7 +12,7 @@ export type Workspace = {
   view: { x: number, y: number }
 }
 
-type GraphState = {
+export type GraphState = {
   nodes: NodeData[];
   edges: EdgeData[];
   selectedNode?: NodeData;
@@ -43,7 +43,6 @@ const slice = createSlice({
       return state;
     },
     addNodes: (state, action) => {
-      console.log('addNodes');
       state = Object.assign({}, state);
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
@@ -94,7 +93,10 @@ const slice = createSlice({
       return state;
     },
     refreshNodeLabels: (state, action) => {
+      console.log(state);
+      console.log("ME")
       const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
+      console.log(JSON.stringify(action.payload, null, 2));
       state.nodes = state.nodes.map((node: any) => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];
@@ -102,8 +104,10 @@ const slice = createSlice({
           if (label === undefined)
             return { ...node, ...{ label: defaultNodeLabel(node) } }
           else
+          console.log(JSON.stringify(node, null, 2));
             return { ...node, label };
         }
+      
         return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },

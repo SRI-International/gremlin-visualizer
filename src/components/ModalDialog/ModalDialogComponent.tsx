@@ -180,7 +180,6 @@ export const ModalDialogComponent = () => {
         { headers: { 'Content-Type': 'application/json' } }
       )
       .then((response) => {
-        console.log(JSON.stringify(response, null, 2));
         const addedElement = isNodeDialog ? [{ ...response.data[0], x, y }] : response.data
         manualAddElement(isNodeDialog, addedElement, nodeLabels, dispatch);
       })

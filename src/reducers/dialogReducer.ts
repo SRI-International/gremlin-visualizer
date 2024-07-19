@@ -57,7 +57,6 @@ const slice = createSlice({
       state.dialogType = action.payload;
     },
     setSuggestions: (state, action) => {
-      console.log("setSuggestions");
       const suggestions = action.payload as Suggestions;
 
       Object.entries(suggestions).forEach(([dialogType, elementSuggestions]) => {
