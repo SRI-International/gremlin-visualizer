@@ -1,15 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SidebarComponent } from '../../../src/components/Details/SidebarComponent';
 import userEvent from '@testing-library/user-event';
-import { defaultNodeLabel, EdgeData, NodeData } from "../../../src/logics/utils";
+import { EdgeData, NodeData } from "../../../src/logics/utils";
 import { setupStore } from "../../../src/app/store";
 import axios from 'axios';
-import { EDGE_ID_APPEND, QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../../src/constants';
-import { setNodePositions } from '../../../src/logics/graph';
 import { addNodes, addEdges } from '../../../src/reducers/graphReducer'
 
 
@@ -150,9 +148,6 @@ const edges = [
         "type": "knows"
     }
 ]
-const nodesDummy: NodeData[] = [{ id: 1, label: 'Bob', properties: { name: "Bob", age: "21" }, edges: [], type: 'person', x: 0, y: 0 }];
-const edgesDummy: EdgeData[] = [{ id: 1, from: 2, to: 3, label: 'created', properties: { name: "dummy edge", age: "0" }, type: 'created' }];
-// Replace SAVED_QUERIES import in SavedQueries component with customQueries for testing
 jest.mock('../../../src/constants', () => ({
     INITIAL_LABEL_MAPPINGS: {
         person: 'name'
@@ -161,73 +156,26 @@ jest.mock('../../../src/constants', () => ({
 
 }));
 
-type State = {
-    gremlin: {
-        host: string;
-        port: string;
-        query: string;
-    };
-    options: {
-        nodeLabels: string[];
-        nodeLimit: number;
-        queryHistory: string[];
-    };
-    graph: {
-        selectedNode: NodeData | null;
-        selectedEdge: EdgeData | null;
-        nodes: NodeData[],
-        edges: NodeData[],
-    };
-
-
-};
-
-const initialState: State = {
-    gremlin: {
-        host: 'localhost',
-        port: '8182',
-        query: 'g.V()'
-    },
-    options: {
-        nodeLabels: [],
-        nodeLimit: 50,
-        queryHistory: []
-    },
-
-    graph: {
-        selectedNode: null,
-        selectedEdge: null,
-        nodes: [],
-        edges: [],
-    }
-};
-
-
 test("dispatch nodes and edges and confirm Bob and Max appears in table", async () => {
     let user = userEvent.setup();
-    const mockStore = configureStore();
     let store = setupStore({});
     jest.spyOn(store, 'dispatch');
     store.dispatch(addNodes(nodes));
     store.dispatch(addEdges(edges));
     const mockedAxios = axios as jest.Mocked<typeof axios>;
     mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
-
     render(
         <Provider store={store}>
             <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
         </Provider>
     );
 
-
     const tableTab = screen.getByRole('tab', { name: 'Table View' });
     await user.click(tableTab);
 
     expect(screen.getByText('Ava')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
-
 });
-
 
 test("test that expand row works and shows age", async () => {
     let user = userEvent.setup();
@@ -243,7 +191,6 @@ test("test that expand row works and shows age", async () => {
             <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
         </Provider>
     );
-
 
     const tableTab = screen.getByRole('tab', { name: 'Table View' });
     await user.click(tableTab);
@@ -270,13 +217,11 @@ test("test click sort button twice should sort descending then ascending by name
         </Provider>
     );
 
-
     const tableTab = screen.getByRole('tab', { name: 'Table View' });
     await user.click(tableTab);
 
     const sortButton = screen.getByRole('button', { name: 'Label' });
 
-    // Click the sort label
     await user.click(sortButton);
 
     const headersDescending = screen.getAllByRole('rowheader');
@@ -308,7 +253,6 @@ test("test that rows per page can be set from default(10) to 5", async () => {
         </Provider>
     );
 
-
     const tableTab = screen.getByRole('tab', { name: 'Table View' });
     await user.click(tableTab);
 
@@ -336,7 +280,6 @@ test("dechecking node selects edge and shows 1 edge", async () => {
             <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
         </Provider>
     );
-
 
     const tableTab = screen.getByRole('tab', { name: 'Table View' });
     await user.click(tableTab);

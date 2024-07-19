@@ -26,10 +26,9 @@ jest.mock("axios", () => ({
 }));
 
 const customQueries = {
-    "get node with name marko" : "g.V().has('name', 'marko')",
-    "get person nodes that marko has outgoing edges to" : "g.V().has('name', 'marko').out().hasLabel('person')"
-  }
-// Replace SAVED_QUERIES import in SavedQueries component with customQueries for testing
+    "get node with name marko": "g.V().has('name', 'marko')",
+    "get person nodes that marko has outgoing edges to": "g.V().has('name', 'marko').out().hasLabel('person')"
+}
 jest.mock('../../../src/constants', () => ({
     SAVED_QUERIES: customQueries,
     INITIAL_LABEL_MAPPINGS: []
@@ -52,8 +51,6 @@ type State = {
         nodes: NodeData[],
         edges: NodeData[],
     };
-
-
 };
 
 const initialState: State = {
@@ -76,7 +73,6 @@ const initialState: State = {
     }
 };
 
-
 test("clicking play button for first saved query sends axios", async () => {
     let user = userEvent.setup();
     const mockStore = configureStore();
@@ -97,7 +93,7 @@ test("clicking play button for first saved query sends axios", async () => {
 
     await user.click(firstQueryButton);
 
-    const query =  "g.V().has('name', 'marko')";
+    const query = "g.V().has('name', 'marko')";
     await waitFor(() => {
         expect(mockedAxios.post).toHaveBeenCalledWith(
             QUERY_ENDPOINT,

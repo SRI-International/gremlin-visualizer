@@ -5,13 +5,10 @@ import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import { SidebarComponent } from '../../../src/components/Details/SidebarComponent';
 import userEvent from '@testing-library/user-event';
-import { defaultNodeLabel, EdgeData, NodeData } from "../../../src/logics/utils";
-import { setupStore } from "../../../src/app/store";
+import { EdgeData, NodeData } from "../../../src/logics/utils";
 import axios from 'axios';
 import { EDGE_ID_APPEND, QUERY_ENDPOINT, QUERY_RAW_ENDPOINT } from '../../../src/constants';
-import { Store, AnyAction } from 'redux';
-import { updateNode } from '../../../src/reducers/graphReducer';
-import { onFetchQuery } from '../../../src/logics/actionHelper';
+
 jest.mock('../../../src/logics/graph', () => ({
     applyLayout: jest.fn(),
     getNodePositions: jest.fn(),
@@ -23,11 +20,6 @@ jest.mock("axios", () => ({
     ...jest.requireActual("axios"),
     post: jest.fn(),
 }));
-// jest.mock('../../logics/actionHelper', () => ({
-//     onFetchQuery: jest.fn(),
-//   }));
-
-
 
 const selectedNodeDummy: NodeData = { id: 1, label: 'Bob', properties: { name: "Bob", age: "21" }, edges: [], type: 'person', x: 0, y: 0 };
 const selectedEdgeDummy: EdgeData = { id: 1, from: 2, to: 3, label: 'created', properties: { name: "dummy edge", age: "0" }, type: 'created' };
@@ -48,10 +40,7 @@ type State = {
         nodes: NodeData[],
         edges: NodeData[],
     };
-
-
 };
-
 const initialState: State = {
     gremlin: {
         host: 'localhost',
@@ -72,10 +61,7 @@ const initialState: State = {
     }
 };
 
-
-
 describe('node tests', () => {
-
     test('renders node details correctly', async () => {
         const mockStore = configureStore();
         let store = mockStore(initialState);
@@ -93,8 +79,6 @@ describe('node tests', () => {
         expect(screen.getByText('Bob')).toBeInTheDocument();
         expect(screen.getByText('21')).toBeInTheDocument();
     });
-
-
 
     test("sends axios post to delete a node property", async () => {
         let user = userEvent.setup();
@@ -131,7 +115,6 @@ describe('node tests', () => {
         });
     })
 
-
     test(`clicking "Traverse Out Edges" sends addNodes`, async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
@@ -159,7 +142,6 @@ describe('node tests', () => {
     })
 
 
-
     test(`clicking "Traverse In Edges" sends addNodes`, async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
@@ -178,7 +160,6 @@ describe('node tests', () => {
         const detailsTab = screen.getByRole('tab', { name: 'Details' });
         await user.click(detailsTab);
 
-
         const button = screen.getByRole('button', { name: /Traverse In Edges/i });
         await user.click(button);
         await waitFor(() => {
@@ -187,9 +168,7 @@ describe('node tests', () => {
                 payload: expect.anything()
             }));
         });
-
     })
-
 
     test('node clicking add property and confirming calls axios post with right arguments', async () => {
         let user = userEvent.setup();
@@ -235,20 +214,10 @@ describe('node tests', () => {
                 })
             );
         });
-
-
-
     });
-
-
 })
 
-
-
-
-
 describe("edge tests", () => {
-
     test('renders edge details correctly', async () => {
         const mockStore = configureStore();
         let store = mockStore({ ...initialState, graph: { selectedNode: null, selectedEdge: selectedEdgeDummy } });
@@ -304,8 +273,6 @@ describe("edge tests", () => {
         });
     })
 
-
-
     test('edge clicking add property and confirming calls axios post with right arguments', async () => {
         let user = userEvent.setup();
         const mockStore = configureStore();
@@ -350,9 +317,5 @@ describe("edge tests", () => {
                 })
             );
         });
-
-
-
     });
-
 })

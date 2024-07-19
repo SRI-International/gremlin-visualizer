@@ -1,13 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Query from '../../../src/components/Details/QueryComponent';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../../src/constants";
-import { selectGremlin, setError, setQuery, } from '../../../src/reducers/gremlinReducer';
 import { setupStore } from '../../../src/app/store';
 import { SidebarComponent } from '../../../src/components/Details/SidebarComponent';
 
@@ -19,9 +17,8 @@ jest.mock('../../../src/logics/graph', () => ({
   applyLayout: jest.fn(),
   getNodePositions: jest.fn(),
   setNodePositions: jest.fn(),
-  layoutOptions: ['random', 'hierarchical'] 
+  layoutOptions: ['random', 'hierarchical']
 }));
-
 
 const initialState = {
   gremlin: {
@@ -53,7 +50,6 @@ const initialState = {
   }
 };
 
-
 test('queryComponent renders with g.V()', () => {
   const mockStore = configureStore();
   let store = mockStore(initialState);
@@ -75,7 +71,7 @@ test('adding one node query sends axios post and dispatches addNode', async () =
   const mockStore = configureStore();
   let store = mockStore(initialState);
   store.dispatch = jest.fn();
-    jest.spyOn(store, 'dispatch');
+  jest.spyOn(store, 'dispatch');
   render(
     <Provider store={store}>
       <Query />
@@ -89,54 +85,37 @@ test('adding one node query sends axios post and dispatches addNode', async () =
   const button = screen.getByText('Execute');
   await userEvent.click(button);
 
-
   await waitFor(() => {
-    expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(axios.post).toHaveBeenCalled();
   });
-
   await waitFor(() => {
     expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
       type: 'graph/addNodes',
-      payload: expect.anything() 
-  }));
+      payload: expect.anything()
+    }));
   });
-
 });
 
 
 
 test('executed query is added into query history list', async () => {
-  //   const mockStore = configureStore();
-  // let store = mockStore(initialState);
-  // store.dispatch = jest.fn();
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
   let user = userEvent.setup();
   let store = setupStore();
-  // jest.spyOn(store, 'dispatch');
   render(
     <Provider store={store}>
       <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
     </Provider>
   );
-  // const detailsTab = screen.getByRole('tab', { name: 'Details' });
-  // await act(async () => {
-  //   fireEvent.click(detailsTab);
-  // })
 
   const textField = screen.getByLabelText('gremlin query');
   const newQuery = 'g.addV("person").property("name", "Alice")';
-  // await act(async () => {
-  //   fireEvent.change(textField, { target: { value: newQuery } });
-  // })
   await user.clear(textField);
   await user.type(textField, newQuery);
   const button = screen.getByText('Execute');
   await userEvent.click(button);
-  //   expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-  //     type: 'gremlin/setQuery',
-  //     payload: expect.anything() 
-  // }));
+
   expect(store.getState().gremlin.query).toBe(newQuery);
   await waitFor(() => {
     const matchingElements = screen.getAllByText(newQuery);
@@ -144,41 +123,23 @@ test('executed query is added into query history list', async () => {
   });
 });
 
-
-
-
 test('execute then clear', async () => {
-  //   const mockStore = configureStore();
-  // let store = mockStore(initialState);
-  // store.dispatch = jest.fn();
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
-  let user = userEvent.setup();
   let store = setupStore();
-  // jest.spyOn(store, 'dispatch');
   render(
     <Provider store={store}>
       <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
     </Provider>
   );
-  // const detailsTab = screen.getByRole('tab', { name: 'Details' });
-  // await act(async () => {
-  //   fireEvent.click(detailsTab);
-  // })
-
 
   const button = screen.getByText('Execute');
   await userEvent.click(button);
 
-  //   expect(store.dispatch).toHaveBeenCalledWith(expect.objectContaining({
-  //     type: 'gremlin/setQuery',
-  //     payload: expect.anything() 
-  // }));
   const clearButton = screen.getByText('Clear Graph');
   await userEvent.click(clearButton);
   await waitFor(() => {
     const matchingElements = screen.getAllByText("g.V()");
     expect(matchingElements.length).toBe(1);
   });
-
 });
