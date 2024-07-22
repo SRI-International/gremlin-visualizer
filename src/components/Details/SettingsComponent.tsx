@@ -38,7 +38,7 @@ import {
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { addWorkspace, refreshNodeLabels, selectGraph, Workspace } from "../../reducers/graphReducer";
+import { refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
 import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
 import { GRAPH_IMPL, WORKSPACE_ENDPOINT } from "../../constants";
 import { type } from "os";
@@ -47,6 +47,13 @@ import { DIALOG_TYPES } from "../../components/ModalDialog/ModalDialogComponent"
 import axios from 'axios';
 
 
+export type Workspace = {
+  name: string,
+  impl: string,
+  layout: Record<string, { x: number, y: number }>
+  zoom: number,
+  view: { x: number, y: number }
+}
 
 type NodeLabelListProps = {
   nodeLabels: Array<any>;
@@ -141,9 +148,12 @@ export const Settings = () => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loadWorkspace, setLoadWorkspace] = useState(false);
   const [saveWorkspace, setSaveWorkspace] = useState(false);
+  const [deleteWorkspace, setDeleteWorkspace] = useState(false);
+  const [workspaceToDelete, setWorkspaceToDelete] = useState<string>('');
   const [workspaceToLoad, setWorkspaceToLoad] = useState<string>('');
   const [workspaceSaveName, setWorkspaceSaveName] = useState<string>('');
   const [workspaceSaveNameConflict, setWorkspaceSaveNameConflict] = useState(false);
+  const [workspaceDeleteConfirm, setWorkspaceDeleteConfirm] = useState(false);
 
   const fetchWorkspaces = async () => {
     try {
@@ -204,7 +214,6 @@ export const Settings = () => {
 
   async function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
     event.preventDefault();
-    console.log(workspaces);
     let workspace = workspaces.find(workspace => workspace.name === workspaceToLoad)
     setNodePositions(workspace)
     onCancelLoadWorkspace()
@@ -216,8 +225,6 @@ export const Settings = () => {
   }
 
   function loadWorkspaceOptions() {
-    // const workspaces = await axios.get(WORKSPACE_ENDPOINT) as Workspace[];
-    console.log(workspaces);
     const workspaceOptions = workspaces.filter(workspace => workspace.impl === GRAPH_IMPL);
     if (workspaceOptions.length > 0) return workspaceOptions.map(workspace => {
       return <MenuItem key={workspace.name} value={workspace.name}>{workspace.name}</MenuItem>;
@@ -237,28 +244,44 @@ export const Settings = () => {
       setWorkspaceSaveNameConflict(true)
       return;
     }
-    finishSaveWorkspace(null)
+    finishSaveWorkspace(false, null)
   }
 
-  function finishSaveWorkspace(event: { preventDefault: () => void; } | null) {
+  function finishSaveWorkspace(overwrite: boolean, event: { preventDefault: () => void; } | null) {
     event?.preventDefault()
     let savedWorkspace = {
       name: workspaceSaveName,
       impl: GRAPH_IMPL,
       ...getNodePositions()
     }
-    // dispatch(addWorkspace(savedWorkspace))
-    axios
-    .post(
-      WORKSPACE_ENDPOINT,
-      savedWorkspace
-    )
-    .then((_response) => {
-      fetchWorkspaces();
-    })
-    .catch((error) => {
-      const errorMessage = error.response?.data?.message || error.message
-    });
+    if (!overwrite) {
+      axios
+        .post(
+          WORKSPACE_ENDPOINT,
+          savedWorkspace
+        )
+        .then((_response) => {
+          fetchWorkspaces();
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message
+          console.error(errorMessage);
+        });
+    }
+    else {
+      axios
+        .put(
+          `${WORKSPACE_ENDPOINT}/${workspaceSaveName}`,
+          savedWorkspace
+        )
+        .then((_response) => {
+          fetchWorkspaces();
+        })
+        .catch((error) => {
+          const errorMessage = error.response?.data?.message || error.message
+          console.error(errorMessage);
+        });
+    }
     onCancelSaveWorkspace()
   }
 
@@ -267,6 +290,36 @@ export const Settings = () => {
     setWorkspaceSaveNameConflict(false)
   }
 
+
+  function onCancelDeleteWorkspace() {
+    setDeleteWorkspace(false);
+    setWorkspaceToDelete('');
+    setWorkspaceDeleteConfirm(false);
+  }
+  function onConfirmDeleteWorkspace(event: { preventDefault: () => void; }) {
+    event.preventDefault();
+    setWorkspaceDeleteConfirm(true);
+  }
+
+
+  function onDeleteWorkspace(event: { target: { value: React.SetStateAction<string>; }; }) {
+    setWorkspaceToDelete(event.target.value);
+  }
+  function finishDeleteWorkspace(event: { preventDefault: () => void; } | null) {
+    event?.preventDefault()
+    axios
+      .delete(
+        `${WORKSPACE_ENDPOINT}/${workspaceToDelete}`
+      )
+      .then((_response) => {
+        fetchWorkspaces();
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message || error.message;
+        console.error(errorMessage);
+      });
+    onCancelDeleteWorkspace()
+  }
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={12}>
@@ -352,6 +405,14 @@ export const Settings = () => {
           onClick={() => setLoadWorkspace(true)}
           style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
           Load Workspace
+        </Button>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+        <Button
+          variant='contained'
+          onClick={() => setDeleteWorkspace(true)}
+          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
+          Delete Workspace
         </Button>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
@@ -452,7 +513,7 @@ export const Settings = () => {
         onClose={() => setWorkspaceSaveNameConflict(false)}
         PaperProps={{
           component: 'form',
-          onSubmit: finishSaveWorkspace,
+          onSubmit: (event: any) => finishSaveWorkspace(true, event),
         }}
       >
         <DialogTitle>Workspace Name Conflict</DialogTitle>
@@ -462,6 +523,63 @@ export const Settings = () => {
         </DialogContent>
         <DialogActions>
           <Button variant='outlined' onClick={onCancelSaveWorkspace}>No</Button>
+          <Button type='submit' variant='contained'>Yes</Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+      <Dialog
+        id='deleteWorkspaceDialog'
+        open={deleteWorkspace}
+        onClose={onCancelDeleteWorkspace}
+        PaperProps={{
+          component: 'form',
+          onSubmit: onConfirmDeleteWorkspace,
+        }}
+      >
+        <DialogTitle>Delete Workspace</DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid item>
+              <TextField
+                select
+                required
+                id="workspaceSelect"
+                label="Workspace"
+                margin="dense"
+                variant="standard"
+                value={workspaceToDelete}
+                style={{ width: '300px' }}
+                onChange={onDeleteWorkspace}
+              >
+                {loadWorkspaceOptions()}
+              </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelDeleteWorkspace}>Cancel</Button>
+          <Button type='submit' variant='contained'>Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog
+        id='confirmDeleteWorkspace'
+        open={workspaceDeleteConfirm}
+        onClose={() => setWorkspaceDeleteConfirm(false)}
+        PaperProps={{
+          component: 'form',
+          onSubmit: finishDeleteWorkspace,
+        }}
+      >
+        <DialogTitle>Workspace Name Conflict</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete "{workspaceToDelete}"?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button variant='outlined' onClick={onCancelDeleteWorkspace}>No</Button>
           <Button type='submit' variant='contained'>Yes</Button>
         </DialogActions>
       </Dialog>

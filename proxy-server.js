@@ -14,11 +14,8 @@ app.use(cors({
 // parse application/json
 app.use(bodyParser.json());
 
-
-//----------------------------------------------------------------------------------------------------------------------------
 const workspacesFilePath = path.join(__dirname, 'workspaces.json');
 
-// Helper function to read workspaces from file
 const readWorkspaces = () => {
   if (!fs.existsSync(workspacesFilePath)) {
     fs.writeFileSync(workspacesFilePath, JSON.stringify({ workspaces: [] }));
@@ -27,12 +24,10 @@ const readWorkspaces = () => {
   return JSON.parse(workspacesData).workspaces;
 };
 
-// Helper function to write workspaces to file
 const writeWorkspaces = (workspaces) => {
   fs.writeFileSync(workspacesFilePath, JSON.stringify({ workspaces }, null, 2));
 };
 
-// CRUD Endpoints
 app.post('/workspaces', (req, res) => {
   const workspaces = readWorkspaces();
   const newWorkspace = req.body;
@@ -41,16 +36,15 @@ app.post('/workspaces', (req, res) => {
   res.status(201).send(newWorkspace);
 });
 
-app.get('/workspaces', (req, res) => {
+app.get('/workspaces', (_req, res) => {
   const workspaces = readWorkspaces();
-  console.log(workspaces);
   res.send(workspaces);
 });
 
-app.put('/workspaces/:id', (req, res) => {
+app.put('/workspaces/:name', (req, res) => {
   const workspaces = readWorkspaces();
   const updatedWorkspace = req.body;
-  const workspaceIndex = workspaces.findIndex(w => w.id === req.params.id);
+  const workspaceIndex = workspaces.findIndex(w => w.name === req.params.name);
   if (workspaceIndex !== -1) {
     workspaces[workspaceIndex] = updatedWorkspace;
     writeWorkspaces(workspaces);
@@ -60,15 +54,13 @@ app.put('/workspaces/:id', (req, res) => {
   }
 });
 
-app.delete('/workspaces/:id', (req, res) => {
+app.delete('/workspaces/:name', (req, res) => {
   let workspaces = readWorkspaces();
-  workspaces = workspaces.filter(w => w.id !== req.params.id);
+  workspaces = workspaces.filter(w => w.name !== req.params.name);
   writeWorkspaces(workspaces);
   res.status(204).send();
 });
 
-
-//---------------------------------------------------------------------------------------------------------------------------
 function mapToObj(inputMap) {
   let obj = {};
   inputMap.forEach((value, key) => {
