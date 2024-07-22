@@ -12,7 +12,7 @@ export type Workspace = {
   view: { x: number, y: number }
 }
 
-type GraphState = {
+export type GraphState = {
   nodes: NodeData[];
   edges: EdgeData[];
   selectedNode?: NodeData;
@@ -103,6 +103,7 @@ const slice = createSlice({
           else
             return { ...node, label };
         }
+      
         return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },

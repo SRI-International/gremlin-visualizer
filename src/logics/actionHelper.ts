@@ -9,6 +9,7 @@ export const onFetchQuery = (result: any, query: string, oldNodeLabels: NodeLabe
     result.data,
     oldNodeLabels
   );
+
   dispatch(addNodes(nodes));
   dispatch(addEdges(edges));
   dispatch(setNodeLabels(nodeLabels));
