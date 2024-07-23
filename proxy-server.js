@@ -56,11 +56,13 @@ app.post('/query', (req, res, next) => {
   const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
   const isRawQuery = req.body.isRawQuery;
-
+  console.log(`Connecting to JanusGraph at ${gremlinHost}:${gremlinPort}`);
   const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, {
     traversalSource: 'g',
     mimeType: 'application/json'
   });
+  console.log(client);
+  console.log(gremlinHost);
   client.submit(makeQuery(query, nodeLimit), {})
     .then((result) => {
       res.send(nodesToJson(result._items));

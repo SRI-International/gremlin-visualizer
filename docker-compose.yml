@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  gremlin-server:
+    image: tinkerpop/gremlin-server:3.6
+    ports:
+    - 8182:8182
+    volumes:
+    - ./:/app
+  gremlin-visualizer:
+    # image: prabushitha/gremlin-visualizer:latest
+    build: gremlin-visualizer
+    depends_on: 
+    - gremlin-server
+    links:
+    - gremlin-server:server
+    ports:
+    - 3000:3000
+    - 3001:3001
+    volumes:
+      - ./gremlin-visualizer:/usr/src/app/gremlin-visualizer
+    stdin_open: true
+    environment:
+      - WATCHPACK_POLLING=true
+  gremlin-console:
+    image: tinkerpop/gremlin-console
+    depends_on:
+      - gremlin-server
+    links:
+    - gremlin-server:server
+    command: bin/gremlin.hs -e /app/load-graph.groovy
+    volumes:
+    - ./:/app

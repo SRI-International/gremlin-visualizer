@@ -23,6 +23,8 @@ const Query = ({ }) => {
 
   function sendQuery() {
     dispatch(setError(null));
+    console.log(host)
+    console.log(port)
     axios
       .post(
         QUERY_ENDPOINT,
