@@ -4,21 +4,12 @@ import { RootState } from '../app/store';
 import _ from 'lodash';
 import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
 
-export type Workspace = {
-  name: string,
-  impl: string,
-  layout: Record<string, { x: number, y: number }>
-  zoom: number,
-  view: { x: number, y: number }
-}
-
-export type GraphState = {
+type GraphState = {
   nodes: NodeData[];
   edges: EdgeData[];
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   nodeColorMap: { [index: string]: string };
-  workspaces: Workspace[]
 };
 
 const initialState: GraphState = {
@@ -27,7 +18,6 @@ const initialState: GraphState = {
   selectedNode: undefined,
   selectedEdge: undefined,
   nodeColorMap: {},
-  workspaces: []
 };
 
 const slice = createSlice({
@@ -103,17 +93,12 @@ const slice = createSlice({
           else
             return { ...node, label };
         }
-      
+
         return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },
     updateColorMap: (state, action) => {
       Object.assign(state.nodeColorMap, action.payload);
-    },
-    addWorkspace: (state, action) => {
-      let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
-      if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
-      else state.workspaces.push(action.payload)
     }
   },
 });
@@ -128,7 +113,6 @@ export const {
   setSelectedNode,
   refreshNodeLabels,
   updateColorMap,
-  addWorkspace
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;

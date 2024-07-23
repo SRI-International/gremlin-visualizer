@@ -18,6 +18,7 @@ jest.mock('../../../src/logics/graph', () => ({
 jest.mock("axios", () => ({
     ...jest.requireActual("axios"),
     post: jest.fn(),
+    get: jest.fn(),
 }));
 
 const customQueries = {
@@ -75,7 +76,9 @@ test("save workspace as 'saved workspace' and confirm it appears as one of the o
     let user = userEvent.setup();
     let store = setupStore();
     const mockedAxios = axios as jest.Mocked<typeof axios>;
-    mockedAxios.post.mockResolvedValue({ data: 'Mocked success' });
+    mockedAxios.get.mockResolvedValueOnce({ data: [] });
+    mockedAxios.post.mockResolvedValueOnce({ data: 'Mocked success' });
+    mockedAxios.get.mockResolvedValueOnce({ data: [{ "name": "saved workspace", "impl": "vis", "layout": {}, "zoom": 1, "view": { "x": 0, "y": 0 } }] });
     jest.spyOn(store, 'dispatch');
     render(
         <Provider store={store}>

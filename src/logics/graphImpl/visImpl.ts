@@ -1,6 +1,7 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, IdType, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import {Workspace} from "../../components/Details/SettingsComponent";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
@@ -194,7 +195,7 @@ function curveEdges(edges: DataSet<Edge>) {
   (network as any)?.body.emitter.emit("_dataChanged");
 }
 
-function highlightNodesAndEdges(node: any, edge: any) {
+export function highlightNodesAndEdges(node: any, edge: any) {
   savedSelectedNode = node;
   savedSelectedEdge = edge;
   const allNodesToUpdate: any = [];
@@ -318,10 +319,12 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     if (options) {
       network.setOptions(getOptions(options));
     }
-
-    highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
-
-
+    if (nodes.length == 0) {
+      highlightNodesAndEdges(null, null);
+    }
+    else {
+      highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
+    }
     return network;
   }
 
