@@ -93,6 +93,7 @@ const slice = createSlice({
           else
             return { ...node, label };
         }
+
         return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },
