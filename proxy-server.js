@@ -14,40 +14,56 @@ app.use(cors({
 // parse application/json
 app.use(bodyParser.json());
 
-const workspacesFilePath = path.join(__dirname, 'workspaces.json');
+const workspacesDirPath = path.join(__dirname, 'workspaces');
+if (!fs.existsSync(workspacesDirPath)) {
+  fs.mkdirSync(workspacesDirPath);
+}
 
-const readWorkspaces = () => {
-  if (!fs.existsSync(workspacesFilePath)) {
-    fs.writeFileSync(workspacesFilePath, JSON.stringify({ workspaces: [] }));
+
+const readWorkspace = (name) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  if (!fs.existsSync(workspaceFilePath)) {
+    return null;
   }
-  const workspacesData = fs.readFileSync(workspacesFilePath);
-  return JSON.parse(workspacesData).workspaces;
+  const workspaceData = fs.readFileSync(workspaceFilePath);
+  return JSON.parse(workspaceData);
 };
 
-const writeWorkspaces = (workspaces) => {
-  fs.writeFileSync(workspacesFilePath, JSON.stringify({ workspaces }, null, 2));
+
+const writeWorkspace = (name, data) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  fs.writeFileSync(workspaceFilePath, JSON.stringify(data, null, 2));
+};
+
+const deleteWorkspaceFile = (name) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  if (fs.existsSync(workspaceFilePath)) {
+    fs.unlinkSync(workspaceFilePath);
+  }
 };
 
 app.post('/workspaces', (req, res) => {
-  const workspaces = readWorkspaces();
   const newWorkspace = req.body;
-  workspaces.push(newWorkspace);
-  writeWorkspaces(workspaces);
+  const name = newWorkspace.name;
+  writeWorkspace(name, newWorkspace);
   res.status(201).send(newWorkspace);
 });
 
 app.get('/workspaces', (_req, res) => {
-  const workspaces = readWorkspaces();
+  const files = fs.readdirSync(workspacesDirPath);
+  const workspaces = files.map(file => {
+    const filePath = path.join(workspacesDirPath, file);
+    const workspaceData = fs.readFileSync(filePath);
+    return JSON.parse(workspaceData);
+  });
   res.send(workspaces);
 });
 
 app.put('/workspaces/:name', (req, res) => {
-  const workspaces = readWorkspaces();
+  const name = req.params.name;
   const updatedWorkspace = req.body;
-  const workspaceIndex = workspaces.findIndex(w => w.name === req.params.name);
-  if (workspaceIndex !== -1) {
-    workspaces[workspaceIndex] = updatedWorkspace;
-    writeWorkspaces(workspaces);
+  if (readWorkspace(name)) {
+    writeWorkspace(name, updatedWorkspace);
     res.send(updatedWorkspace);
   } else {
     res.status(404).send({ message: 'Workspace not found' });
@@ -55,12 +71,14 @@ app.put('/workspaces/:name', (req, res) => {
 });
 
 app.delete('/workspaces/:name', (req, res) => {
-  let workspaces = readWorkspaces();
-  workspaces = workspaces.filter(w => w.name !== req.params.name);
-  writeWorkspaces(workspaces);
-  res.status(204).send();
+  const name = req.params.name;
+  if (readWorkspace(name)) {
+    deleteWorkspaceFile(name);
+    res.status(204).send();
+  } else {
+    res.status(404).send({ message: 'Workspace not found' });
+  }
 });
-
 function mapToObj(inputMap) {
   let obj = {};
   inputMap.forEach((value, key) => {
