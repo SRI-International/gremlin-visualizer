@@ -393,28 +393,35 @@ export const Settings = () => {
       <Grid item xs={12} sm={12} md={12}>
         <Divider />
       </Grid>
-      <Grid item xs={12} sm={12} md={12}>
-        <Button
-          variant='contained'
-          onClick={() => setSaveWorkspace(true)}
-          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
-          Save Workspace
-        </Button>
-        <Button
-          variant='contained'
-          onClick={() => setLoadWorkspace(true)}
-          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
-          Load Workspace
-        </Button>
-      </Grid>
-      <Grid item xs={12} sm={12} md={12}>
-        <Button
-          variant='contained'
-          onClick={() => setDeleteWorkspace(true)}
-          style={{ width: 'calc(50% - 10px)', margin: '5px' }}>
-          Delete Workspace
-        </Button>
-      </Grid>
+      <Box display="flex" flexDirection="column" alignItems="center" width="100%" sx={{ marginTop: '25px' }}>
+        <Box sx={{ mb: 2, flexGrow: 1, width: '80%' }}>
+          <Button
+            variant="contained"
+            onClick={() => setSaveWorkspace(true)}
+            style={{ flexGrow: 1, width: '100%', padding: '10px' }}
+          >
+            Save Workspace
+          </Button>
+        </Box>
+        <Box sx={{ mb: 2, flexGrow: 1, width: '80%' }}>
+          <Button
+            variant="contained"
+            onClick={() => setLoadWorkspace(true)}
+            style={{ flexGrow: 1, width: '100%', padding: '10px' }}
+          >
+            Load Workspace
+          </Button>
+        </Box>
+        <Box sx={{ mb: 2, flexGrow: 1, width: '80%' }}>
+          <Button
+            variant="contained"
+            onClick={() => setDeleteWorkspace(true)}
+            style={{ flexGrow: 1, width: '100%', padding: '10px' }}
+          >
+            Delete Workspace
+          </Button>
+        </Box>
+      </Box>
       <Grid item xs={12} sm={12} md={12}>
         <Divider />
       </Grid>
