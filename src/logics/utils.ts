@@ -6,18 +6,35 @@ import Sigma from "sigma";
 import { setSuggestions, Suggestions } from '../reducers/dialogReducer';
 import store from '../app/store';
 import { DIALOG_TYPES } from '../components/ModalDialog/ModalDialogComponent';
+import { RISK_COLORS } from '../constants';
+import { updateColorMap } from '../reducers/graphReducer';
 
 let convert = require('color-convert')
 
-let hues = [0, 240, 60, 120, 280, 30, 310, 180]
+let hues = [
+  // 0, 
+  240,
+  // 60, 120, 
+  280, 30, 310, 180]
+//remove hues of 0(red), 60(yellow), 120(green) when coloring risks
 let hueIndex = 0;
 let light = 50
 
-export const getColor = () => {
-  let color = '#' + convert.hsl.hex(hues[hueIndex++], 100, light)
-  if (hueIndex == 8) light = light === 50 ? 75 : light === 75 ? 25 : 50
-  hueIndex %= 8;
-  return color;
+export const getColor = (node: NodeData) => {
+  if (node.properties.risk !== undefined) {
+    return RISK_COLORS.risk[node.properties.risk as keyof typeof RISK_COLORS.risk];
+  }
+  else {
+    let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
+    if (node.type !== undefined && !(node.type in nodeColorMap)) {
+      let color = '#' + convert.hsl.hex(hues[hueIndex++], 100, light)
+      if (hueIndex == 8) light = light === 50 ? 75 : light === 75 ? 25 : 50
+      hueIndex %= 8;
+      nodeColorMap[`${node.type}`] = color
+      store.dispatch(updateColorMap(nodeColorMap))
+    }
+    return node.type !== undefined ? nodeColorMap[node.type] : undefined
+  }
 }
 
 type IdType = string | number
