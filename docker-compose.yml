@@ -1,32 +1,44 @@
 version: '3.8'
 services:
   gremlin-server:
-    image: tinkerpop/gremlin-server:3.6
+    image: janusgraph/janusgraph:latest
     ports:
     - 8182:8182
+    networks:
+    - QuantumSupplyChain
+    environment:
+    - JAVA_OPTIONS=-Xss5m
     volumes:
-    - ./:/app
+      - ./:/app:z
   gremlin-visualizer:
-    # image: prabushitha/gremlin-visualizer:latest
-    build: gremlin-visualizer
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on: 
     - gremlin-server
-    links:
-    - gremlin-server:server
     ports:
     - 3000:3000
     - 3001:3001
-    volumes:
-      - ./gremlin-visualizer:/usr/src/app/gremlin-visualizer
+    networks:
+    - QuantumSupplyChain
     stdin_open: true
     environment:
       - WATCHPACK_POLLING=true
   gremlin-console:
-    image: tinkerpop/gremlin-console
+    build:
+      context: .
+      dockerfile: Dockerfile.gremlin-console
     depends_on:
       - gremlin-server
-    links:
-    - gremlin-server:server
-    command: bin/gremlin.hs -e /app/load-graph.groovy
+    networks:
+    - QuantumSupplyChain
+    stdin_open: true
+    tty: true
     volumes:
-    - ./:/app
+      - ./remote.yaml:/opt/gremlin-console/conf/remote.yaml:Z
+      - ./:/app:z
+    environment:
+      - SERVER_HOST=gremlin-server
+networks:
+  QuantumSupplyChain:
+    driver: bridge
