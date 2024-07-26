@@ -18,7 +18,8 @@ type GraphState = {
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   nodeColorMap: { [index: string]: string };
-  workspaces: Workspace[]
+  workspaces: Workspace[];
+  suppliers: string[];
 };
 
 const initialState: GraphState = {
@@ -27,7 +28,8 @@ const initialState: GraphState = {
   selectedNode: undefined,
   selectedEdge: undefined,
   nodeColorMap: {},
-  workspaces: []
+  workspaces: [],
+  suppliers: [],
 };
 
 const slice = createSlice({
@@ -113,6 +115,9 @@ const slice = createSlice({
       let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
       if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
       else state.workspaces.push(action.payload)
+    },
+    setSuppliers: (state, action) => {
+      state.suppliers = action.payload;
     }
   },
 });
@@ -127,7 +132,8 @@ export const {
   setSelectedNode,
   refreshNodeLabels,
   updateColorMap,
-  addWorkspace
+  addWorkspace,
+  setSuppliers
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;
