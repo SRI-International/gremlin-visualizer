@@ -11,53 +11,51 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { selectGremlin } from '../../reducers/gremlinReducer';
 import style from './HeaderComponent.module.css';
-import { clearGraph, selectGraph, setSuppliers } from '../../reducers/graphReducer';
+import { clearGraph, selectGraph, setComponents, setSuppliers } from '../../reducers/graphReducer';
 
-export function SupplierSelector() {
+export function ComponentSelector() {
   const dispatch = useDispatch();
-  const { selectorNodes, edges, suppliers } = useSelector(selectGraph);
-  const names = selectorNodes.filter(node => node.type === 'Entity').map(node => node.properties.name);
+  const { selectorNodes, components } = useSelector(selectGraph);
+  const names = selectorNodes.filter(node => node.type === 'Component').map(node => node.properties.name);
 
-  const [selectedSupplierNames, setSelectedSupplierNames] = React.useState<string[]>(suppliers);
+  const [selectedComponentNames, setSelectedComponentNames] = React.useState<string[]>(components);
 
-  const handleChange = (event: SelectChangeEvent<typeof selectedSupplierNames>) => {
+  const handleChange = (event: SelectChangeEvent<typeof selectedComponentNames>) => {
     const {
       target: { value },
     } = event;
-    setSelectedSupplierNames(
-      // On autofill we get a stringified value.
+    setSelectedComponentNames(
       typeof value === 'string' ? value.split(',') : value,
     );
   };
 
   
-  const handleLoadSupplier = () => {
-    if (selectedSupplierNames.length > suppliers.length || !selectedSupplierNames.every((name) => suppliers.includes(name))) {
+  const handleLoadComponent = () => {
+    if (selectedComponentNames.length > components.length || !selectedComponentNames.every((name) => components.includes(name))) {
       dispatch(clearGraph());
-      dispatch(setSuppliers(selectedSupplierNames));
+      dispatch(setComponents(selectedComponentNames));
+      console.log("cleared and set Component selector")
     }
   };
-  
+    
   const handleClear = () => {
-    if (selectedSupplierNames.length > 0) {
+    if (selectedComponentNames.length > 0) {
       dispatch(clearGraph());
-      setSelectedSupplierNames([])
-      dispatch(setSuppliers([]));
+      setSelectedComponentNames([])
+      dispatch(setComponents([]));
     }
   }
-
-
 
 
   return (
 <>
     <FormControl size="small" className={style['header-groups-select']}>
-      <InputLabel id="supplier-select">Select Supplier</InputLabel>
+      <InputLabel id="component-select">Select Component</InputLabel>
       <Select
-        labelId="supplier-select"
-        value={selectedSupplierNames}
+        labelId="component-select"
+        value={selectedComponentNames}
         multiple
-        label="Select Supplier"
+        label="Select Component"
         onChange={handleChange}
         MenuProps={{
           anchorOrigin: {
@@ -91,7 +89,7 @@ export function SupplierSelector() {
       variant="contained"
       color="primary"
       disabled={names.length === 0}
-      onClick={handleLoadSupplier}
+      onClick={handleLoadComponent}
     >
       Load
     </Button>

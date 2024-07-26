@@ -1,44 +1,74 @@
 import React, { SyntheticEvent, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Box, LinearProgress, Paper, createFilterOptions } from '@mui/material';
-import { COMMON_GREMLIN_ERROR } from '../../constants';
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
 import { selectOptions } from '../../reducers/optionReducer';
-import {SupplierSelector} from './SupplierSelector';
+import { SupplierSelector } from './SupplierSelector';
+import { ComponentSelector } from './ComponentSelector';
+import { MaterialSelector } from './MaterialSelector';
 import style from './HeaderComponent.module.css';
 import { Edge, Node } from 'vis-network';
 import _ from 'lodash';
+import { selectGraph, setSuppliers } from '../../reducers/graphReducer';
+import { selectGremlin, setQuery, } from '../../reducers/gremlinReducer';
+import axios from 'axios';
 
 
-export const HeaderComponent = ({}) => {
+export const HeaderComponent = ({ }) => {
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-
+  const { selectorNodes, components, suppliers, materials } = useSelector(selectGraph);
   const [error, setError] = useState<string | null>(null);
   console.log('rerender header');
+  const dispatch = useDispatch();
+  const { host, port, query } = useSelector(selectGremlin);
+  console.log(components);
+  console.log(suppliers);
 
-  function sendQuery(
-  ) {
-  
-  }
-  
-  const onSupplierChange = (
-    oldGroups: string[],
-    groups: string[],
-    query: string
-  ) => {
-    dispatch(setGraphGroup(groups));
-    if (
-      groups.length > 0 &&
-      (groups.length > oldGroups.length ||
-        groups.every((g) => oldGroups.includes(g))) &&
-      selectedLayout
-    ) {
-      dispatch(changeLayout(selectedLayout, sendQuery));
-    } else {
-      dispatch(setSelectedLayout(null));
-      sendQuery(query);
+  useEffect(() => {
+    onChange();
+  }, [components, suppliers, materials])
+
+  const onChange = () => {
+    console.log("onChange");
+    let queryToSend = '';
+    let str = '';
+    setError(null);
+    if (suppliers.length > 0) {
+      console.log("suppliers if")
+      str = suppliers.map((gr) => `'${gr}'`).join(',');
+      queryToSend = `g.V().has("Entity", "name", within(${str})).emit().repeat(out())`;
+      sendRequest(queryToSend);
+    }
+    if (components.length > 0) { 
+      console.log("components if")
+      str = components.map((gr) => `'${gr}'`).join(',');
+      queryToSend = `g.V().has("Component", "name", within(${str})).emit().repeat(in())`;
+      sendRequest(queryToSend);
+    }
+    if (materials.length > 0) {
+      console.log("materials if")
+      str = materials.map((gr) => `'${gr}'`).join(',');
+      queryToSend = `g.V().has("Material", "name", within(${str})).emit().repeat(in())`;
+      sendRequest(queryToSend);
     }
   };
+
+  const sendRequest = (query : string) => {
+    axios
+    .post(
+      QUERY_ENDPOINT,
+      { host, port, query, nodeLimit },
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    .then((response) => {
+      onFetchQuery(response, query, nodeLabels, dispatch);
+    })
+    .catch((error) => {
+      console.warn(error)
+      setError(COMMON_GREMLIN_ERROR);
+    });
+  }
 
 
   return (
@@ -47,32 +77,24 @@ export const HeaderComponent = ({}) => {
         noValidate
         autoComplete="off"
       >
-        {/* <Paper
+        <Paper
           elevation={10}
           className={style['header-model-block']}
         >
-          <ModelSelector onVersionChange={onVersionChange} />
-        </Paper> */}
+          <ComponentSelector />
+        </Paper>
         <Paper
           elevation={10}
           className={style['header-group-block']}
         >
-          <SupplierSelector onSupplierChange={onSupplierChange} />
+          <SupplierSelector />
         </Paper>
-        {/* <Paper
+        <Paper
           elevation={10}
           className={style['header-layout-block']}
         >
-          <LayoutSelector
-            version={version}
-            onLayoutChange={onLayoutChange}
-          />
-        </Paper> */}
-        {/* {isLoading && (
-          <Box className={style['header-progress']}>
-            <LinearProgress color="inherit" />
-          </Box>
-        )} */}
+          <MaterialSelector/>
+        </Paper>
       </form>
 
       <br />

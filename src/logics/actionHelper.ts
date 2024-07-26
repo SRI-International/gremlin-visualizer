@@ -1,5 +1,5 @@
 import { extractEdgesAndNodes } from './utils';
-import { addEdges, addNodes, setSelectedEdge, setSelectedNode, updateEdge, updateNode } from '../reducers/graphReducer';
+import { addEdges, addNodes, setSelectedEdge, setSelectedNode, setSelectorNodes, updateEdge, updateNode } from '../reducers/graphReducer';
 import { addQueryHistory, NodeLabel, setNodeLabels } from '../reducers/optionReducer';
 import store, { AppDispatch } from '../app/store';
 import { IdType } from "vis-network";
@@ -13,6 +13,9 @@ export const onFetchQuery = (result: any, query: string, oldNodeLabels: NodeLabe
   dispatch(addEdges(edges));
   dispatch(setNodeLabels(nodeLabels));
   dispatch(addQueryHistory(query));
+  if (query === 'g.V()') {
+    dispatch(setSelectorNodes(nodes));
+  }
 };
 
 export const updateOnConfirm = (elementType: string | null, updateId: IdType | undefined, result: any, query: string, oldNodeLabels: NodeLabel[]) => {

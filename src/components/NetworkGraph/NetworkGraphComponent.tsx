@@ -72,7 +72,6 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
 
   useEffect(() => {
     if (myRef.current != null) {
-
       getGraph(
         myRef.current,
         { nodes, edges },
