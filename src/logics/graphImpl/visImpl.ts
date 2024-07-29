@@ -1,12 +1,13 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, IdType, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
+import { addEdges, setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
+import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
+import { RISK_COLORS } from "../../constants";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
@@ -126,8 +127,12 @@ function toVisEdge(edge: EdgeData) {
 function toVisNode(node: NodeData): Node {
   let gNode = { ...node, ...{ group: node.type } }
   let icon = getIcon(node.type);
+  let color = getColor(node);
+  if (color === undefined) {
+    color = '#000000'
+  }
   if (icon) {
-    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
+    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage', color: color } }
   }
   return gNode
 }
@@ -236,7 +241,6 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     if (options) {
       network.setOptions(getOptions(options));
     }
-
     return network;
   }
 

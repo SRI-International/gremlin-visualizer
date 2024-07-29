@@ -29,8 +29,10 @@ cy.use(dagre)
 
 
 function toCyNode(n: NodeData): cy.NodeDefinition {
-  let nodeColorMap = store.getState().graph.nodeColorMap
-  let color = n.type !== undefined ? nodeColorMap[n.type] : '#000000';
+  let color = getColor(n);
+  if (color === undefined) {
+    color = '#000000'
+  }
   return {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },
@@ -46,47 +48,52 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
   };
 }
 
-function toCyEdge(e: EdgeData): cy.EdgeDefinition {
+function toCyEdge(e: EdgeData, n: NodeData): cy.EdgeDefinition {
+  let edgeColor = getColor(n);
   return {
     group: "edges",
-    data: { ...e, id: e.id!.toString(), source: e.from!.toString(), target: e.to!.toString() }
+    data: { ...e, id: e.id!.toString(), source: e.from!.toString(), target: e.to!.toString() },
+    style: {
+      lineColor: edgeColor,
+      targetArrowColor: edgeColor
+    }
   }
 }
 
 export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (!graph) {
     graph = cy({
-        container: container,
-        elements: {
-          nodes: [],
-          edges: []
-        },
-        minZoom: .1,
-        maxZoom: 10,
-        style: [
-          {
-            selector: 'node',
-            style: {
-              label: 'data(id)'
-            }
-          },
-          {
-            selector: 'node[label]',
-            style: {
-              label: 'data(label)'
-            }
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 1,
-              "curve-style": "bezier",
-              "target-arrow-shape": 'triangle',
-              "label": "data(label)"
-            }
+      container: container,
+      elements: {
+        nodes: [],
+        edges: []
+      },
+      minZoom: .1,
+      maxZoom: 10,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(id)'
           }
-        ]
-      }
+        },
+        {
+          selector: 'node[label]',
+          style: {
+            label: 'data(label)'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 1,
+            "curve-style": "bezier",
+            "target-arrow-shape": 'triangle',
+            "label": "data(label)"
+          }
+        }
+      ]
+    }
     );
     layout = graph.layout(opts)
 
@@ -116,11 +123,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Shift' && shiftKeyDown !== true) {
-          shiftKeyDown = true;
-          eh.enableDrawMode();
-        }
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        eh.enableDrawMode();
       }
+    }
     );
     document.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && shiftKeyDown === true) {
@@ -135,14 +142,15 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
   if (container && data) {
 
     let nodes: NodeDefinition[] = data.nodes?.map(x => {
-      let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-      if (x.type !== undefined && !(x.type in nodeColorMap)) {
-        nodeColorMap[`${x.type}`] = getColor()
-        store.dispatch(updateColorMap(nodeColorMap))
-      }
       return toCyNode(x)
     }) || []
-    let edges = data.edges?.map(x => toCyEdge(x)) || []
+
+    const nodeMap = data.nodes.reduce((map, node) => {
+      map[node.id] = node;
+      return map;
+    }, {} as Record<string, NodeData>);
+
+    let edges = data.edges?.map(x => toCyEdge(x, nodeMap[x.from])) || []
     for (let n of nodes) {
       if (!graph.nodes().map(x => x.id()).includes(n.data.id!)) {
         graph.add(n)
