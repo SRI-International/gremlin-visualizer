@@ -32,7 +32,7 @@ export const App = () => {
 
   return (
     <div>
-      <HeaderComponent />
+      <HeaderComponent panelWidth={panelWidth}/>
       <NetworkGraphComponent panelWidth={panelWidth} />
       <SidebarComponent panelWidth={panelWidth} handleMouseDown={handlePanelDragSelect} />
       <ModalDialogComponent />

@@ -18,7 +18,11 @@ type GraphState = {
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   nodeColorMap: { [index: string]: string };
-  workspaces: Workspace[]
+  workspaces: Workspace[];
+  selectorNodes: NodeData[];
+  suppliers: string[];
+  components: string[];
+  materials: string[];
 };
 
 const initialState: GraphState = {
@@ -27,7 +31,11 @@ const initialState: GraphState = {
   selectedNode: undefined,
   selectedEdge: undefined,
   nodeColorMap: {},
-  workspaces: []
+  workspaces: [],
+  selectorNodes: [],
+  suppliers: [],
+  components: [],
+  materials: []
 };
 
 const slice = createSlice({
@@ -113,6 +121,18 @@ const slice = createSlice({
       let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
       if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
       else state.workspaces.push(action.payload)
+    },
+    setSuppliers: (state, action) => {
+      state.suppliers = action.payload;
+    },
+    setComponents: (state, action) => {
+      state.components = action.payload;
+    },
+    setMaterials: (state, action) => {
+      state.materials = action.payload;
+    },
+    setSelectorNodes: (state, action) => {
+      state.selectorNodes = action.payload;
     }
   },
 });
@@ -127,7 +147,11 @@ export const {
   setSelectedNode,
   refreshNodeLabels,
   updateColorMap,
-  addWorkspace
+  addWorkspace,
+  setSuppliers,
+  setSelectorNodes,
+  setMaterials, 
+  setComponents
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;

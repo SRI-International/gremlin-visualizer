@@ -72,7 +72,6 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
 
   useEffect(() => {
     if (myRef.current != null) {
-
       getGraph(
         myRef.current,
         { nodes, edges },
@@ -82,7 +81,7 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   }, [nodes, edges, graphOptions]);
 
   return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' }}>
-    <Box ref={myRef} sx={{ height: 'calc(100vh - 20px)' }} className={'mynetwork'} />
+    <Box ref={myRef} sx={{ height: 'calc(100vh - 78px)' }} className={'mynetwork'} />
     <Box sx={{ position: 'absolute', top: 0, left: 0, zIndex: 1000 }}>
       <GraphControls />
     </Box>

@@ -1,0 +1,31 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header-component-select,
+.header-supplier-select,
+.header-material-select {
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+.select-item,
+:global(.MuiAutocomplete-listbox) {
+  font-size: 0.8rem;
+}
+
+
+.header-material-block,
+.header-component-block,
+.header-supplier-block {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 15px 10px 15px;
+  flex: 1;
+}
+
+.select-button {
+  height: auto;
+}
