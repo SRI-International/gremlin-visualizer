@@ -32,9 +32,9 @@ export const EDGE_ID_APPEND = 'L';
  * below as per the example.
  */
 export const INITIAL_LABEL_MAPPINGS = {
-   Component: 'name',
-   Material: 'name',
-   Entity: 'name'
+  Component: 'name',
+  Material: 'name',
+  Entity: 'name'
 }
 
 export const SAVED_QUERIES = {
@@ -54,7 +54,6 @@ export const SAVED_QUERIES = {
   // "get node with name marko" : "g.V().has('name', 'marko')",
   // "get person nodes that marko has outgoing edges to" : "g.V().has('name', 'marko').out().hasLabel('person')"
 }
-
 
 export const RISK_QUERY = "g.V().hasLabel('Entity').property('risk', 'low').has('country', 'China').property('risk', 'high')"
 export const RISK_COLORS = {
