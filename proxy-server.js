@@ -56,7 +56,6 @@ app.post('/query', (req, res, next) => {
   const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
   const isRawQuery = req.body.isRawQuery;
-
   const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, {
     traversalSource: 'g',
     mimeType: 'application/json'
