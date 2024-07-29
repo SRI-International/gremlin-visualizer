@@ -14,91 +14,95 @@ import { selectGraph, setSuppliers } from '../../reducers/graphReducer';
 import { selectGremlin, setQuery, } from '../../reducers/gremlinReducer';
 import axios from 'axios';
 
+interface HeaderComponentProps {
+  panelWidth: number
+}
 
-export const HeaderComponent = ({ }) => {
-  const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-  const { selectorNodes, components, suppliers, materials } = useSelector(selectGraph);
+export const HeaderComponent = (props: HeaderComponentProps) => {
+  const { nodeLabels, nodeLimit } = useSelector(selectOptions);
+  const { components, suppliers, materials } = useSelector(selectGraph);
   const [error, setError] = useState<string | null>(null);
-  console.log('rerender header');
   const dispatch = useDispatch();
-  const { host, port, query } = useSelector(selectGremlin);
-  console.log(components);
-  console.log(suppliers);
+  const { host, port } = useSelector(selectGremlin);
 
   useEffect(() => {
     onChange();
   }, [components, suppliers, materials])
 
   const onChange = () => {
-    console.log("onChange");
     let queryToSend = '';
     let str = '';
     setError(null);
     if (suppliers.length > 0) {
-      console.log("suppliers if")
       str = suppliers.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Entity", "name", within(${str})).emit().repeat(out())`;
       sendRequest(queryToSend);
     }
-    if (components.length > 0) { 
-      console.log("components if")
+    if (components.length > 0) {
       str = components.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Component", "name", within(${str})).emit().repeat(in())`;
       sendRequest(queryToSend);
     }
     if (materials.length > 0) {
-      console.log("materials if")
       str = materials.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Material", "name", within(${str})).emit().repeat(in())`;
       sendRequest(queryToSend);
     }
   };
 
-  const sendRequest = (query : string) => {
+  const sendRequest = (query: string) => {
     axios
-    .post(
-      QUERY_ENDPOINT,
-      { host, port, query, nodeLimit },
-      { headers: { 'Content-Type': 'application/json' } }
-    )
-    .then((response) => {
-      onFetchQuery(response, query, nodeLabels, dispatch);
-    })
-    .catch((error) => {
-      console.warn(error)
-      setError(COMMON_GREMLIN_ERROR);
-    });
+      .post(
+        QUERY_ENDPOINT,
+        { host, port, query, nodeLimit },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        onFetchQuery(response, query, nodeLabels, dispatch);
+      })
+      .catch((error) => {
+        console.warn(error)
+        setError(COMMON_GREMLIN_ERROR);
+      });
   }
 
 
   return (
-    <div className="header">
-      <form
-        noValidate
-        autoComplete="off"
+    <Box className={style["header"]} sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' }}>
+      <Paper
+        elevation={10}
+        className={style['header-component-block']}
       >
-        <Paper
-          elevation={10}
-          className={style['header-model-block']}
-        >
-          <ComponentSelector />
-        </Paper>
-        <Paper
-          elevation={10}
-          className={style['header-group-block']}
-        >
-          <SupplierSelector />
-        </Paper>
-        <Paper
-          elevation={10}
-          className={style['header-layout-block']}
-        >
-          <MaterialSelector/>
-        </Paper>
-      </form>
+        <ComponentSelector />
+      </Paper>
+      <Paper
+        elevation={10}
+        className={style['header-supplier-block']}
+      >
+        <SupplierSelector />
+      </Paper>
+      <Paper
+        elevation={10}
+        className={style['header-material-block']}
+      >
+        <MaterialSelector />
+      </Paper>
 
       <br />
       <div style={{ color: 'red' }}>{error}</div>
-    </div>
+    </Box>
+    //   <Box className="header" sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' , display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center'  }}>
+    //     <Paper
+    //     >
+    //       <ComponentSelector />
+    //     </Paper>
+    //    <Paper>
+    //       <SupplierSelector />
+    //     </Paper>
+    //   <Paper>
+    //       <MaterialSelector/>
+    //     </Paper>
+    //   <div style={{ color: 'red' }}>{error}</div>
+    // </Box>
   );
 };

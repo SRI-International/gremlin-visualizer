@@ -1,53 +1,31 @@
 .header {
-    margin-top: 20px;
-  }
-  
-  .header-model-select,
-  .header-layout-select {
-    width: 200px !important;
-  }
-  
-  .header-groups-select {
-    width: 350px !important;
-  }
-  
-  .select-item,
-  :global(.MuiAutocomplete-listbox) {
-    font-size: 0.8rem;
-  }
-  
-  .header .header-groups-select,
-  .header .header-query,
-  .header .header-save,
-  .header .header-groups-load,
-  .header .header-groups-clear {
-    margin-left: 10px;
-  }
-  
-  .header-query {
-    min-width: 300px;
-  }
-  
-  .header-layout-block,
-  .header-model-block,
-  .header-group-block {
-    display: inline-block;
-    margin: -10px -15px -10px 15px;
-    padding: 10px 15px 10px 15px;
-  }
-  
-  .header-model-block {
-    margin-left: 15px;
-  }
-  
-  .header-group-block {
-    margin-left: 30px;
-    margin-right: 0;
-  }
-  
-  /* .header-progress {
-    color: #1a90ff;
-    position: absolute;
-    width: 100%;
-    top: 60px;
-  } */
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header-component-select,
+.header-supplier-select,
+.header-material-select {
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+.select-item,
+:global(.MuiAutocomplete-listbox) {
+  font-size: 0.8rem;
+}
+
+
+.header-material-block,
+.header-component-block,
+.header-supplier-block {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 15px 10px 15px;
+  flex: 1;
+}
+
+.select-button {
+  height: auto;
+}

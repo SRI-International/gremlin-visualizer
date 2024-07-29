@@ -30,14 +30,14 @@ export function SupplierSelector() {
     );
   };
 
-  
+
   const handleLoadSupplier = () => {
     if (selectedSupplierNames.length > suppliers.length || !selectedSupplierNames.every((name) => suppliers.includes(name))) {
       dispatch(clearGraph());
       dispatch(setSuppliers(selectedSupplierNames));
     }
   };
-  
+
   const handleClear = () => {
     if (selectedSupplierNames.length > 0) {
       dispatch(clearGraph());
@@ -50,60 +50,57 @@ export function SupplierSelector() {
 
 
   return (
-<>
-    <FormControl size="small" className={style['header-groups-select']}>
-      <InputLabel id="supplier-select">Select Supplier</InputLabel>
-      <Select
-        labelId="supplier-select"
-        value={selectedSupplierNames}
-        multiple
-        label="Select Supplier"
-        onChange={handleChange}
-        MenuProps={{
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-          transformOrigin: {
-            vertical: 'top',
-            horizontal: 'left',
-          },
-          PaperProps: {
-            style: { maxHeight: '600px' }
-          }
-        }}
-      >
-        {names.map((name) => (
-          <MenuItem
-            key={name}
-            value={name}
-          >
-            {name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-    <FormControl
-    size="small"
-    className={style['header-groups-load']}
-  >
-    <Button
-      variant="contained"
-      color="primary"
-      disabled={names.length === 0}
-      onClick={handleLoadSupplier}
-    >
-      Load
-    </Button>
-    <Button
-          variant="contained"
-          color="primary"
-          disabled={names.length === 0}
-          onClick={handleClear}
+    <>
+      <FormControl size="small" className={style['header-supplier-select']}>
+        <InputLabel id="supplier-select">Select Supplier</InputLabel>
+        <Select
+          labelId="supplier-select"
+          value={selectedSupplierNames}
+          multiple
+          label="Select Supplier"
+          onChange={handleChange}
+          MenuProps={{
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+            transformOrigin: {
+              vertical: 'top',
+              horizontal: 'left',
+            },
+            PaperProps: {
+              style: { maxHeight: '600px' }
+            }
+          }}
         >
-          Clear
-        </Button>
-  </FormControl>
-  </>
+          {names.map((name) => (
+            <MenuItem
+              key={name}
+              value={name}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Button
+        className={style['select-button']}
+        variant="contained"
+        color="primary"
+        disabled={names.length === 0}
+        onClick={handleLoadSupplier}
+      >
+        Load
+      </Button>
+      <Button
+        className={style['select-button']}
+        variant="contained"
+        color="primary"
+        disabled={names.length === 0}
+        onClick={handleClear}
+      >
+        Clear
+      </Button>
+    </>
   );
 }
