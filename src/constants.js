@@ -32,7 +32,9 @@ export const EDGE_ID_APPEND = 'L';
  * below as per the example.
  */
 export const INITIAL_LABEL_MAPPINGS = {
-  //  software: 'lang'
+   Component: 'name',
+   Material: 'name',
+   Entity: 'name'
 }
 
 export const SAVED_QUERIES = {

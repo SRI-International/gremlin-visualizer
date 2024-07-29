@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  gremlin-server:
+    image: janusgraph/janusgraph:latest
+    ports:
+    - 8182:8182
+    networks:
+    - QuantumSupplyChain
+    environment:
+    - JAVA_OPTIONS=-Xss5m
+    volumes:
+      - ./:/app:z
+  gremlin-visualizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on: 
+    - gremlin-server
+    ports:
+    - 3000:3000
+    - 3001:3001
+    networks:
+    - QuantumSupplyChain
+    stdin_open: true
+    environment:
+      - WATCHPACK_POLLING=true
+  gremlin-console:
+    build:
+      context: .
+      dockerfile: Dockerfile.gremlin-console
+    depends_on:
+      - gremlin-server
+    networks:
+    - QuantumSupplyChain
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./remote.yaml:/opt/gremlin-console/conf/remote.yaml:Z
+      - ./:/app:z
+    environment:
+      - SERVER_HOST=gremlin-server
+networks:
+  QuantumSupplyChain:
+    driver: bridge
