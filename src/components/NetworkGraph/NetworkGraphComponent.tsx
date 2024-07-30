@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  clearGraph,
   selectGraph,
 } from '../../reducers/graphReducer';
 import { selectOptions, setIsPhysicsEnabled } from '../../reducers/optionReducer';
@@ -12,6 +13,11 @@ import { Network } from 'vis-network';
 import store from '../../app/store';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
+import axios from 'axios';
+import { query } from 'express';
+import { QUERY_ENDPOINT, COMMON_GREMLIN_ERROR, RISK_QUERY } from '../../constants';
+import { onFetchQuery } from '../../logics/actionHelper';
+import { selectGremlin, setError } from '../../reducers/gremlinReducer';
 
 
 interface NetworkGraphComponentProps {
@@ -65,8 +71,10 @@ const GraphControls = () => {
 
 export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { nodes, edges } = useSelector(selectGraph);
-  const { graphOptions } = useSelector(selectOptions);
+  const { host, port } = useSelector(selectGremlin);
+  const { graphOptions, nodeLabels, nodeLimit } = useSelector(selectOptions);
   const myRef = useRef(null);
+  const dispatch = useDispatch()
 
 
 
@@ -79,6 +87,23 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
       );
     }
   }, [nodes, edges, graphOptions]);
+
+  useEffect(() => {
+    axios
+      .post(
+        QUERY_ENDPOINT,
+        { host, port, query: RISK_QUERY, nodeLimit },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        onFetchQuery(response, RISK_QUERY, nodeLabels, dispatch);
+        dispatch(clearGraph());
+      })
+      .catch((error) => {
+        console.warn(error)
+        dispatch(setError(COMMON_GREMLIN_ERROR));
+      });
+  }, [])
 
   return <Box className='graph-container' sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' }}>
     <Box ref={myRef} sx={{ height: 'calc(100vh - 78px)' }} className={'mynetwork'} />

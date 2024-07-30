@@ -3,11 +3,12 @@ import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
 import {Workspace} from "../../components/Details/SettingsComponent";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
-import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
+import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
 import getIcon from "../../assets/icons";
+import { RISK_COLORS } from "../../constants";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
@@ -128,8 +129,12 @@ function toVisEdge(edge: EdgeData) {
 function toVisNode(node: NodeData): Node {
   let gNode = { ...node, ...{ group: node.type } }
   let icon = getIcon(node.type);
+  let color = getColor(node);
+  if (color === undefined) {
+    color = '#000000'
+  }
   if (icon) {
-    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage' } }
+    gNode = { ...gNode, ...{ image: icon, shape: 'circularImage', color: color } }
   }
   return gNode
 }

@@ -34,9 +34,9 @@ export const EDGE_ID_APPEND = 'L';
  * below as per the example.
  */
 export const INITIAL_LABEL_MAPPINGS = {
-   Component: 'name',
-   Material: 'name',
-   Entity: 'name'
+  Component: 'name',
+  Material: 'name',
+  Entity: 'name'
 }
 
 export const SAVED_QUERIES = {
@@ -45,15 +45,20 @@ export const SAVED_QUERIES = {
        in('supplies').not(has('country', 'China')).
        count().is(eq(0))
     )`,
-    'Get materials or components with at least one supplier from China': `g.V().
+  'Get materials or components with at least one supplier from China': `g.V().
       or(
          repeat(in('yields')).until(in('supplies').
            has('country', 'China')),
          in('supplies').has('country', 'China')
       )`,
-      'Get materials or components with only one supplier': `g.V().as('a').
+  'Get materials or components with only one supplier': `g.V().as('a').
         where(__.in('supplies').count().is(eq(1)))`
   // "get node with name marko" : "g.V().has('name', 'marko')",
   // "get person nodes that marko has outgoing edges to" : "g.V().has('name', 'marko').out().hasLabel('person')"
+}
+
+export const RISK_QUERY = "g.V().hasLabel('Entity').property('risk', 'low').has('country', 'China').property('risk', 'high')"
+export const RISK_COLORS = {
+  risk: { high: "red", medium: "yellow", low: "green" }
 }
 

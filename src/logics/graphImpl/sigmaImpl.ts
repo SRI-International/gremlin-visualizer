@@ -259,12 +259,10 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
   // updates graph data
   if (container && data) {
     for (let element of data.nodes) {
-      let nodeColorMap = Object.assign({}, store.getState().graph.nodeColorMap)
-      if (element.type !== undefined && !(element.type in nodeColorMap)) {
-        nodeColorMap[`${element.type}`] = getColor()
-        store.dispatch(updateColorMap(nodeColorMap))
+      let color = getColor(element);
+      if (color === undefined) {
+        color = '#000000'
       }
-      let color = element.type !== undefined ? nodeColorMap[element.type] : '#000000'
       if (!graph.nodes().includes(element.id.toString())) {
         let pos = { x: Math.random(), y: Math.random() }
         if (element.x && element.y) {
@@ -296,11 +294,12 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
     }
     for (let element of data.edges) {
       if (!graph.edges().includes(element.id!.toString()) && graph.nodes().includes(element.to!.toString())) {
+        const fromNode = graph.getNodeAttributes(element.from);
         graph.addDirectedEdgeWithKey(element.id, element.from, element.to, {
           size: 3,
           type: 'arrow',
           label: element.label,
-          color: "#7d7f82"
+          color: fromNode.color
         })
       }
     }
