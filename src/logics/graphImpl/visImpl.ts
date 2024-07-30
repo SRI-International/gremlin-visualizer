@@ -1,7 +1,7 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, IdType, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
 import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
-import {Workspace} from "../../components/Details/SettingsComponent";
+import { Workspace } from "../../components/Details/SettingsComponent";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
@@ -276,7 +276,7 @@ export function highlightNodesAndEdges(node: any, edge: any) {
   edges.update(allEdgesToUpdate);
 }
 
-export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined, workspace?: Workspace | null): GraphTypes {
   let updateNodesArray = [];
   let addNodesArray = [];
   let addEdgesArray = [];
@@ -284,9 +284,22 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
   let removeEdgesArray = [];
 
   if (network) {
+    if (workspace) {
+      store.dispatch(setIsPhysicsEnabled(false))
+      network?.moveTo({
+        position: workspace.view,
+        scale: workspace.zoom
+      })
+    }
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
-        addNodesArray.push(toVisNode(n))
+        let xPosition = undefined;
+        let yPosition = undefined;
+        if (workspace) {
+          xPosition = workspace.layout[n.id].x;
+          yPosition = workspace.layout[n.id].y;
+        }
+        addNodesArray.push(toVisNode({ ...n, ...{ x: xPosition, y: yPosition } }))
       } else {
         updateNodesArray.push(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
@@ -392,6 +405,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
 export function applyLayout(name: string) {
   network?.setOptions(getOptions(store.getState().options.graphOptions))
 }
+
 
 export function getNodePositions() {
   store.dispatch(setIsPhysicsEnabled(false))

@@ -37,15 +37,14 @@ import {
   setNodeLimit
 } from "../../reducers/optionReducer";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { selectGremlin, setHost, setPort } from "../../reducers/gremlinReducer";
-import { refreshNodeLabels, selectGraph } from "../../reducers/graphReducer";
-import { applyLayout, getNodePositions, layoutOptions, setNodePositions } from "../../logics/graph";
-import { GRAPH_IMPL, WORKSPACE_ENDPOINT } from "../../constants";
-import { type } from "os";
+import { selectGremlin, setError, setHost, setPort } from "../../reducers/gremlinReducer";
+import { chooseWorkspace, clearGraph, refreshNodeLabels } from "../../reducers/graphReducer";
+import { applyLayout, getNodePositions, layoutOptions } from "../../logics/graph";
+import { COMMON_GREMLIN_ERROR, GRAPH_IMPL, QUERY_ENDPOINT, WORKSPACE_ENDPOINT } from "../../constants";
 import { selectDialog } from "../../reducers/dialogReducer";
 import { DIALOG_TYPES } from "../../components/ModalDialog/ModalDialogComponent";
 import axios from 'axios';
-
+import { onFetchQuery } from "../../logics/actionHelper";
 
 export type Workspace = {
   name: string,
@@ -145,7 +144,6 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
   const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-  // const workspaces = useSelector(selectGraph).workspaces
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loadWorkspace, setLoadWorkspace] = useState(false);
   const [saveWorkspace, setSaveWorkspace] = useState(false);
@@ -215,8 +213,26 @@ export const Settings = () => {
 
   async function onConfirmLoadWorkspace(event: { preventDefault: () => void; }) {
     event.preventDefault();
+    dispatch(clearGraph());
     let workspace = workspaces.find(workspace => workspace.name === workspaceToLoad)
-    setNodePositions(workspace)
+    const ids = Object.keys(workspace!.layout);
+    const withinStep = `within(${ids.map(id => `'${id}'`).join(', ')})`;
+    const query = `g.V().hasId(${withinStep})`;
+    axios
+      .post(
+        QUERY_ENDPOINT,
+        { host, port, query, nodeLimit },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      .then((response) => {
+        onFetchQuery(response, query, nodeLabels, dispatch);
+        dispatch(chooseWorkspace(workspace));
+
+      })
+      .catch((error) => {
+        console.warn(error)
+        dispatch(setError(COMMON_GREMLIN_ERROR));
+      });
     onCancelLoadWorkspace()
   }
 
