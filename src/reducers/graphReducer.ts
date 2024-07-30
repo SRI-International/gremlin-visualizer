@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import _ from 'lodash';
 import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
+import { Workspace } from '../components/Details/SettingsComponent';
 
 type GraphState = {
   nodes: NodeData[];
@@ -14,6 +15,7 @@ type GraphState = {
   suppliers: string[];
   components: string[];
   materials: string[];
+  workspace: Workspace | null;
 };
 
 const initialState: GraphState = {
@@ -25,7 +27,8 @@ const initialState: GraphState = {
   selectorNodes: [],
   suppliers: [],
   components: [],
-  materials: []
+  materials: [],
+  workspace: null
 };
 
 const slice = createSlice({
@@ -119,7 +122,11 @@ const slice = createSlice({
     },
     setSelectorNodes: (state, action) => {
       state.selectorNodes = action.payload;
-    }
+    },
+    chooseWorkspace: (state, action) => {
+      state.workspace = action.payload;
+    },
+
   },
 });
 
@@ -136,7 +143,8 @@ export const {
   setSuppliers,
   setSelectorNodes,
   setMaterials, 
-  setComponents
+  setComponents,
+  chooseWorkspace,
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;
