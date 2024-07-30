@@ -85,7 +85,7 @@ export interface TempFieldSuggestions {
   }
 }
 
-const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
+export const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
   const suggestions: Suggestions = {
     [DIALOG_TYPES.NODE]: { types: [], labels: {} },
     [DIALOG_TYPES.EDGE]: { types: [], labels: {} }
@@ -125,15 +125,14 @@ const storeSuggestions = (nodes: Array<NodeData>, edges: Array<EdgeData>) => {
   });
   tempTypeSet = new Set(edgeSuggestions.types);
   suggestions[DIALOG_TYPES.EDGE].types = Array.from(tempTypeSet)
-
   store.dispatch(setSuggestions(suggestions));
+  
 };
 
 export const extractEdgesAndNodes = (nodeList: Array<NodeData>, oldNodeLabels: NodeLabel[] = []) => {
   let edges: Edge[] = [];
   const nodes: Node[] = [];
   const nodeLabels: NodeLabel[] = [...oldNodeLabels];
-
   const nodeLabelMap = _.mapValues(_.keyBy(nodeLabels, 'type'), 'field');
 
   _.forEach(nodeList, (node) => {

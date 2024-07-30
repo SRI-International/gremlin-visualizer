@@ -4,6 +4,8 @@ const gremlin = require('gremlin');
 const cors = require('cors');
 const app = express();
 const port = 3001;
+const fs = require('fs');
+const path = require('path');
 
 app.use(cors({
   credentials: true,
@@ -12,6 +14,71 @@ app.use(cors({
 // parse application/json
 app.use(bodyParser.json());
 
+const workspacesDirPath = path.join(__dirname, 'workspaces');
+if (!fs.existsSync(workspacesDirPath)) {
+  fs.mkdirSync(workspacesDirPath);
+}
+
+
+const readWorkspace = (name) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  if (!fs.existsSync(workspaceFilePath)) {
+    return null;
+  }
+  const workspaceData = fs.readFileSync(workspaceFilePath);
+  return JSON.parse(workspaceData);
+};
+
+
+const writeWorkspace = (name, data) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  fs.writeFileSync(workspaceFilePath, JSON.stringify(data, null, 2));
+};
+
+const deleteWorkspaceFile = (name) => {
+  const workspaceFilePath = path.join(workspacesDirPath, `${name}.json`);
+  if (fs.existsSync(workspaceFilePath)) {
+    fs.unlinkSync(workspaceFilePath);
+  }
+};
+
+app.post('/workspaces', (req, res) => {
+  const newWorkspace = req.body;
+  const name = newWorkspace.name;
+  writeWorkspace(name, newWorkspace);
+  res.status(201).send(newWorkspace);
+});
+
+app.get('/workspaces', (_req, res) => {
+  const files = fs.readdirSync(workspacesDirPath);
+  const workspaces = files.map(file => {
+    const filePath = path.join(workspacesDirPath, file);
+    const workspaceData = fs.readFileSync(filePath);
+    return JSON.parse(workspaceData);
+  });
+  res.send(workspaces);
+});
+
+app.put('/workspaces/:name', (req, res) => {
+  const name = req.params.name;
+  const updatedWorkspace = req.body;
+  if (readWorkspace(name)) {
+    writeWorkspace(name, updatedWorkspace);
+    res.send(updatedWorkspace);
+  } else {
+    res.status(404).send({ message: 'Workspace not found' });
+  }
+});
+
+app.delete('/workspaces/:name', (req, res) => {
+  const name = req.params.name;
+  if (readWorkspace(name)) {
+    deleteWorkspaceFile(name);
+    res.status(204).send();
+  } else {
+    res.status(404).send({ message: 'Workspace not found' });
+  }
+});
 function mapToObj(inputMap) {
   let obj = {};
   inputMap.forEach((value, key) => {

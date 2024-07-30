@@ -61,7 +61,7 @@ const SavedQueries = ({ }) => {
                             <ListItem disablePadding sx={{ height: 'auto', minHeight: 56, display: 'flex', alignItems: 'center', marginTop: "-1px", border: "1px solid black", borderTop: "none", '&:first-of-type': { borderTop: '1px solid black' }, '&:last-of-type': { borderBottom: '1px solid black' } }}>
                                 <ListItemButton selected={selectedIndex === ndx} onClick={(event) => handleListItemClick(event, ndx)}>
                                     <ListItemText primary={query.description} sx={{ textAlign: 'center', wordBreak: 'break-word', minWidth: 0 }} />
-                                    <IconButton onClick={(event) => handlePlay(ndx)} edge="end" size="large" sx={{ color: 'rgb(30, 144, 255)' }}>
+                                    <IconButton onClick={(event) => handlePlay(ndx)} edge="end" size="large"  aria-label={`Play-${ndx}`}sx={{ color: 'rgb(30, 144, 255)' }}>
                                         <PlayArrowIcon />
                                     </IconButton>
                                 </ListItemButton>
