@@ -3,7 +3,7 @@ import Graph from "graphology";
 import Sigma from "sigma";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
-import {Workspace} from "../../components/Details/SettingsComponent";
+import { Workspace } from "../../components/Details/SettingsComponent";
 import { getColor, GraphData, GraphOptions, GraphTypes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
@@ -239,7 +239,7 @@ function curveEdges(graph: Graph) {
   );
 }
 
-export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined, workspace?: Workspace | null): GraphTypes {
   // create graph if it doesn't exist
   if (!sigma) {
     sigma = createSigmaGraph(container!)
@@ -285,6 +285,9 @@ export function getSigmaGraph(container?: HTMLElement, data?: GraphData, options
             color: color,
           }
         })
+      }
+      if (workspace) {
+        setNodePositions(workspace as Workspace | undefined);
       }
     }
     for (let id of graph!.nodes()) {

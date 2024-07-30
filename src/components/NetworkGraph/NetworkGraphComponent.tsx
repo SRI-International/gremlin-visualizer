@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   clearGraph,
+  chooseWorkspace,
   selectGraph,
 } from '../../reducers/graphReducer';
 import { selectOptions, setIsPhysicsEnabled } from '../../reducers/optionReducer';
@@ -70,21 +71,20 @@ const GraphControls = () => {
 
 
 export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
-  const { nodes, edges } = useSelector(selectGraph);
+  const { nodes, edges, workspace } = useSelector(selectGraph);
   const { host, port } = useSelector(selectGremlin);
   const { graphOptions, nodeLabels, nodeLimit } = useSelector(selectOptions);
   const myRef = useRef(null);
   const dispatch = useDispatch()
-
-
 
   useEffect(() => {
     if (myRef.current != null) {
       getGraph(
         myRef.current,
         { nodes, edges },
-        graphOptions
+        graphOptions, workspace
       );
+      dispatch(chooseWorkspace(null));
     }
   }, [nodes, edges, graphOptions]);
 

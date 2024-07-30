@@ -4,7 +4,7 @@ import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } fro
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
 import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
-import {Workspace} from "../../components/Details/SettingsComponent";
+import { Workspace } from "../../components/Details/SettingsComponent";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
@@ -60,7 +60,7 @@ function toCyEdge(e: EdgeData, n: NodeData): cy.EdgeDefinition {
   }
 }
 
-export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined, workspace?: Workspace | null): GraphTypes {
   if (!graph) {
     graph = cy({
       container: container,
@@ -177,6 +177,9 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
       } else {
         graph.getElementById(n.data.id!).data({ ...n.data, ...{ x: undefined, y: undefined } })
       }
+      if (workspace) {
+        setNodePositions(workspace as Workspace | undefined);
+      }
     }
     for (let n of graph.nodes()) {
       if (!nodes.map(x => x.data.id).includes(n.id())) {
@@ -195,7 +198,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     }
   }
   if (options) {
-    if (options.isPhysicsEnabled) applyLayout(layoutName)
+    if (options.isPhysicsEnabled && !workspace) applyLayout(layoutName)
     else layout?.stop();
   }
   return graph;
