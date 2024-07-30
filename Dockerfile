@@ -1,30 +1,13 @@
-# FROM node:10-alpine
+FROM node:20-alpine
 
-# RUN npm cache clean --force && \
-# 	npm config set strict-ssl false && \
-# 	apk add wget unzip && \
-# 	wget --no-check-certificate https://github.com/SRI-International/gremlin-visualizer/archive/master.zip && \
-# 	unzip master.zip && \
-# 	cd gremlin-visualizer-master && \
-# 	npm install
-
-# EXPOSE 3000 3001
-
-# WORKDIR /gremlin-visualizer-master
-
-# CMD npm start
-
-
-FROM node:16-alpine
-
+WORKDIR /gremlin-visualizer
+ADD . .
 RUN npm cache clean --force && \
-    npm config set strict-ssl false && \
-    apk add wget unzip
-
-WORKDIR /app
-COPY . /app
-RUN npm install
+	npm config set strict-ssl false && \
+	npm install
 
 EXPOSE 3000 3001
 
+ENV HOST='0.0.0.0'
+ENV BROWSER='None'
 CMD npm start

@@ -110,7 +110,7 @@ const config = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  preset: "jest-puppeteer",
+  // preset: "jest-puppeteer",
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -142,7 +142,7 @@ const config = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  // setupFiles: ["jest-webgl-canvas-mock"],
+  setupFiles: ["jest-canvas-mock"],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: ["jest-webgl-canvas-mock"],

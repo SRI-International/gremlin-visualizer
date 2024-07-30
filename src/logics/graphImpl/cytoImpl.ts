@@ -3,7 +3,8 @@ import edgehandles from 'cytoscape-edgehandles';
 import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store from "../../app/store";
-import { setSelectedEdge, setSelectedNode, updateColorMap, Workspace } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
+import {Workspace} from "../../components/Details/SettingsComponent";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import getIcon from "../../assets/icons";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
@@ -21,7 +22,6 @@ const opts: ColaLayoutOptions = {
   centerGraph: false,
   fit: false,
 }
-
 
 cy.use(cola)
 cy.use(edgehandles)
@@ -56,37 +56,45 @@ function toCyEdge(e: EdgeData): cy.EdgeDefinition {
 export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
   if (!graph) {
     graph = cy({
-        container: container,
-        elements: {
-          nodes: [],
-          edges: []
-        },
-        minZoom: .1,
-        maxZoom: 10,
-        style: [
-          {
-            selector: 'node',
-            style: {
-              label: 'data(id)'
-            }
-          },
-          {
-            selector: 'node[label]',
-            style: {
-              label: 'data(label)'
-            }
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 1,
-              "curve-style": "bezier",
-              "target-arrow-shape": 'triangle',
-              "label": "data(label)"
-            }
+      container: container,
+      elements: {
+        nodes: [],
+        edges: []
+      },
+      minZoom: .1,
+      maxZoom: 10,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(id)'
           }
-        ]
-      }
+        },
+        {
+          selector: 'node[label]',
+          style: {
+            label: 'data(label)'
+          }
+        },
+        {
+          selector: 'node.semitransp',
+          style: { 'opacity': 0.5 }
+        },
+        {
+          selector: 'edge.semitransp',
+          style: { 'opacity': 0.3 }
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 1,
+            "curve-style": "bezier",
+            "target-arrow-shape": 'triangle',
+            "label": "data(label)"
+          }
+        }
+      ]
+    }
     );
     layout = graph.layout(opts)
 
@@ -94,10 +102,18 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
 
     layout.start()
     graph.on('tap', 'node', (event) => {
-      store.dispatch(setSelectedNode(event.target.id()))
+      store.dispatch(setSelectedNode(event.target.id()));
+      var sel = event.target;
+      var id = event.target.id();
+      graph!.elements().removeClass("semitransp");
+      graph!.elements().difference(sel.outgoers().union(sel.incomers())).not(sel).addClass("semitransp");
     })
     graph.on('tap', 'edge', (event) => {
-      store.dispatch(setSelectedEdge(event.target.id()))
+      store.dispatch(setSelectedEdge(event.target.id()));
+      var sel = event.target;
+      var id = event.target.id();
+      graph!.elements().removeClass("semitransp");
+      graph!.elements().difference(sel.connectedNodes()).not(sel).addClass("semitransp");
     })
     graph.on('drag', 'node', e => {
       store.dispatch(setIsPhysicsEnabled(false))
@@ -105,6 +121,10 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     graph.on('tap', e => {
       if (e.target == graph && e.originalEvent.shiftKey) {
         store.dispatch(openNodeDialog({ x: e.position.x, y: e.position.y }));
+      }
+      else if (e.target == graph) {
+
+        graph!.elements().removeClass("semitransp");
       }
     })
 
@@ -116,11 +136,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Shift' && shiftKeyDown !== true) {
-          shiftKeyDown = true;
-          eh.enableDrawMode();
-        }
+      if (e.key === 'Shift' && shiftKeyDown !== true) {
+        shiftKeyDown = true;
+        eh.enableDrawMode();
       }
+    }
     );
     document.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && shiftKeyDown === true) {
