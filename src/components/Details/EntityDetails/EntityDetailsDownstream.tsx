@@ -191,6 +191,7 @@ export default function EntityDetailsDownstream() {
      .V(${selectedId})
      .repeat(__.out().sack(sum).by(constant(1)).simplePath())
      .emit()
+     .filter(__.not(__.hasLabel('Entity'))) 
      .project("id", "name", "level", "upstreamInput")
      .by(__.id())
      .by(__.values("name").dedup())
