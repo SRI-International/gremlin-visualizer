@@ -21,30 +21,15 @@ export function MaterialSelector() {
   const [selectedMaterialNames, setSelectedMaterialNames] = React.useState<string[]>(materials);
 
   const handleChange = (event: SelectChangeEvent<typeof selectedMaterialNames>) => {
+
     const {
       target: { value },
     } = event;
     setSelectedMaterialNames(
       typeof value === 'string' ? value.split(',') : value,
     );
+    dispatch(setMaterials(typeof value === 'string' ? value.split(',') : value));
   };
-
-
-  const handleLoadComponent = () => {
-    if (selectedMaterialNames.length > materials.length || !selectedMaterialNames.every((name) => materials.includes(name))) {
-      dispatch(clearGraph());
-      dispatch(setMaterials(selectedMaterialNames));
-    }
-  };
-
-  const handleClear = () => {
-    if (selectedMaterialNames.length > 0) {
-      dispatch(clearGraph());
-      setSelectedMaterialNames([])
-      dispatch(setMaterials([]));
-    }
-  }
-
 
   return (
     <>
@@ -80,24 +65,6 @@ export function MaterialSelector() {
           ))}
         </Select>
       </FormControl>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleLoadComponent}
-      >
-        Load
-      </Button>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleClear}
-      >
-        Clear
-      </Button>
     </>
   );
 }

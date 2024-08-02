@@ -27,24 +27,8 @@ export function ComponentSelector() {
     setSelectedComponentNames(
       typeof value === 'string' ? value.split(',') : value,
     );
+    dispatch(setComponents(typeof value === 'string' ? value.split(',') : value));
   };
-
-
-  const handleLoadComponent = () => {
-    if (selectedComponentNames.length > components.length || !selectedComponentNames.every((name) => components.includes(name))) {
-      dispatch(clearGraph());
-      dispatch(setComponents(selectedComponentNames));
-    }
-  };
-
-  const handleClear = () => {
-    if (selectedComponentNames.length > 0) {
-      dispatch(clearGraph());
-      setSelectedComponentNames([])
-      dispatch(setComponents([]));
-    }
-  }
-
 
   return (
     <>
@@ -80,24 +64,6 @@ export function ComponentSelector() {
           ))}
         </Select>
       </FormControl>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleLoadComponent}
-      >
-        Load
-      </Button>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleClear}
-      >
-        Clear
-      </Button>
     </>
   );
 }

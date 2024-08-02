@@ -1,35 +1,35 @@
 import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, LinearProgress, Paper, createFilterOptions } from '@mui/material';
+import { Box, Button, LinearProgress, Paper, createFilterOptions } from '@mui/material';
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
-import { selectOptions } from '../../reducers/optionReducer';
+import { selectOptions, setIsPhysicsEnabled, setLayout } from '../../reducers/optionReducer';
 import { SupplierSelector } from './SupplierSelector';
 import { ComponentSelector } from './ComponentSelector';
 import { MaterialSelector } from './MaterialSelector';
 import style from './HeaderComponent.module.css';
 import { Edge, Node } from 'vis-network';
 import _ from 'lodash';
-import { selectGraph, setSuppliers } from '../../reducers/graphReducer';
+import { clearGraph, selectGraph, setComponents, setMaterials, setSuppliers } from '../../reducers/graphReducer';
 import { selectGremlin, setQuery, } from '../../reducers/gremlinReducer';
 import axios from 'axios';
+import { applyLayout } from '../../logics/graph';
 
 interface HeaderComponentProps {
   panelWidth: number
 }
 
 export const HeaderComponent = (props: HeaderComponentProps) => {
-  const { nodeLabels, nodeLimit } = useSelector(selectOptions);
-  const { components, suppliers, materials } = useSelector(selectGraph);
+  const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
+  const { components, suppliers, materials, selectorNodes } = useSelector(selectGraph);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
 
-  useEffect(() => {
-    onChange();
-  }, [components, suppliers, materials])
-
-  const onChange = () => {
+  const handleLoad = () => {
+    dispatch(clearGraph());
+    applyLayout("hierarchical");
+    dispatch(setLayout("hierarchical"));
     let queryToSend = '';
     let str = '';
     setError(null);
@@ -49,6 +49,13 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
       sendRequest(queryToSend);
     }
   };
+
+  const handleClear = () => {
+    dispatch(clearGraph());
+    dispatch(setMaterials([]));
+    dispatch(setComponents([]));
+    dispatch(setSuppliers([]));
+  }
 
   const sendRequest = (query: string) => {
     axios
@@ -89,20 +96,23 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
       </Paper>
 
       <br />
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={selectorNodes.length === 0}
+        onClick={handleLoad}
+      >
+        Load
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={selectorNodes.length === 0}
+        onClick={handleClear}
+      >
+        Clear
+      </Button>
       <div style={{ color: 'red' }}>{error}</div>
     </Box>
-    //   <Box className="header" sx={{ width: `calc(100% - ${props.panelWidth}px)`, position: 'relative' , display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center'  }}>
-    //     <Paper
-    //     >
-    //       <ComponentSelector />
-    //     </Paper>
-    //    <Paper>
-    //       <SupplierSelector />
-    //     </Paper>
-    //   <Paper>
-    //       <MaterialSelector/>
-    //     </Paper>
-    //   <div style={{ color: 'red' }}>{error}</div>
-    // </Box>
   );
 };

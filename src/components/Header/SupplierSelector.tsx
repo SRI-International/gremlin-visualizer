@@ -28,26 +28,8 @@ export function SupplierSelector() {
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value,
     );
+    dispatch(setSuppliers(typeof value === 'string' ? value.split(',') : value));
   };
-
-
-  const handleLoadSupplier = () => {
-    if (selectedSupplierNames.length > suppliers.length || !selectedSupplierNames.every((name) => suppliers.includes(name))) {
-      dispatch(clearGraph());
-      dispatch(setSuppliers(selectedSupplierNames));
-    }
-  };
-
-  const handleClear = () => {
-    if (selectedSupplierNames.length > 0) {
-      dispatch(clearGraph());
-      setSelectedSupplierNames([])
-      dispatch(setSuppliers([]));
-    }
-  }
-
-
-
 
   return (
     <>
@@ -83,24 +65,6 @@ export function SupplierSelector() {
           ))}
         </Select>
       </FormControl>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleLoadSupplier}
-      >
-        Load
-      </Button>
-      <Button
-        className={style['select-button']}
-        variant="contained"
-        color="primary"
-        disabled={names.length === 0}
-        onClick={handleClear}
-      >
-        Clear
-      </Button>
     </>
   );
 }
