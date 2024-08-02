@@ -1,17 +1,13 @@
-import React, { SyntheticEvent, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, Button, LinearProgress, Paper, createFilterOptions } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, SelectChangeEvent } from '@mui/material';
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
-import { selectOptions, setIsPhysicsEnabled, setLayout } from '../../reducers/optionReducer';
-import { SupplierSelector } from './SupplierSelector';
-import { ComponentSelector } from './ComponentSelector';
-import { MaterialSelector } from './MaterialSelector';
-import style from './HeaderComponent.module.css';
-import { Edge, Node } from 'vis-network';
+import { selectOptions, setLayout } from '../../reducers/optionReducer';
+import style from './HeaderComponent.module.css';;
 import _ from 'lodash';
-import { clearGraph, selectGraph, setComponents, setMaterials, setSuppliers } from '../../reducers/graphReducer';
-import { selectGremlin, setQuery, } from '../../reducers/gremlinReducer';
+import { clearGraph, selectGraph } from '../../reducers/graphReducer';
+import { selectGremlin } from '../../reducers/gremlinReducer';
 import axios from 'axios';
 import { applyLayout } from '../../logics/graph';
 
@@ -20,11 +16,50 @@ interface HeaderComponentProps {
 }
 
 export const HeaderComponent = (props: HeaderComponentProps) => {
-  const { nodeLabels, nodeLimit, graphOptions } = useSelector(selectOptions);
-  const { components, suppliers, materials, selectorNodes } = useSelector(selectGraph);
+  const { nodeLabels, nodeLimit } = useSelector(selectOptions);
+  const { selectorNodes } = useSelector(selectGraph);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { host, port } = useSelector(selectGremlin);
+
+  const componentNames = selectorNodes.filter(node => node.type === 'Component').map(node => node.properties.name);
+  const [selectedComponentNames, setSelectedComponentNames] = React.useState<string[]>([]);
+
+
+  const supplierNames = selectorNodes.filter(node => node.type === 'Entity').map(node => node.properties.name);
+  const [selectedSupplierNames, setSelectedSupplierNames] = React.useState<string[]>([]);
+
+  const materialNames = selectorNodes.filter(node => node.type === 'Material').map(node => node.properties.name);
+  const [selectedMaterialNames, setSelectedMaterialNames] = React.useState<string[]>([]);
+
+
+  const handleComponentChange = (event: SelectChangeEvent<typeof selectedComponentNames>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedComponentNames(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
+  const handleSupplierChange = (event: SelectChangeEvent<typeof selectedSupplierNames>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedSupplierNames(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
+  const handleMaterialChange = (event: SelectChangeEvent<typeof selectedMaterialNames>) => {
+
+    const {
+      target: { value },
+    } = event;
+    setSelectedMaterialNames(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
 
   const handleLoad = () => {
     dispatch(clearGraph());
@@ -33,18 +68,18 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
     let queryToSend = '';
     let str = '';
     setError(null);
-    if (suppliers.length > 0) {
-      str = suppliers.map((gr) => `'${gr}'`).join(',');
+    if (selectedSupplierNames.length > 0) {
+      str = selectedSupplierNames.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Entity", "name", within(${str})).emit().repeat(out())`;
       sendRequest(queryToSend);
     }
-    if (components.length > 0) {
-      str = components.map((gr) => `'${gr}'`).join(',');
+    if (selectedComponentNames.length > 0) {
+      str = selectedComponentNames.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Component", "name", within(${str})).emit().repeat(in())`;
       sendRequest(queryToSend);
     }
-    if (materials.length > 0) {
-      str = materials.map((gr) => `'${gr}'`).join(',');
+    if (selectedMaterialNames.length > 0) {
+      str = selectedMaterialNames.map((gr) => `'${gr}'`).join(',');
       queryToSend = `g.V().has("Material", "name", within(${str})).emit().repeat(in())`;
       sendRequest(queryToSend);
     }
@@ -52,9 +87,6 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
 
   const handleClear = () => {
     dispatch(clearGraph());
-    dispatch(setMaterials([]));
-    dispatch(setComponents([]));
-    dispatch(setSuppliers([]));
   }
 
   const sendRequest = (query: string) => {
@@ -80,19 +112,112 @@ export const HeaderComponent = (props: HeaderComponentProps) => {
         elevation={10}
         className={style['header-component-block']}
       >
-        <ComponentSelector />
+        <FormControl size="small" className={style['header-component-select']}>
+          <InputLabel id="component-select">Select Component</InputLabel>
+          <Select
+            labelId="component-select"
+            value={selectedComponentNames}
+            multiple
+            label="Select Component"
+            onChange={handleComponentChange}
+            MenuProps={{
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              PaperProps: {
+                style: { maxHeight: '600px' }
+              }
+            }}
+          >
+            {componentNames.map((name) => (
+              <MenuItem
+                key={name}
+                value={name}
+              >
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Paper>
       <Paper
         elevation={10}
         className={style['header-supplier-block']}
       >
-        <SupplierSelector />
+        <FormControl size="small" className={style['header-supplier-select']}>
+          <InputLabel id="supplier-select">Select Supplier</InputLabel>
+          <Select
+            labelId="supplier-select"
+            value={selectedSupplierNames}
+            multiple
+            label="Select Supplier"
+            onChange={handleSupplierChange}
+            MenuProps={{
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              PaperProps: {
+                style: { maxHeight: '600px' }
+              }
+            }}
+          >
+            {supplierNames.map((name) => (
+              <MenuItem
+                key={name}
+                value={name}
+              >
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Paper>
       <Paper
         elevation={10}
         className={style['header-material-block']}
       >
-        <MaterialSelector />
+        <FormControl size="small" className={style['header-material-select']}>
+          <InputLabel id="material-select">Select Material</InputLabel>
+          <Select
+            labelId="material-select"
+            value={selectedMaterialNames}
+            multiple
+            label="Select Material"
+            onChange={handleMaterialChange}
+            MenuProps={{
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              PaperProps: {
+                style: { maxHeight: '600px' }
+              }
+            }}
+          >
+            {materialNames.map((name) => (
+              <MenuItem
+                key={name}
+                value={name}
+              >
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Paper>
 
       <br />
