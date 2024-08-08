@@ -6,13 +6,14 @@ import {
 } from '../../reducers/graphReducer';
 import { selectOptions, setIsPhysicsEnabled } from '../../reducers/optionReducer';
 import { Box, Button, ButtonGroup, Fab, IconButton, Switch, Tooltip } from "@mui/material";
-import { getControls, getGraph } from "../../logics/graph";
+import { configGraphConnection, getControls, getGraph } from "../../logics/graph";
 import { GraphTypes } from "../../logics/utils";
 import { Add, CenterFocusStrong, Remove } from '@mui/icons-material';
 import { Network } from 'vis-network';
 import store from '../../app/store';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
+import { selectGremlin } from '../../reducers/gremlinReducer';
 
 
 interface NetworkGraphComponentProps {
@@ -66,12 +67,14 @@ const GraphControls = () => {
 
 export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
   const { nodes, edges, workspace } = useSelector(selectGraph);
-  const { graphOptions } = useSelector(selectOptions);
+  const { graphOptions, nodeLimit } = useSelector(selectOptions);
+  const { host, port } = useSelector(selectGremlin);
   const myRef = useRef(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (myRef.current != null) {
+      configGraphConnection({host: host, port: port, nodeLimit: nodeLimit, dispatch: dispatch})
       getGraph(
         myRef.current,
         { nodes, edges },
