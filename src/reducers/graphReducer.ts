@@ -41,6 +41,11 @@ const slice = createSlice({
       state.nodes = [...state.nodes, ...newNodes];
       return state;
     },
+    removeNodes: (state, action) => {
+      for (const nodeId of action.payload) {
+        state.nodes = state.nodes.filter(x => x.id != nodeId)
+      }
+    },
     updateNode: (state, action) => {
       const { updateId, updatedElement } = action.payload;
       const stateNodeIndex = state.nodes.findIndex(node => node.id === updateId);
@@ -116,6 +121,7 @@ export const {
   updateEdge,
   addNodes,
   addEdges,
+  removeNodes,
   setSelectedEdge,
   setSelectedNode,
   refreshNodeLabels,

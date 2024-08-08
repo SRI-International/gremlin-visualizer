@@ -3,8 +3,6 @@ import { getCytoGraph, getNodePositions as getCytoNodePositions, setNodePosition
 import { getSigmaGraph, getNodePositions as getSigmaNodePositions, setNodePositions as setSigmaNodePositions, applyLayout as sigmaLayout, layoutOptions as sigmaLayouts, zoomIn as sigmaZoomIn, zoomOut as sigmaZoomOut, fitTo as sigmaFitTo, exportIMG as sigmaExportIMG} from "./graphImpl/sigmaImpl";
 import { getVisNetwork, getNodePositions as getVisNodePositions, setNodePositions as setVisNodePositions, applyLayout as visLayout, layoutOptions as visLayouts, zoomIn as visZoomIn, zoomOut as visZoomOut, fitTo as visFitTo, exportIMG as visExportIMG} from "./graphImpl/visImpl";
 import { Add, CenterFocusStrong, Remove } from '@mui/icons-material';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
 import IosShareIcon from '@mui/icons-material/IosShare';
 
 const { getGraph, getNodePositions, setNodePositions, applyLayout, layoutOptions } = (() => {
