@@ -212,10 +212,11 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         graph.remove(n)
       }
     }
+    const nodeIds = graph.nodes().map(x => x.id())
     for (let e of edges) {
       if (!graph.edges().map(x => x.id()).includes(e.data.id!) && graph.$id(e.data.target).size() > 0) {
         const sourceNodeID = e.data.source
-        if (!graph.nodes().map(x => x.id()).includes(sourceNodeID)) {
+        if (!nodeIds.includes(sourceNodeID)) {
           continue;
         }
         graph.add(e)
