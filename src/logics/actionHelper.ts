@@ -63,23 +63,23 @@ export const deleteNode = (id: string, config: connectionConfig | null) => {
   const port = config.port;
   const nodeLimit = config.nodeLimit;
   const dispatch = config.dispatch;
-    axios
-      .post(
-        QUERY_ENDPOINT,
-        {
-          host,
-          port,
-          query,
-          nodeLimit,
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      .then((_response) => {
-      })
-      .catch((error) => {
-        console.warn(error)
-        dispatch(setError(COMMON_GREMLIN_ERROR));
-      });
+  axios
+    .post(
+      QUERY_ENDPOINT,
+      {
+        host,
+        port,
+        query,
+        nodeLimit,
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    .then((_response) => {
+    })
+    .catch((error) => {
+      console.warn(error)
+      dispatch(setError(COMMON_GREMLIN_ERROR));
+    });
 }
 
 

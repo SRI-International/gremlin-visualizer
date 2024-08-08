@@ -133,7 +133,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           },
           enabled: true // whether the command is selectable
         },
-    ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
+      ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
     })
 
     layout.start()

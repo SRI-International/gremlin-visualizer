@@ -74,7 +74,7 @@ export const NetworkGraphComponent = (props: NetworkGraphComponentProps) => {
 
   useEffect(() => {
     if (myRef.current != null) {
-      configGraphConnection({host: host, port: port, nodeLimit: nodeLimit, dispatch: dispatch})
+      configGraphConnection({ host: host, port: port, nodeLimit: nodeLimit, dispatch: dispatch })
       getGraph(
         myRef.current,
         { nodes, edges },
