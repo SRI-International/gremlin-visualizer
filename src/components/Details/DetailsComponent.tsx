@@ -89,7 +89,7 @@ export const DetailsComponent = () => {
    */
   function getRows(data: any) {
     if (data == null) return;
-    return Object.entries(data).map(e => {
+    return Object.entries(data).sort().map(e => {
       return <TableRow>
         <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
         <TableCell style={{ paddingRight: 5 }}>
