@@ -7,7 +7,7 @@ import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../util
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
-import getIcon from "../../assets/icons";
+import getIcon from "../icons";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;

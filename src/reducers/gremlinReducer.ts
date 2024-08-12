@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
+import { DB_HOST, DB_PORT } from "../constants";
 
 const initialState = {
-  host: 'localhost',
-  port: '8182',
+  host: DB_HOST,
+  port: DB_PORT,
   query: 'g.V()',
   error: null
 };

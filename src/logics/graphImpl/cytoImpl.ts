@@ -7,7 +7,7 @@ import store, { AppDispatch } from "../../app/store";
 import { removeNodes, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
 import { Workspace } from "../../components/Details/SettingsComponent";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
-import getIcon from "../../assets/icons";
+import getIcon from "../icons";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import dagre from 'cytoscape-dagre';
 import { deleteNode } from "../actionHelper";
