@@ -12,6 +12,8 @@ import TocIcon from '@mui/icons-material/Toc';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GradeIcon from '@mui/icons-material/Grade';
 import DatasetIcon from '@mui/icons-material/Dataset';
+import LayersIcon from '@mui/icons-material/Layers';
+import { Workspaces } from "./WorkspacesComponent";
 
 type QueryHistoryProps = {
   list: Array<string>;
@@ -105,8 +107,11 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
           <Tooltip title="Table View" placement="left" arrow>
             <Tab icon={<DatasetIcon />} value={3} />
           </Tooltip>
+          <Tooltip title="Workspaces" placement="left" arrow>
+            <Tab icon={<LayersIcon />} value={4} />
+          </Tooltip>
           <Tooltip title="Settings" placement="left" arrow>
-            <Tab icon={<SettingsIcon />} value={4} />
+            <Tab icon={<SettingsIcon />} value={5} />
           </Tooltip>
 
         </Tabs>
@@ -128,6 +133,9 @@ export const SidebarComponent = (props: SidebarComponentProps) => {
             <CollapsibleTable />
           </TabPanel>
           <TabPanel index={4} value={value}>
+            <Workspaces/>
+          </TabPanel>
+          <TabPanel index={5} value={value}>
             <Settings />
           </TabPanel>
         </Box>
