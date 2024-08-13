@@ -52,10 +52,12 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
     group: "nodes",
     data: { ...n, id: n.id!.toString() },
     style: {
-      'background-color': color,
-      'background-opacity': 0.7,
-      'border-width': '3px',
+      'width': 41,
+      'height': 41,
       'border-color': color,
+      'border-width': '0px',
+      'background-color': color,
+      'background-opacity': 0,
       'background-image': getIcon(n.type),
       'background-fit': 'contain',
       'text-max-width' : '100px',
@@ -150,7 +152,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           },
           enabled: true // whether the command is selectable
         },
-      ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
+    ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
     })
 
     layout.start()
@@ -229,11 +231,10 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
         graph.remove(n)
       }
     }
-    const nodeIds = graph.nodes().map(x => x.id())
     for (let e of edges) {
       if (!graph.edges().map(x => x.id()).includes(e.data.id!) && graph.$id(e.data.target).size() > 0) {
         const sourceNodeID = e.data.source
-        if (!nodeIds.includes(sourceNodeID)) {
+        if (!graph.nodes().map(x => x.id()).includes(sourceNodeID)) {
           continue;
         }
         graph.add(e)
@@ -299,12 +300,19 @@ export function applyLayout(name: string) {
 export function getNodePositions() {
   layout?.stop()
   store.dispatch(setIsPhysicsEnabled(false))
-  let positions: Record<string, { x: number, y: number }> = {};
+  let positions: Record<string, { node_id: string, name: string, x: number, y: number}> = {};
+  let nodemaps:  Record<string, { name: string, layout_id:string }> = {};
+
   graph?.nodes().forEach(node => {
-    positions[node.data('id')] = Object.assign({}, node.position())
+    const node_name = node.data('properties').name;
+    const node_id = node.data('id');
+    const node_position = node.position();
+    positions[node.data('properties').layout_id] = {node_id: node_id, name: node_name, x: node_position.x, y: node_position.y}
   })
   return {
     layout: positions,
+    nodemap: nodemaps,
+    //layout: layouts,
     zoom: graph?.zoom(),
     view: Object.assign({}, graph?.pan())
   };
@@ -314,7 +322,7 @@ export function setNodePositions(workspace: Workspace | undefined) {
   layout?.stop()
   store.dispatch(setIsPhysicsEnabled(false))
   graph?.nodes().forEach(node => {
-    let newPosition = workspace?.layout[node.data('id')]
+    let newPosition = workspace?.layout[node.data('properties').layout_id]
     if (newPosition !== undefined) node.position(newPosition);
   })
   graph?.zoom(workspace?.zoom)
