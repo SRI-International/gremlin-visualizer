@@ -78,23 +78,27 @@ export const Workspaces = () => {
     dispatch(clearGraph());
     let workspace = workspaces.find(workspace => workspace.name === workspaceToLoad)
     const ids = Object.keys(workspace!.layout);
-    const withinStep = `within(${ids.map(id => `'${id}'`).join(', ')})`;
-    const query = `g.V().hasId(${withinStep})`;
-    axios
-      .post(
-        QUERY_ENDPOINT,
-        { host, port, query, nodeLimit },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      .then((response) => {
-        onFetchQuery(response, query, nodeLabels, dispatch);
-        dispatch(chooseWorkspace(workspace));
+    const chunksize = 200;
+    for (let i= 0; i < ids.length; i += chunksize) {
+      const chunk = ids.slice(i, i + chunksize)
+      const withinStep = `within(${chunk.map(id => `'${id}'`).join(', ')})`;
+      const query = `g.V().hasId(${withinStep})`;
+      axios
+        .post(
+          QUERY_ENDPOINT,
+          { host, port, query, nodeLimit },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+        .then((response) => {
+          onFetchQuery(response, query, nodeLabels, dispatch);
+          dispatch(chooseWorkspace(workspace));
 
-      })
-      .catch((error) => {
-        console.warn(error)
-        dispatch(setError(COMMON_GREMLIN_ERROR));
-      });
+        })
+        .catch((error) => {
+          console.warn(error)
+          dispatch(setError(COMMON_GREMLIN_ERROR));
+        });
+    }
     onCancelLoadWorkspace()
   }
 
