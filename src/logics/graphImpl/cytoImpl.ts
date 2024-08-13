@@ -59,7 +59,9 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-color': color,
       'background-opacity': 0,
       'background-image': getIcon(n.type),
-      'background-fit': 'none'
+      'background-fit': 'none',
+      'text-max-width' : '100px',
+      'text-wrap': 'wrap'
     },
     position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
@@ -108,7 +110,8 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           style: {
             width: 1,
             "curve-style": "bezier",
-            "target-arrow-shape": 'triangle',
+	    "target-arrow-shape": 'triangle',
+	    "text-rotation": "autorotate",
             "label": "data(label)"
           }
         }
