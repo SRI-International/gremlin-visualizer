@@ -7,7 +7,7 @@ import { Workspace } from "../../components/Details/SettingsComponent";
 import { getColor, GraphData, GraphOptions, GraphTypes } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { createNodeImageProgram } from "@sigma/node-image";
-import getIcon from "../../assets/icons";
+import getIcon from "../icons";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import { circular } from "graphology-layout";
 import { animateNodes } from "sigma/utils";

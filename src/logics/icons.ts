@@ -1,8 +1,4 @@
-const icons: Record<string, string> = {
-  // insert label to icon map here
-  // person: require("./icons/person.jpg"),
-  // place: require("./icons/place.jpg")
-};
+import { ICONS } from "../constants";
 
 interface IconProvider {
   (label: string | undefined): string | null
@@ -13,7 +9,7 @@ interface IconProvider {
  */
 const getIcon: IconProvider = (label: string | undefined) => {
   if (label === undefined) return null;
-  const icon = icons[label];
+  const icon = (ICONS as Record<string, any>)[label];
   if (icon) {
     return icon;
   }

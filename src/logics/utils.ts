@@ -57,6 +57,9 @@ export interface GraphOptions {
 }
 
 const selectRandomField = (obj: any) => {
+  // default to name if exists
+  if ('name' in obj) return 'name';
+  if ('Name' in obj) return 'Name';
   let firstKey;
   for (firstKey in obj) break;
   return firstKey;

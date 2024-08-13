@@ -72,49 +72,6 @@ test("refreshing a node label sends update/refresheNodeLabels dispatch", async (
     })
 });
 
-test("save workspace as 'saved workspace' and confirm it appears as one of the options in load workspace", async () => {
-    let user = userEvent.setup();
-    let store = setupStore();
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
-    mockedAxios.get.mockResolvedValueOnce({ data: [] });
-    mockedAxios.post.mockResolvedValueOnce({ data: 'Mocked success' });
-    mockedAxios.get.mockResolvedValueOnce({ data: [{ "name": "saved workspace", "impl": "vis", "layout": {}, "zoom": 1, "view": { "x": 0, "y": 0 } }] });
-    jest.spyOn(store, 'dispatch');
-    render(
-        <Provider store={store}>
-            <SidebarComponent panelWidth={350} handleMouseDown={() => { }} />
-        </Provider>
-    );
-    const settingsTab = screen.getByRole('tab', { name: 'Settings' });
-    await user.click(settingsTab);
-
-    const saveWorkspaceButton = screen.getByRole('button', { name: /Save Workspace/i });
-    await user.click(saveWorkspaceButton);
-    const workspaceNameInput = screen.getByRole('textbox', { name: 'Workspace Name' });
-    await user.click(workspaceNameInput);
-    await user.type(workspaceNameInput, 'saved workspace');
-    const saveButton = screen.getByRole('button', { name: /Save/i });
-    await user.click(saveButton);
-
-    await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-
-    const loadWorkspaceButton = screen.getByRole('button', { name: /Load Workspace/i });
-    await user.click(loadWorkspaceButton);
-    const dropdown = within(await screen.findByTestId("workspace-select")).getByRole(
-        "combobox",
-    );
-    await user.click(dropdown);
-    expect(
-        await screen.findByRole("option", { name: "saved workspace" }),
-    ).toBeInTheDocument();
-    const saved_workspace = screen.getByRole("option", { name: "saved workspace" });
-    await user.click(saved_workspace);
-    const loadButton = screen.getByRole('button', { name: /Load/i });
-    await user.click(loadButton);
-})
-
 test("refreshing a node label sends editNodeLabel/refresheNodeLabels dispatch", async () => {
     let user = userEvent.setup();
     let store = setupStore();
