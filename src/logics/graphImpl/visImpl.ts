@@ -1,19 +1,21 @@
 import { DataInterfaceEdges, DataInterfaceNodes, Edge, IdType, Network, Node, Options } from "vis-network";
 import store from "../../app/store"
-import { setSelectedEdge, setSelectedNode, Workspace } from "../../reducers/graphReducer";
+import { setSelectedEdge, setSelectedNode } from "../../reducers/graphReducer";
+import { Workspace } from "../../components/Details/SettingsComponent";
 import { openEdgeDialog, openNodeDialog } from "../../reducers/dialogReducer";
 import { EdgeData, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import { setIsPhysicsEnabled } from "../../reducers/optionReducer";
 import { Id } from "vis-data/declarations/data-interface";
 import { DataSet } from "vis-data"
-import getIcon from "../../assets/icons";
+import getIcon from "../icons";
 
 export const layoutOptions = ['force-directed', 'hierarchical']
 let network: Network | null = null;
 const nodes = new DataSet<Node>({})
 const edges = new DataSet<Edge>({})
 let shiftKeyDown = false;
-let canvas: CanvasRenderingContext2D | null = null;
+let savedSelectedNode: null | Id = null;
+let savedSelectedEdge: null | Id = null;
 
 
 const defaultOptions: Options = {
@@ -193,7 +195,88 @@ function curveEdges(edges: DataSet<Edge>) {
   (network as any)?.body.emitter.emit("_dataChanged");
 }
 
-export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined): GraphTypes {
+export function highlightNodesAndEdges(node: any, edge: any) {
+  savedSelectedNode = node;
+  savedSelectedEdge = edge;
+  const allNodesToUpdate: any = [];
+  const allEdgesToUpdate: any = [];
+  if (node != undefined) {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: 'rgba(200,200,200)',
+      });
+    });
+    const connectedNodes = network!.getConnectedNodes(node);
+    const connectedEdges = network!.getConnectedEdges(node);
+    connectedNodes.forEach((nodeId) => {
+      allNodesToUpdate.push({
+        id: nodeId,
+        color: undefined
+      });
+    });
+    allNodesToUpdate.push({
+      id: node,
+      color: undefined,
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: 'rgba(200,200,200)',
+      });
+    });
+    connectedEdges.forEach((edgeId) => {
+      const edge = edges.get(edgeId);
+      allEdgesToUpdate.push({
+        id: edgeId,
+        color: "rgb(48,124,248)"
+      });
+    });
+  }
+  else if (edge != undefined) {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: 'rgba(200,200,200)',
+      });
+    });
+    const connectedNodes = network!.getConnectedNodes(edge);
+    connectedNodes.forEach((nodeId) => {
+      allNodesToUpdate.push({
+        id: nodeId,
+        color: undefined
+      });
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: 'rgba(200,200,200)',
+      });
+    });
+    allEdgesToUpdate.push({
+      id: edge,
+      color: "rgb(48,124,248)"
+    });
+  }
+  else {
+    nodes.forEach((node) => {
+      allNodesToUpdate.push({
+        id: node.id,
+        color: undefined,
+      });
+    });
+    edges.forEach((edge) => {
+      allEdgesToUpdate.push({
+        id: edge.id,
+        color: "rgb(48,124,248)",
+      });
+    });
+  }
+  nodes.update(allNodesToUpdate);
+  edges.update(allEdgesToUpdate);
+}
+
+export function getVisNetwork(container?: HTMLElement, data?: GraphData, options?: GraphOptions | undefined, workspace?: Workspace | null): GraphTypes {
   let updateNodesArray = [];
   let addNodesArray = [];
   let addEdgesArray = [];
@@ -201,9 +284,22 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
   let removeEdgesArray = [];
 
   if (network) {
+    if (workspace) {
+      store.dispatch(setIsPhysicsEnabled(false))
+      network?.moveTo({
+        position: workspace.view,
+        scale: workspace.zoom
+      })
+    }
     for (let n of data?.nodes || []) {
       if (!nodes!.get(n.id as Id)) {
-        addNodesArray.push(toVisNode(n))
+        let xPosition = undefined;
+        let yPosition = undefined;
+        if (workspace) {
+          xPosition = workspace.layout[n.id].x;
+          yPosition = workspace.layout[n.id].y;
+        }
+        addNodesArray.push(toVisNode({ ...n, ...{ x: xPosition, y: yPosition } }))
       } else {
         updateNodesArray.push(toVisNode({ ...n, ...{ x: undefined, y: undefined } }))
       }
@@ -236,7 +332,12 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
     if (options) {
       network.setOptions(getOptions(options));
     }
-
+    if (nodes.length == 0) {
+      highlightNodesAndEdges(null, null);
+    }
+    else {
+      highlightNodesAndEdges(savedSelectedNode, savedSelectedEdge);
+    }
     return network;
   }
 
@@ -263,12 +364,22 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
       if (!params.nodes[0]) {
         return
       }
+      highlightNodesAndEdges(params.nodes[0], null);
       store.dispatch(setIsPhysicsEnabled(false))
     });
     network.on('click', function (params) {
       let jsEvent = params.event.srcEvent;
       if ((params.nodes.length == 0) && (params.edges.length == 0) && (jsEvent.shiftKey)) {
         store.dispatch(openNodeDialog({ x: params.pointer.canvas.x, y: params.pointer.canvas.y }));
+      }
+      else if (params.edges.length != 0 && params.nodes.length == 0) {
+        highlightNodesAndEdges(null, params.edges[0]);
+      }
+      else if (params.nodes.length != 0) {
+        highlightNodesAndEdges(params.nodes[0], null);
+      }
+      else if ((params.nodes.length == 0) && (params.edges.length == 0)) {
+        highlightNodesAndEdges(null, null);
       }
     });
 
@@ -294,6 +405,7 @@ export function getVisNetwork(container?: HTMLElement, data?: GraphData, options
 export function applyLayout(name: string) {
   network?.setOptions(getOptions(store.getState().options.graphOptions))
 }
+
 
 export function getNodePositions() {
   store.dispatch(setIsPhysicsEnabled(false))

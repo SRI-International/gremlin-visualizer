@@ -3,14 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import _ from 'lodash';
 import { defaultNodeLabel, EdgeData, NodeData } from "../logics/utils";
-
-export type Workspace = {
-  name: string,
-  impl: string,
-  layout: Record<string, { x: number, y: number }>
-  zoom: number,
-  view: { x: number, y: number }
-}
+import { Workspace } from '../components/Details/SettingsComponent';
 
 type GraphState = {
   nodes: NodeData[];
@@ -18,7 +11,7 @@ type GraphState = {
   selectedNode?: NodeData;
   selectedEdge?: EdgeData;
   nodeColorMap: { [index: string]: string };
-  workspaces: Workspace[]
+  workspace: Workspace | null;
 };
 
 const initialState: GraphState = {
@@ -27,7 +20,7 @@ const initialState: GraphState = {
   selectedNode: undefined,
   selectedEdge: undefined,
   nodeColorMap: {},
-  workspaces: []
+  workspace: null
 };
 
 const slice = createSlice({
@@ -47,6 +40,11 @@ const slice = createSlice({
       const newNodes = _.differenceBy(action.payload, state.nodes, (node: any) => node.id);
       state.nodes = [...state.nodes, ...newNodes];
       return state;
+    },
+    removeNodes: (state, action) => {
+      for (const nodeId of action.payload) {
+        state.nodes = state.nodes.filter(x => x.id != nodeId)
+      }
     },
     updateNode: (state, action) => {
       const { updateId, updatedElement } = action.payload;
@@ -103,17 +101,17 @@ const slice = createSlice({
           else
             return { ...node, label };
         }
+
         return { ...node, ...{ label: defaultNodeLabel(node) } }
       });
     },
     updateColorMap: (state, action) => {
       Object.assign(state.nodeColorMap, action.payload);
     },
-    addWorkspace: (state, action) => {
-      let workspaceToOverwriteIndex = state.workspaces.findIndex(workspace => workspace.name === action.payload.name)
-      if (workspaceToOverwriteIndex !== -1) state.workspaces[workspaceToOverwriteIndex] = action.payload
-      else state.workspaces.push(action.payload)
-    }
+    chooseWorkspace: (state, action) => {
+      state.workspace = action.payload;
+    },
+
   },
 });
 
@@ -123,11 +121,12 @@ export const {
   updateEdge,
   addNodes,
   addEdges,
+  removeNodes,
   setSelectedEdge,
   setSelectedNode,
   refreshNodeLabels,
   updateColorMap,
-  addWorkspace
+  chooseWorkspace,
 } = slice.actions;
 
 export const selectGraph = (state: RootState) => state.graph;

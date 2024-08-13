@@ -22,7 +22,7 @@ const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).ma
 const initialState: OptionState = {
   nodeLabels: initialNodeLabels,
   queryHistory: [],
-  nodeLimit: 100,
+  nodeLimit: 1000,
   graphOptions: {
     layout: 'force-directed',
     isPhysicsEnabled: true,
@@ -92,50 +92,3 @@ export const {
 
 export const selectOptions = (state: RootState) => state.options;
 export default slice.reducer;
-
-// export const reducer =  (state=initialState, action)=>{
-//   switch (action.type){
-//     case ACTIONS.SET_IS_PHYSICS_ENABLED: {
-//       const isPhysicsEnabled = _.get(action, 'payload', true);
-//       return { ...state, isPhysicsEnabled };
-//     }
-//     case ACTIONS.ADD_QUERY_HISTORY: {
-//       return { ...state, queryHistory: [ ...state.queryHistory, action.payload] }
-//     }
-//     case ACTIONS.CLEAR_QUERY_HISTORY: {
-//       return { ...state, queryHistory: [] }
-//     }
-//     case ACTIONS.SET_NODE_LABELS: {
-//       const nodeLabels = _.get(action, 'payload', []);
-//       return { ...state, nodeLabels };
-//     }
-//     case ACTIONS.ADD_NODE_LABEL: {
-//       const nodeLabels = [...state.nodeLabels, {}];
-//       return { ...state, nodeLabels };
-//     }
-//     case ACTIONS.EDIT_NODE_LABEL: {
-//       const editIndex = action.payload.id;
-//       const editedNodeLabel = action.payload.nodeLabel;
-
-//       if (state.nodeLabels[editIndex]) {
-//         const nodeLabels = [...state.nodeLabels.slice(0, editIndex), editedNodeLabel, ...state.nodeLabels.slice(editIndex+1)];
-//         return { ...state, nodeLabels };
-//       }
-//       return state;
-//     }
-//     case ACTIONS.REMOVE_NODE_LABEL: {
-//       const removeIndex = action.payload;
-//       if (removeIndex < state.nodeLabels.length) {
-//         const nodeLabels = [...state.nodeLabels.slice(0, removeIndex), ...state.nodeLabels.slice(removeIndex+1)];
-//         return { ...state, nodeLabels };
-//       }
-//       return state;
-//     }
-//     case ACTIONS.SET_NODE_LIMIT: {
-//       const nodeLimit = action.payload;
-//       return { ...state, nodeLimit };
-//     }
-//     default:
-//       return state;
-//   }
-// };
