@@ -111,7 +111,8 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           style: {
             width: 1,
             "curve-style": "bezier",
-            "target-arrow-shape": 'triangle',
+	    "target-arrow-shape": 'triangle',
+	    "text-rotation": "autorotate",
             "label": "data(label)"
           }
         }
