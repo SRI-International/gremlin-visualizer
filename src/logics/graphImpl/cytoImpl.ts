@@ -61,7 +61,8 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-image': getIcon(n.type),
       'background-fit': 'none',
       'text-max-width' : '100px',
-      'text-wrap': 'wrap'
+      'text-wrap': 'wrap',
+      'text-valign': 'bottom'
     },
     position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
