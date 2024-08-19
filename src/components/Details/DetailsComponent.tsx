@@ -23,7 +23,7 @@ import { selectGremlin, setError } from "../../reducers/gremlinReducer";
 import { selectGraph } from "../../reducers/graphReducer";
 import { selectOptions } from "../../reducers/optionReducer";
 import _ from "lodash";
-import { stringifyObjectValues } from "../../logics/utils";
+import { traverseQuery, stringifyObjectValues } from "../../logics/utils";
 import {
   COMMON_GREMLIN_ERROR,
   DISABLE_NODE_EDGE_EDIT,
@@ -125,28 +125,6 @@ export const DetailsComponent = () => {
     });
   }
 
-  function onTraverse(nodeId: IdType | undefined, direction: string) {
-    const query = `g.V('${nodeId}').${direction}()`;
-    axios
-      .post(
-        QUERY_ENDPOINT,
-        {
-          host,
-          port,
-          query,
-          nodeLimit,
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
-      .then((response) => {
-        onFetchQuery(response, query, nodeLabels, dispatch);
-      })
-      .catch((error) => {
-        console.warn(error)
-        dispatch(setError(COMMON_GREMLIN_ERROR));
-      });
-  }
-
   function sendUpdateQuery(query: string) {
     axios
       .post(
@@ -239,7 +217,7 @@ export const DetailsComponent = () => {
               <Button
                 variant="outlined"
                 size='small'
-                onClick={() => onTraverse(selectedId, 'out')}
+                onClick={() => traverseQuery(selectedId, 'out')}
               >
                 Traverse Out Edges
                 <ArrowForwardIcon />
@@ -249,7 +227,7 @@ export const DetailsComponent = () => {
               <Button
                 variant="outlined"
                 size="small"
-                onClick={() => onTraverse(selectedId, 'in')}
+                onClick={() => traverseQuery(selectedId, 'in')}
               >
                 Traverse In Edges
                 <ArrowBackIcon />
