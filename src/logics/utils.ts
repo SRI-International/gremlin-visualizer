@@ -6,6 +6,10 @@ import Sigma from "sigma";
 import { setSuggestions, Suggestions } from '../reducers/dialogReducer';
 import store from '../app/store';
 import { DIALOG_TYPES } from '../components/ModalDialog/ModalDialogComponent';
+import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../constants";
+import axios from "axios";
+import { onFetchQuery } from "./actionHelper";
+import { setError } from "../reducers/gremlinReducer";
 
 let convert = require('color-convert')
 
@@ -158,4 +162,30 @@ export function defaultNodeLabel(node: any) {
   return `${node.type}:${node.id}`
 }
 
+
+export function traverseQuery(nodeId: IdType | undefined, direction: string) {
+  const query = `g.V('${nodeId}').${direction}()`;
+  const state = store.getState();
+  const { host, port } = state.gremlin;
+  const { nodeLabels, nodeLimit } = state.options;
+  const dispatch = store.dispatch
+  axios
+    .post(
+      QUERY_ENDPOINT,
+      {
+        host,
+        port,
+        query,
+        nodeLimit,
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    .then((response) => {
+      onFetchQuery(response, query, nodeLabels, dispatch);
+    })
+    .catch((error) => {
+      console.warn(error)
+      dispatch(setError(COMMON_GREMLIN_ERROR));
+    });
+}
 

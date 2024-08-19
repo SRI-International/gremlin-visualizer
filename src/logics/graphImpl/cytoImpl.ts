@@ -1,7 +1,7 @@
 import cy, { NodeDefinition, Singular } from "cytoscape";
 import edgehandles from 'cytoscape-edgehandles';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
+import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData, traverseQuery } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store, { AppDispatch } from "../../app/store";
 import { removeNodes, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
@@ -130,6 +130,20 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           content: 'Hide', // html/text content to be displayed in the menu
           select: function (ele: Singular) { // a function to execute when the command is selected
             store.dispatch(removeNodes([ele.id()]))
+          },
+          enabled: true // whether the command is selectable
+        },
+        { // example command
+          content: 'Incoming Edges', // html/text content to be displayed in the menu
+          select: function (ele: Singular) { // a function to execute when the command is selected
+            traverseQuery(ele.id(), "in")
+          },
+          enabled: true // whether the command is selectable
+        },
+        { // example command
+          content: 'Outgoing Edges', // html/text content to be displayed in the menu
+          select: function (ele: Singular) { // a function to execute when the command is selected
+            traverseQuery(ele.id(), "out")
           },
           enabled: true // whether the command is selectable
         },
