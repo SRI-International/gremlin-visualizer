@@ -1,0 +1,84 @@
+{
+  "name": "Mystique-Attack-Chain",
+  "impl": "cytoscape",
+  "layout": {
+    "317641291768d18124a7ae3c3d6d5b84": {
+      "node_id": "233095",
+      "name": "Post-State: Code-Execution",
+      "x": -69.49564291868117,
+      "y": 59.808382959254885
+    },
+    "067cf0f734d621418cf7033bc3b91ee8": {
+      "node_id": "233116",
+      "name": "Mystique Malicious App",
+      "x": -246.61491356108866,
+      "y": -366.6355843422397
+    },
+    "4eeb88e15c9a1a53968eca8b597f7b49": {
+      "node_id": "233130",
+      "name": "Malware mystique.SO",
+      "x": -243.44262860189374,
+      "y": -71.50563754246855
+    },
+    "81b03c520eeefb586ebd9e4c1901d253": {
+      "node_id": "233010",
+      "name": "Required-State: User-Install",
+      "x": -70.3767777527911,
+      "y": -367.36075865581637
+    },
+    "aaa3bfc797708e4678e3ee5313400b86": {
+      "node_id": "229054",
+      "name": "Camera Library",
+      "x": -428.1717209129608,
+      "y": -71.88820579801339
+    },
+    "d29fbab53469ecc7cab93cee258e9693": {
+      "node_id": "233020",
+      "name": "Post-State: Code-Installed",
+      "x": -65.04944202350536,
+      "y": -204.85836188136773
+    },
+    "39ff2d571cf4815f1c030f473596bb40": {
+      "node_id": "233030",
+      "name": "Exploit 2: Camera Filter",
+      "x": 93.88888816737428,
+      "y": -10.936971675832897
+    },
+    "5f133d8e29ec988dc4e7cf6e8ff5df6f": {
+      "node_id": "231496",
+      "name": "Android CVE-2021-25510",
+      "x": 286.9984030633639,
+      "y": -9.943392921860163
+    },
+    "e93eced51ed799c9e5957f3e258c755e": {
+      "node_id": "232942",
+      "name": "Mystique Exploit Chain",
+      "x": 84.83369050685192,
+      "y": -481.1553058728869
+    },
+    "33ebcf9d2c57f10680237c4d5690b27e": {
+      "node_id": "231412",
+      "name": "Android CVE-2021-0691",
+      "x": 286.14978784625004,
+      "y": -294.3272662550619
+    },
+    "c4a294a284442580ca546428442d0006": {
+      "node_id": "232954",
+      "name": "Exploit 1: SELinux Policy",
+      "x": 89.47810306584056,
+      "y": -293.4224163806408
+    },
+    "a6644942a3d34fe1e53ff83452d90118": {
+      "node_id": "233085",
+      "name": "Required-State: Code-Installed",
+      "x": -64.29592473963217,
+      "y": -77.68215866359537
+    }
+  },
+  "nodemap": {},
+  "zoom": 0.8953647655495944,
+  "view": {
+    "x": 1014.7571045273831,
+    "y": 678.0914121881756
+  }
+}
