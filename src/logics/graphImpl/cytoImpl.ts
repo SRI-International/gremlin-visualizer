@@ -59,7 +59,7 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-color': color,
       'background-opacity': 0,
       'background-image': getIcon(n.type),
-      'background-fit': 'none',
+      'background-fit': 'contain',
       //'font-size': '0px',
       'text-max-width' : '80px',
       'text-wrap': 'wrap',
