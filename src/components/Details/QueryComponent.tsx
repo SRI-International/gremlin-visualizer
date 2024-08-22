@@ -8,7 +8,7 @@ import axios from "axios";
 import { COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from "../../constants";
 import { onFetchQuery } from "../../logics/actionHelper";
 import { RootState } from "../../app/store";
-import { highlightNodesAndEdges } from "../../logics/graphImpl/visImpl";
+// import { highlightNodesAndEdges } from "../../logics/graphImpl/visImpl";
 
 const Query = ({ }) => {
   const dispatch = useDispatch()
@@ -24,7 +24,7 @@ const Query = ({ }) => {
 
   function sendQuery() {
     dispatch(setError(null));
-    highlightNodesAndEdges(null, null);
+    // highlightNodesAndEdges(null, null);
     axios
       .post(
         QUERY_ENDPOINT,
