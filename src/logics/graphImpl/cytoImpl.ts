@@ -1,7 +1,7 @@
 import cy, { NodeDefinition, Singular } from "cytoscape";
 import edgehandles from 'cytoscape-edgehandles';
 import cxtmenu from 'cytoscape-cxtmenu';
-import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData, traverseQuery } from "../utils";
+import { EdgeData, getColor, GraphData, GraphOptions, GraphTypes, NodeData } from "../utils";
 import cola, { ColaLayoutOptions } from "cytoscape-cola";
 import store, { AppDispatch } from "../../app/store";
 import { removeNodes, setSelectedEdge, setSelectedNode, updateColorMap } from "../../reducers/graphReducer";
@@ -59,11 +59,10 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-color': color,
       'background-opacity': 0,
       'background-image': getIcon(n.type),
-      'background-fit': 'contain',
-      //'font-size': '0px',
-      'text-max-width' : '80px',
+      'background-fit': 'none',
+      'text-max-width' : '150px',
       'text-wrap': 'wrap',
-      'text-valign': 'bottom'
+      'text-valign': 'bottom',
     },
     position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
@@ -113,7 +112,6 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
             width: 1,
             "curve-style": "bezier",
 	    "target-arrow-shape": 'triangle',
-	    //"font-size": "0px",
 	    "text-rotation": "autorotate",
             "label": "data(label)"
           }
@@ -138,20 +136,6 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
           content: 'Hide', // html/text content to be displayed in the menu
           select: function (ele: Singular) { // a function to execute when the command is selected
             store.dispatch(removeNodes([ele.id()]))
-          },
-          enabled: true // whether the command is selectable
-        },
-        { // example command
-          content: 'Incoming Edges', // html/text content to be displayed in the menu
-          select: function (ele: Singular) { // a function to execute when the command is selected
-            traverseQuery(ele.id(), "in")
-          },
-          enabled: true // whether the command is selectable
-        },
-        { // example command
-          content: 'Outgoing Edges', // html/text content to be displayed in the menu
-          select: function (ele: Singular) { // a function to execute when the command is selected
-            traverseQuery(ele.id(), "out")
           },
           enabled: true // whether the command is selectable
         },
