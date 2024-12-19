@@ -48,18 +48,44 @@ export const SAVED_QUERIES = {
 export const ICONS = {
     default: require('./assets/icons/default.png'),
 
-    // Psychology Theory
-    cognitive_attention: require('./assets/icons/psychology/attention.png'),
-    cognitive_fatigue: require('./assets/icons/psychology/fatigue.png'),
-    cognitive_workload: require('./assets/icons/psychology/workload.png'),
+    // ** Psychology Theory
+    attention: require('./assets/icons/psychology/attention.png'),
+    fatigue: require('./assets/icons/psychology/fatigue.png'),
+    workload: require('./assets/icons/psychology/workload.png'),
+    // Behavioral Traits - Negative
     trait_emotion_negative: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    trait_emotion_positive: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    antisocial: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    callousness: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    cynicism: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    dominance: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    entitlement: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    grandiosity: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    impulsivity: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    manipulativeness: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    strategic_calculating: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    superiority: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    thrill_seeking: require('./assets/icons/psychology/trait_emotion_negative.png'),
+    trait_positive: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    // Behavioral Traits - Positive
+    agreeableness: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    conscientiousness: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    openness: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    self_control: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    stability: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    empathy: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    // Behavioral Traits - Neutral
     trait_emotion_neutral: require('./assets/icons/psychology/trait_emotion_neutral.png'),
+    extraversion: require('./assets/icons/psychology/trait_emotion_neutral.png'),
+    // Emotional States
     emotional_states: require('./assets/icons/psychology/emotional_states.png'),
+    // Personality Types
     personality_normal: require('./assets/icons/psychology/personality_normal.png'),
     personality_dark_triad: require('./assets/icons/psychology/personality_dark_triad.png'),
+    personality_narcissism: require('./assets/icons/psychology/personality_dark_triad.png'),
+    personality_psychopathy: require('./assets/icons/psychology/personality_dark_triad.png'),
+    personality_machiavellianism: require('./assets/icons/psychology/personality_dark_triad.png'),
 
-    // Cultures
+    // ** Cultures
     american: require('./assets/icons/culture/us.png'),
     chinese: require('./assets/icons/culture/cn.png'),
     french: require('./assets/icons/culture/fr.png'),
@@ -73,7 +99,7 @@ export const ICONS = {
     unknown: require('./assets/icons/culture/unknown.png'),
 
 
-    // Attack and Attack TTP icons
+    // ** Attack and Attack TTP icons
     attacker_ttp_model: require('./assets/icons/attack/ttp_file.png'),
     attack_tactic:      require('./assets/icons/attack/tactic.png'),
     attack_technique:   require('./assets/icons/attack/technique.png'),
@@ -85,11 +111,11 @@ export const ICONS = {
 
     malware:     require('./assets/icons/attack/malware.png'),
     
-    // Attacker icons
+    // ** Attacker icons
     threat_actor: require('./assets/icons/threatactors/threat_actor.png'),
     apt_group: require('./assets/icons/threatactors/threat_actor.png'), // Create group icon
 
-    // Logic icons
+    // ** Logic icons
     logical_and:  require('./assets/icons/logic/and.png'),
     logical_nor:  require('./assets/icons/logic/nor.png'),
     logical_not:  require('./assets/icons/logic/not.png'),
@@ -98,12 +124,12 @@ export const ICONS = {
     logical_nand: require('./assets/icons/logic/nand.png'),
     logical_nxor: require('./assets/icons/logic/nxor.png'),
 
-    // Target System bugs and vulnerabilities
+    // ** Target System bugs and vulnerabilities
     vulnerability: require('./assets/icons/targets/vulnerability.png'),
     vulnerability_template: require('./assets/icons/targets/vulnerability.png'),
     bug: require('./assets/icons/targets/bug.png'),
 
-    // Target Systems
+    // ** Target Systems
     audio:  require('./assets/icons/targets/audio.png'),
     binary: require('./assets/icons/targets/binary.png'),
     bluetooth: require('./assets/icons/targets/bluetooth.png'),
