@@ -82,7 +82,7 @@ export const Workspaces = () => {
     for (let i= 0; i < ids.length; i += chunksize) {
       const chunk = ids.slice(i, i + chunksize)
       const withinStep = `within(${chunk.map(id => `'${id}'`).join(', ')})`;
-      const query = `g.V().hasId(${withinStep})`;
+      const query = `g.V().has('layout_id', ${withinStep})`;
       axios
         .post(
           QUERY_ENDPOINT,

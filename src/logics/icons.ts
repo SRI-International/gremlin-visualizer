@@ -13,7 +13,7 @@ const getIcon: IconProvider = (label: string | undefined) => {
   if (icon) {
     return icon;
   }
-  return null;
+  return require('../assets/icons/default.png');
 }
 
 export default getIcon;

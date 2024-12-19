@@ -89,7 +89,12 @@ export const DetailsComponent = () => {
    */
   function getRows(data: any) {
     if (data == null) return;
-    return Object.entries(data).sort().map(e => {
+    const rows = Object.entries(data);
+    const nameRow = rows.find(([key]) => key === 'name');
+    const otherRows = rows.filter(([key]) => key !== 'name');
+    const sortedRows = otherRows.sort((a, b) => a[0].localeCompare(b[0]));
+    const finalRows = nameRow ? [nameRow, ...sortedRows] : sortedRows;
+    return finalRows.map(e => {
       return <TableRow>
         <TableCell style={{ width: 1 }}><strong>{String(e[0])}</strong></TableCell>
         <TableCell style={{ paddingRight: 5 }}>

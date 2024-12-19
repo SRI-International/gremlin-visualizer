@@ -45,6 +45,11 @@ export const SAVED_QUERIES = {
  * Icon string to image mapping.
  * Nodes with label matching the map key will load the associated icon.
  */
+const personalityDarkTriad = require('./assets/icons/psychology/personality_dark_triad.png');
+const traitEmotionNegative = require('./assets/icons/psychology/trait_emotion_negative.png');
+const traitEmotionPositive = require('./assets/icons/psychology/trait_emotion_positive.png');
+const traitEmotionNeutral = require('./assets/icons/psychology/trait_emotion_neutral.png');
+
 export const ICONS = {
     default: require('./assets/icons/default.png'),
 
@@ -53,37 +58,34 @@ export const ICONS = {
     fatigue: require('./assets/icons/psychology/fatigue.png'),
     workload: require('./assets/icons/psychology/workload.png'),
     // Behavioral Traits - Negative
-    trait_emotion_negative: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    antisocial: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    callousness: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    cynicism: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    dominance: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    entitlement: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    grandiosity: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    impulsivity: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    manipulativeness: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    strategic_calculating: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    superiority: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    thrill_seeking: require('./assets/icons/psychology/trait_emotion_negative.png'),
-    trait_positive: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    antisocial: traitEmotionNegative,
+    callousness: traitEmotionNegative,
+    cynicism: traitEmotionNegative,
+    dominance: traitEmotionNegative,
+    entitlement: traitEmotionNegative,
+    grandiosity: traitEmotionNegative,
+    impulsivity: traitEmotionNegative,
+    manipulativeness: traitEmotionNegative,
+    strategic_calculating: traitEmotionNegative,
+    superiority: traitEmotionNegative,
+    thrill_seeking: traitEmotionNegative,
+    trait_positive: traitEmotionNegative,
     // Behavioral Traits - Positive
-    agreeableness: require('./assets/icons/psychology/trait_emotion_positive.png'),
-    conscientiousness: require('./assets/icons/psychology/trait_emotion_positive.png'),
-    openness: require('./assets/icons/psychology/trait_emotion_positive.png'),
-    self_control: require('./assets/icons/psychology/trait_emotion_positive.png'),
-    stability: require('./assets/icons/psychology/trait_emotion_positive.png'),
-    empathy: require('./assets/icons/psychology/trait_emotion_positive.png'),
+    agreeableness: traitEmotionPositive,
+    conscientiousness: traitEmotionPositive,
+    openness: traitEmotionPositive,
+    self_control: traitEmotionPositive,
+    stability: traitEmotionPositive,
+    empathy: traitEmotionPositive,
     // Behavioral Traits - Neutral
-    trait_emotion_neutral: require('./assets/icons/psychology/trait_emotion_neutral.png'),
-    extraversion: require('./assets/icons/psychology/trait_emotion_neutral.png'),
+    extraversion: traitEmotionNeutral,
     // Emotional States
     emotional_states: require('./assets/icons/psychology/emotional_states.png'),
     // Personality Types
     personality_normal: require('./assets/icons/psychology/personality_normal.png'),
-    personality_dark_triad: require('./assets/icons/psychology/personality_dark_triad.png'),
-    personality_narcissism: require('./assets/icons/psychology/personality_dark_triad.png'),
-    personality_psychopathy: require('./assets/icons/psychology/personality_dark_triad.png'),
-    personality_machiavellianism: require('./assets/icons/psychology/personality_dark_triad.png'),
+    personality_narcissism: personalityDarkTriad,
+    personality_psychopathy: personalityDarkTriad,
+    personality_machiavellianism: personalityDarkTriad,
 
     // ** Cultures
     american: require('./assets/icons/culture/us.png'),
@@ -158,5 +160,4 @@ export const ICONS = {
     web_browser: require('./assets/icons/targets/web_browser.png'),
     wifi: require('./assets/icons/targets/wifi.png'),
     workstation: require('./assets/icons/targets/workstation.png'),
-
 };
