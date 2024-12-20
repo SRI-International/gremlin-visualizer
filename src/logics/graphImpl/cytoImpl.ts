@@ -59,11 +59,10 @@ function toCyNode(n: NodeData): cy.NodeDefinition {
       'background-color': color,
       'background-opacity': 0,
       'background-image': getIcon(n.type),
-      'background-fit': 'contain',
-      //'font-size': '0px',
-      'text-max-width' : '80px',
+      'background-fit': 'none',
+      'text-max-width' : '150px',
       'text-wrap': 'wrap',
-      'text-valign': 'bottom'
+      'text-valign': 'bottom',
     },
     position: { x: n.x ? n.x : Math.random(), y: n.y ? n.y : Math.random() },
   };
@@ -113,7 +112,6 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
             width: 1,
             "curve-style": "bezier",
 	    "target-arrow-shape": 'triangle',
-	    //"font-size": "0px",
 	    "text-rotation": "autorotate",
             "label": "data(label)"
           }
@@ -154,8 +152,7 @@ export function getCytoGraph(container?: HTMLElement, data?: GraphData, options?
             traverseQuery(ele.id(), "out")
           },
           enabled: true // whether the command is selectable
-        },
-    ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
+        },    ], // function( ele ){ return [ /*...*/ ] }, // a function that returns commands or a promise of commands
     })
 
     layout.start()
