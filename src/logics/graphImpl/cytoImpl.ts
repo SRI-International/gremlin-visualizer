@@ -306,8 +306,10 @@ export function getNodePositions() {
   graph?.nodes().forEach(node => {
     const node_name = node.data('properties').name;
     const node_id = node.data('id');
+    const node_object_handle = node.data('properties').object_handle;
     const node_position = node.position();
-    positions[node.data('properties').layout_id] = {node_id: node_id, name: node_name, x: node_position.x, y: node_position.y}
+    positions[node.data('properties').layout_id] = {node_id: node_id, name: node_name, object_handle: node_object_handle, x: node_position.x, y: node_position.y}
+
   })
   return {
     layout: positions,

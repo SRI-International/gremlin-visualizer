@@ -31,14 +31,18 @@ export const INITIAL_LABEL_MAPPINGS = {
  * Saved queries appear on the saved queries tab.
  */
 export const SAVED_QUERIES = {
-    //"MITRE ATT&CK":                       "g.V().has('groups', within('MITRE ATT&CK'))",
-    "Cognitive Vulnerabilitiess":           "g.V().has('groups', within('Cognitive Vulnerabilities'))",
-    "Psychological Theory: Personalities":  "g.V().has('groups', within('Psychological Theory: Personalities'))",
-    "Data Theory: Personalities":           "g.V().has('groups', within('Data Theory'))",
-    "Reference Hacker 1":                   "g.V().has('groups', within('Reference Hacker 1'))",
-    "Reference Hacker 2":                   "g.V().has('groups', within('Reference Hacker 2'))",
-    "Reference Hacker 3":                   "g.V().has('groups', within('Reference Hacker 3'))",
-    "Reference Hacker 4":                   "g.V().has('groups', within('Reference Hacker 4'))",
+    //"MITRE ATT&CK":                     "g.V().has('groups', within('MITRE ATT&CK'))",
+    "Theory: CogVulns":                   "g.V().has('groups', within('Cognitive Vulnerabilities'))",
+    "Theory: Personalities":              "g.V().has('groups', within('Psychological Theory: All Personalities'))",
+    "Theory: Normal Personality":         "g.V().has('groups', within('Psychological Theory: Normal Personality'))",
+    "Theory: Narcissistic Personality":   "g.V().has('groups', within('Psychological Theory: Narcissistic Personality'))",
+    "Theory: Machiavellian Personality":  "g.V().has('groups', within('Psychological Theory: Machiavellian Personality'))",
+    "Theory: Psychopathic Personality":   "g.V().has('groups', within('Psychological Theory: Psychopathic Personality'))",
+    "Data: Personalities":                "g.V().has('groups', within('Data Theory'))",
+    "Reference Hacker 1":                 "g.V().has('groups', within('Reference Hacker 1'))",
+    "Reference Hacker 2":                 "g.V().has('groups', within('Reference Hacker 2'))",
+    "Reference Hacker 3":                 "g.V().has('groups', within('Reference Hacker 3'))",
+    "Reference Hacker 4":                 "g.V().has('groups', within('Reference Hacker 4'))",
 }
 
 /**
@@ -88,17 +92,17 @@ export const ICONS = {
     personality_machiavellianism: personalityDarkTriad,
 
     // ** Cultures
-    american: require('./assets/icons/culture/us.png'),
-    chinese: require('./assets/icons/culture/cn.png'),
-    french: require('./assets/icons/culture/fr.png'),
-    indian: require('./assets/icons/culture/in.png'),
-    iranian: require('./assets/icons/culture/ir.png'),
-    iraqi: require('./assets/icons/culture/iq.png'),
-    israeli: require('./assets/icons/culture/is.png'),
-    north_korean: require('./assets/icons/culture/kp.png'),
-    pakistani: require('./assets/icons/culture/pk.png'),
-    russian: require('./assets/icons/culture/ru.png'),
-    unknown: require('./assets/icons/culture/unknown.png'),
+    american_culture: require('./assets/icons/culture/us.png'),
+    chinese_culture: require('./assets/icons/culture/cn.png'),
+    french_culture: require('./assets/icons/culture/fr.png'),
+    indian_culture: require('./assets/icons/culture/in.png'),
+    iranian_culture: require('./assets/icons/culture/ir.png'),
+    iraqi_culture: require('./assets/icons/culture/iq.png'),
+    israeli_culture: require('./assets/icons/culture/is.png'),
+    north_korean_culture: require('./assets/icons/culture/kp.png'),
+    pakistani_culture: require('./assets/icons/culture/pk.png'),
+    russian_culture: require('./assets/icons/culture/ru.png'),
+    unknown_culture: require('./assets/icons/culture/unknown.png'),
 
 
     // ** Attack and Attack TTP icons
