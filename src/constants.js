@@ -49,10 +49,11 @@ export const SAVED_QUERIES = {
  * Icon string to image mapping.
  * Nodes with label matching the map key will load the associated icon.
  */
+const personalityNormal    = require('./assets/icons/psychology/personality_normal.png');
 const personalityDarkTriad = require('./assets/icons/psychology/personality_dark_triad.png');
 const traitEmotionNegative = require('./assets/icons/psychology/trait_emotion_negative.png');
 const traitEmotionPositive = require('./assets/icons/psychology/trait_emotion_positive.png');
-const traitEmotionNeutral = require('./assets/icons/psychology/trait_emotion_neutral.png');
+const traitEmotionNeutral  = require('./assets/icons/psychology/trait_emotion_neutral.png');
 
 export const ICONS = {
     default: require('./assets/icons/default.png'),
@@ -84,14 +85,18 @@ export const ICONS = {
     // Behavioral Traits - Neutral
     extraversion: traitEmotionNeutral,
     // Emotional States
-    emotional_states: require('./assets/icons/psychology/emotional_states.png'),
+    anxiety: traitEmotionNegative,
+    frustration: traitEmotionNegative,
+    stress: traitEmotionNegative,
+    confidence: traitEmotionNeutral,
+    risk_aversion: traitEmotionNeutral,
     // Personality Types
-    personality_normal: require('./assets/icons/psychology/personality_normal.png'),
+    personality_normal: personalityNormal,
     personality_narcissism: personalityDarkTriad,
     personality_psychopathy: personalityDarkTriad,
     personality_machiavellianism: personalityDarkTriad,
 
-    // ** Cultures
+    // ** Countries/Cultures
     american_culture: require('./assets/icons/culture/us.png'),
     chinese_culture: require('./assets/icons/culture/cn.png'),
     french_culture: require('./assets/icons/culture/fr.png'),
@@ -102,6 +107,7 @@ export const ICONS = {
     north_korean_culture: require('./assets/icons/culture/kp.png'),
     pakistani_culture: require('./assets/icons/culture/pk.png'),
     russian_culture: require('./assets/icons/culture/ru.png'),
+    ukrainian_culture: require('./assets/icons/culture/ua.png'),
     unknown_culture: require('./assets/icons/culture/unknown.png'),
 
 
@@ -119,7 +125,7 @@ export const ICONS = {
     
     // ** Attacker icons
     threat_actor: require('./assets/icons/threatactors/threat_actor.png'),
-    apt_group: require('./assets/icons/threatactors/threat_actor.png'), // Create group icon
+    apt_group: require('./assets/icons/threatactors/threat_actor.png'),
 
     // ** Logic icons
     logical_and:  require('./assets/icons/logic/and.png'),
