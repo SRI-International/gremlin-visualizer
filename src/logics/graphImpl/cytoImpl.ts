@@ -300,7 +300,7 @@ export function applyLayout(name: string) {
 export function getNodePositions() {
   layout?.stop()
   store.dispatch(setIsPhysicsEnabled(false))
-  let positions: Record<string, { node_id: string, name: string, x: number, y: number}> = {};
+  let positions: Record<string, { node_id: string, name: string, object_handle: string, x: number, y: number}> = {};
   let nodemaps:  Record<string, { name: string, layout_id:string }> = {};
 
   graph?.nodes().forEach(node => {
