@@ -29,20 +29,66 @@ export const INITIAL_LABEL_MAPPINGS = {
  * Saved queries name to gremlin query string mapping.
  * The key will be the query name, and execute the associated gremlin query.
  * Saved queries appear on the saved queries tab.
+ *
+ * These should work but don't:
+ *
+ * g.V().has('name', TextP.startingWith('prefix'))
+ * g.V().has('name', TextP.containing('substring'))
+ * g.V().has('name', TextP.endingWith('suffix'))
+ * g.V().has('name', P.or(TextP.containing('substring1'), TextP.containing('substring2')))
+ * g.V().filter {
+    def text = it.get().value('object_handle')
+    text.contains('anchoring_bias.') || text.contains('confirmation_bias.')
+   }
+ * g.V().has('name', P.or(TextP.containing('anchoring_bias'), 
+                          TextP.containing('confirmation_bias'), 
+                          TextP.containing('loss_aversion')))
+                     .as('a').bothE().as('b').bothV().select('a', 'b')
+ *
  */
 export const SAVED_QUERIES = {
-    //"MITRE ATT&CK":                     "g.V().has('groups', within('MITRE ATT&CK'))",
-    "Theory: CogVulns":                   "g.V().has('groups', within('Cognitive Vulnerabilities'))",
-    "Theory: Personalities":              "g.V().has('groups', within('Psychological Theory: All Personalities'))",
-    "Theory: Normal Personality":         "g.V().has('groups', within('Psychological Theory: Normal Personality'))",
-    "Theory: Narcissistic Personality":   "g.V().has('groups', within('Psychological Theory: Narcissistic Personality'))",
-    "Theory: Machiavellian Personality":  "g.V().has('groups', within('Psychological Theory: Machiavellian Personality'))",
-    "Theory: Psychopathic Personality":   "g.V().has('groups', within('Psychological Theory: Psychopathic Personality'))",
-    "Data: Personalities":                "g.V().has('groups', within('Data Theory'))",
-    "Reference Hacker 1":                 "g.V().has('groups', within('Reference Hacker 1'))",
-    "Reference Hacker 2":                 "g.V().has('groups', within('Reference Hacker 2'))",
-    "Reference Hacker 3":                 "g.V().has('groups', within('Reference Hacker 3'))",
-    "Reference Hacker 4":                 "g.V().has('groups', within('Reference Hacker 4'))",
+    //"MITRE ATT&CK":                      "g.V().has('groups', within('MITRE ATT&CK'))",
+    "Theory: CogVulns":                    "g.V().has('groups', within('Cognitive Vulnerability Theory'))",
+    "Theory: CogBias - Anchoring":         "g.V().has('cogbias_class', within('anchoring_bias')).has('groups', 'Cognitive Vulnerability Theory')",
+    "Theory: CogBias - Confirmation":      "g.V().has('cogbias_class', within('conformation_bias')).has('groups', 'Cognitive Vulnerability Theory')",
+    "Theory: CogBias - Loss Aversion":     "g.V().has('cogbias_class', within('loss_aversion')).has('groups', 'Cognitive Vulnerability Theory')",
+    "Theory: CogBias - Representativeness": "g.V().has('cogbias_class', within('representativeness_bias')).has('groups', 'Cognitive Vulnerability Theory')",
+    "Theory: CogBias - Social/Cultural":   "g.V().has('cogbias_class', within('social_cultural_bias')).has('groups', 'Cognitive Vulnerability Theory')",
+    "Theory: Personalities":               "g.V().has('groups', within('Psychological Theory: All Personalities'))",
+    "Theory: Normal Personality":          "g.V().has('groups', within('Psychological Theory: Normal Personality'))",
+    "Theory: Narcissistic Personality":    "g.V().has('groups', within('Psychological Theory: Narcissistic Personality'))",
+    "Theory: Machiavellian Personality":   "g.V().has('groups', within('Psychological Theory: Machiavellian Personality'))",
+    "Theory: Psychopathic Personality":    "g.V().has('groups', within('Psychological Theory: Psychopathic Personality'))",
+    // Cultures
+    "Culture: American":                   "g.V().has('groups', within('Culture: American'))",
+    //"Culture: Argentinian":                   "g.V().has('groups', within('Culture: Argentinian'))",
+    "Culture: Australian":                 "g.V().has('groups', within('Culture: Australian'))",
+    //"Culture: Brazilian":                    "g.V().has('groups', within('Culture: Brazilian'))",
+    "Culture: British":                    "g.V().has('groups', within('Culture: British'))",
+    "Culture: Canadian":                   "g.V().has('groups', within('Culture: Canadian'))",
+    //"Culture: Chilean":                    "g.V().has('groups', within('Culture: Chilean'))",
+    //"Culture: Chinese":                    "g.V().has('groups', within('Culture: Chinese'))",
+    "Culture: Dutch":                      "g.V().has('groups', within('Culture: Dutch'))",
+    "Culture: French":                     "g.V().has('groups', within('Culture: Frence'))",
+    "Culture: German":                     "g.V().has('groups', within('Culture: German'))",
+    //"Culture: Indian":                    "g.V().has('groups', within('Culture: Indian'))",
+    //"Culture: Iranian":                    "g.V().has('groups', within('Culture: Iranian'))",
+    //"Culture: Iraqi":                    "g.V().has('groups', within('Culture: Iraqi'))",
+    //"Culture: Israeli":                    "g.V().has('groups', within('Culture: Israeli'))",
+    "Culture: Mexican":                    "g.V().has('groups', within('Culture: Mexican'))",
+    //"Culture: NorthKorean":                "g.V().has('groups', within('Culture: North Korean'))",
+    //"Culture: Pakistani":                     "g.V().has('groups', within('Culture: Pakistani'))",
+    "Culture: Polish":                     "g.V().has('groups', within('Culture: Polish'))",
+    //"Culture: Russian":                    "g.V().has('groups', within('Culture: Russian'))",
+    "Culture: South African":              "g.V().has('groups', within('Culture: South African'))",
+    //"Culture: Ukrainian":                    "g.V().has('groups', within('Culture: Ukrainian'))",
+    // Data (for sensors)
+    "Data: Personalities":                 "g.V().has('groups', within('Data Theory'))",
+    // Threat Actors
+    "Reference Hacker 1":                  "g.V().has('groups', within('Reference Hacker 1'))",
+    //"Reference Hacker 2":                 "g.V().has('groups', within('Reference Hacker 2'))",
+    //"Reference Hacker 3":                 "g.V().has('groups', within('Reference Hacker 3'))",
+    //"Reference Hacker 4":                 "g.V().has('groups', within('Reference Hacker 4'))",
 }
 
 /**
@@ -98,15 +144,26 @@ export const ICONS = {
 
     // ** Countries/Cultures
     american_culture: require('./assets/icons/culture/us.png'),
+    argentinian_culture: require('./assets/icons/culture/ar.png'),
+    australian_culture: require('./assets/icons/culture/au.png'),
+    brazilian_culture: require('./assets/icons/culture/br.png'), 
+    british_culture: require('./assets/icons/culture/gb-eng.png'),
+    canadian_culture: require('./assets/icons/culture/ca.png'),
+    chilean_culture: require('./assets/icons/culture/cl.png'),
     chinese_culture: require('./assets/icons/culture/cn.png'),
+    dutch_culture: require('./assets/icons/culture/nl.png'),
     french_culture: require('./assets/icons/culture/fr.png'),
+    german_culture: require('./assets/icons/culture/de.png'),
     indian_culture: require('./assets/icons/culture/in.png'),
     iranian_culture: require('./assets/icons/culture/ir.png'),
     iraqi_culture: require('./assets/icons/culture/iq.png'),
     israeli_culture: require('./assets/icons/culture/is.png'),
+    mexican_culture: require('./assets/icons/culture/mx.png'), 
     north_korean_culture: require('./assets/icons/culture/kp.png'),
     pakistani_culture: require('./assets/icons/culture/pk.png'),
+    polish_culture: require('./assets/icons/culture/pl.png'),
     russian_culture: require('./assets/icons/culture/ru.png'),
+    south_african_culture: require('./assets/icons/culture/za.png'),
     ukrainian_culture: require('./assets/icons/culture/ua.png'),
     unknown_culture: require('./assets/icons/culture/unknown.png'),
 
