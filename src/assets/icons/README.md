@@ -9,5 +9,3 @@ Icons size guidelines:
 * Round: 37x37
 * Square: 30x30
 
-
-
