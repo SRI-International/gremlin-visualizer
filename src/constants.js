@@ -142,6 +142,7 @@ export const ICONS = {
     confidence: traitEmotionNeutral,
     risk_aversion: traitEmotionNeutral,
     // Personality Types
+    personality: personalityNormal,
     personality_normal: personalityNormal,
     personality_narcissism: personalityDarkTriad,
     personality_psychopathy: personalityDarkTriad,
