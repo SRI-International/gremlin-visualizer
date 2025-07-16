@@ -2,6 +2,11 @@
 
 | Icon File(s)            |  Original Source   | Modified? | Source / License URL                                             |
 |-------------------------|--------------------|-----------|------------------------------------------------------------------|
+| bin.png                 | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/bin_1979268                   |
+| txt-file.png            | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/file_16011609                 |
+| log-file.png            | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/file_16011768                 |
+| xml-file.png            | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/file_16011587                 |
+| json-file.png           | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/file_16011777                 |
 | ttp_file.png            | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/ttp-file_51597                |
 | tactic.png              | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/tactic_2285641                |
 | technique.png           | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/technique_12238258            |
@@ -23,4 +28,5 @@
 | strategy.png            | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/strategy_584695               |
 | tactic_2.png            | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/strategy_125842               |
 | workflow.png            | flaticon.com       | Yes       | https://www.flaticon.com/free-icon/workflow_15774494             |
+| log.png                 | flaticons.com      | Yes       | https://www.flaticon.com/free-icon/log_1960087                   |
 
