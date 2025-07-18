@@ -38,8 +38,14 @@ export const SAVED_QUERIES = {
     "National Cultures":                    "g.V().has('culture_type','geographic').has('area_level','national').order().by('name', asc)",
     "All Geographic Cultures":              "g.V().has('culture_type','geographic').order().by('name', asc)",
     //
+    // Attack TTPs
+    //
+    // T1583
+    "MITRE ATT&CK Tactics":                 "g.V().has('ttp_class', 'attack-tactic')
+    "Attack Techniques w/ Sub-Techniques":  "g.V().has('ttp_class', 'attack-technique').where(inE('implements'))"
+    "
     // Data (for sensors)
-    //"Data: Personalities":                  "g.V().has('groups', within('Data Theory'))",
+    //"Data: Personalities":                "g.V().has('groups', within('Data Theory'))",
     //
     // Threat Actors
     //"Reference Hacker 1":                   "g.V().has('groups', within('Reference Hacker 1'))",

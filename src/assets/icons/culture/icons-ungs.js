@@ -22,7 +22,7 @@ export const CULTURE_UN_GEOSCHEME_ICONS = {
     asian_culture_ungs: require('./ungs-regional.png'),
     central_asian_culture_ungs: require('./ungs-subregional.png'),
     eastern_asian_culture_ungs: require('./ungs-subregional.png'),
-    southeastern_asian_culture_ungs: require('./ungs-subregional.png'),
+    south_eastern_asian_culture_ungs: require('./ungs-subregional.png'),
     southern_asian_culture_ungs: require('./ungs-subregional.png'),
     western_asian_culture_ungs: require('./ungs-subregional.png'),
     european_culture_ungs: require('./ungs-regional.png'),

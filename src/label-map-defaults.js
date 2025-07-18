@@ -5,9 +5,10 @@
 
 export const INITIAL_LABEL_MAPPINGS = {
     //  person: 'name'
-    attack_tactic:      'display_label',
-    attack_technique:   'display_label',
-    attack_procedure:   'display_label',
-    mitre_ttp_model:    'display_label',
-    attacker_ttp_model: 'display_label',
+    attack_tactic:        'display_label',
+    attack_technique:     'display_label',
+    attack_sub_technique: 'display_label',
+    attack_procedure:     'display_label',
+    mitre_ttp_model:      'display_label',
+    attacker_ttp_model:   'display_label',
 }

@@ -22,7 +22,7 @@ const initialNodeLabels: NodeLabel[] = Object.entries(INITIAL_LABEL_MAPPINGS).ma
 const initialState: OptionState = {
   nodeLabels: initialNodeLabels,
   queryHistory: [],
-  nodeLimit: 1000,
+  nodeLimit: 2000,
   graphOptions: {
     layout: 'force-directed',
     isPhysicsEnabled: true,
