@@ -41,9 +41,8 @@ export const SAVED_QUERIES = {
     // Attack TTPs
     //
     // T1583
-    "MITRE ATT&CK Tactics":                 "g.V().has('ttp_class', 'attack-tactic')
-    "Attack Techniques w/ Sub-Techniques":  "g.V().has('ttp_class', 'attack-technique').where(inE('implements'))"
-    "
+    "MITRE ATT&CK Tactics":                 "g.V().has('ttp_class', 'attack-tactic')",
+    "Attack Techniques w/ Sub-Techniques":  "g.V().has('ttp_class', 'attack-technique').where(inE('implements'))",
     // Data (for sensors)
     //"Data: Personalities":                "g.V().has('groups', within('Data Theory'))",
     //
