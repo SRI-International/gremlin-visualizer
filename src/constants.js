@@ -43,6 +43,7 @@ import { CULTURE_GENERAL_ICONS } from '/gremlin-visualizer/src/assets/icons/cult
 import { CULTURE_NATIONAL_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/national/icons-national.js';
 import { CULTURE_REGION_OWID_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/regional/icons-owid.js';
 import { CULTURE_UN_GEOSCHEME_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/regional/icons-ungs.js';
+import { LANGUAGE_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/language/icons.js';
 
 export const ICONS = {
     // Tags are the object type field
@@ -62,6 +63,7 @@ export const ICONS = {
     ...CULTURE_NATIONAL_ICONS,
     ...CULTURE_REGION_OWID_ICONS,
     ...CULTURE_UN_GEOSCHEME_ICONS,
+    ...LANGUAGE_ICONS,
 
     // ** CYBER ICONS
     ...SENSOR_ICONS,
