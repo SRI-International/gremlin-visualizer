@@ -39,9 +39,10 @@ import { COGBIAS_ICONS } from '/gremlin-visualizer/src/assets/icons/psychology/i
 import { SENSOR_ICONS } from '/gremlin-visualizer/src/assets/icons/sensors/icons.js';
 import { TRIGGER_ICONS } from '/gremlin-visualizer/src/assets/icons/triggers/icons.js';
 
-import { CULTURE_NATIONAL_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/icons-national.js';
-import { CULTURE_REGION_OWID_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/icons-owid.js';
-import { CULTURE_UN_GEOSCHEME_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/icons-ungs.js';
+import { CULTURE_GENERAL_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/icons-general.js';
+import { CULTURE_NATIONAL_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/national/icons-national.js';
+import { CULTURE_REGION_OWID_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/regional/icons-owid.js';
+import { CULTURE_UN_GEOSCHEME_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/geographic/regional/icons-ungs.js';
 
 export const ICONS = {
     // Tags are the object type field
@@ -57,6 +58,7 @@ export const ICONS = {
     ...COGBIAS_ICONS,
 
     // ** CULTURE ICONS
+    ...CULTURE_GENERAL_ICONS,
     ...CULTURE_NATIONAL_ICONS,
     ...CULTURE_REGION_OWID_ICONS,
     ...CULTURE_UN_GEOSCHEME_ICONS,
