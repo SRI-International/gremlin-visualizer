@@ -4,6 +4,9 @@
  * Saved queries appear on the saved queries tab.
  */
 export const SAVED_QUERIES = {
+
+    // Threat Actor - Best Triggers
+    "Reference Hacker Triggers":           "g.V().hasLabel('threat_actor').has('name','Reference-Hacker').out('has').out('susceptible_to').in('exploits').has('component_class','bias_trigger')",
     //
     // ColVuln Libraries
     "CogVuln Trigger Library":              "g.V().has('component_class','bias_trigger').order().by('name', asc)",
