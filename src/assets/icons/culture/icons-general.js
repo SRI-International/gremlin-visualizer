@@ -6,5 +6,6 @@
 export const CULTURE_GENERAL_ICONS = {
     
     culture: require('./culture.png'),
+    atheist_culture: require('./atheist.png'),
 
 };
