@@ -4,7 +4,7 @@
  */
 
 export const CULTURE_RELIGIOUS_ICONS = {
-    buddist_culture : require('./buddist.png'),
+    buddhist_culture : require('./buddhist.png'),
     christian_culture : require('./christian.png'),
     hindu_culture : require('./hindu.png'),
     jewish_culture : require('./jewish.png'),
