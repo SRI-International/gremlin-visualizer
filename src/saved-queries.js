@@ -37,11 +37,13 @@ export const SAVED_QUERIES = {
     "Theory: Data":                         "g.V().has('groups', 'Data Theory').order().by('name',asc)",
     //
     // Cultures
+    "Geographic Cultures":                  "g.V().has('culture_type','geographic').order().by('name', asc)",
     "Regional Cultures":                    "g.V().has('culture_type','geographic').has('area_level','region').order().by('name', asc)",
     "Subregional Cultures":                 "g.V().has('culture_type','geographic').has('area_level','subregion').order().by('name', asc)",
     "Intermediate Region Cultures":         "g.V().has('culture_type','geographic').has('area_level','intermediate').order().by('name', asc)",
     "National Cultures":                    "g.V().has('culture_type','geographic').has('area_level','national').order().by('name', asc)",
-    "All Geographic Cultures":              "g.V().has('culture_type','geographic').order().by('name', asc)",
+    "Language: Right to Left":              "g.V().has('node_base_type','Language') .has('script_direction','rtl')",
+    "Religious Cultures":                   "g.V().has('culture_type','religious')", 
     //
     // Attack TTPs
     //

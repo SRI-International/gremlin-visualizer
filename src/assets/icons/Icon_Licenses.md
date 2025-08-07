@@ -18,6 +18,16 @@
 | representativeness_bias.png  | flaticon.com  | No        | https://www.flaticon.com/free-icon/representative_5965705        |
 | social_cultural_bias.png     | flagicon.com  | No        | https://www.flaticon.com/free-icon/bias_13330936                 |
 | social_cultural_value.png    | flagicon.com  | No        | https://www.flaticon.com/free-icon/culture_12375299              |
+| muslim.png              | flaticon.com       | No        | https://www.flaticon.com/free-icon/islam_1051465                 |
+| christian.png           | flaticon.com       | No        | https://www.flaticon.com/free-icon/christian_767929              |
+| hindu.png               | flaticon.com       | No        | https://www.flaticon.com/free-icon/hinduist_8525002              |
+| taoist.png              | flaticon.com       | No        | https://www.flaticon.com/free-icon/taoism_140168                 |
+| sikhi.png               | flaticon.com       | No        | https://www.flaticon.com/free-icon/spiritual_16818211            |
+| jewish.png              | flaticon.com       | No        | https://www.flaticon.com/free-icon/star-of-david_5936776         |
+| buddist.png             | flaticon.com       | No        | https://www.flaticon.com/free-icon/dharma-wheel_3614614          |
+| shintoist.png           | flaticon.com       | No        | https://www.flaticon.com/free-icon/shinto_104526                 |
+
+
 
 
 # Unused
