@@ -26,6 +26,7 @@
 | jewish.png              | flaticon.com       | No        | https://www.flaticon.com/free-icon/star-of-david_5936776         |
 | buddist.png             | flaticon.com       | No        | https://www.flaticon.com/free-icon/dharma-wheel_3614614          |
 | shintoist.png           | flaticon.com       | No        | https://www.flaticon.com/free-icon/shinto_104526                 |
+| detector.png            | flaticon.com       | No        | https://www.flaticon.com/free-icon/smoke-alarm_17899515          |
 
 
 

@@ -36,7 +36,7 @@ import { THREAT_ACTOR_ICONS } from '/gremlin-visualizer/src/assets/icons/threata
 
 import { PERSONALITY_ICONS } from '/gremlin-visualizer/src/assets/icons/psychology/icons-personality.js';
 import { COGBIAS_ICONS } from '/gremlin-visualizer/src/assets/icons/psychology/icons-cogbias.js';
-import { SENSOR_ICONS } from '/gremlin-visualizer/src/assets/icons/sensors/icons.js';
+import { DETECTOR_ICONS } from '/gremlin-visualizer/src/assets/icons/detectors/icons.js';
 import { TRIGGER_ICONS } from '/gremlin-visualizer/src/assets/icons/triggers/icons.js';
 
 import { CULTURE_GENERAL_ICONS } from '/gremlin-visualizer/src/assets/icons/culture/icons-general.js';
@@ -68,7 +68,7 @@ export const ICONS = {
     ...CULTURE_RELIGIOUS_ICONS,
 
     // ** CYBER ICONS
-    ...SENSOR_ICONS,
+    ...DETECTOR_ICONS,
     ...TRIGGER_ICONS,
     ...DATA_ICONS,
     ...ENVIRONMENT_ICONS,

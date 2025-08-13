@@ -10,6 +10,7 @@ export const SAVED_QUERIES = {
     //
     // ColVuln Libraries
     "CogVuln Trigger Library":              "g.V().has('component_class','bias_trigger').order().by('name', asc)",
+    "CogVuln Detector Library":             "g.V().has('component_class','bias_detector').order().by('name', asc)",
     "CogVuln Sensor Library":               "g.V().has('component_class','bias_sensor').order().by('name', asc)",
     //
     // Cognitive Biases
@@ -24,7 +25,6 @@ export const SAVED_QUERIES = {
     "Culture Biases > 5.5: Asian": "g.V().has('name','AsianCulture').bothE('susceptible_to').has('score', gt(5.5)).as('e').bothV().as('v').select('v')",
     "Culture Biases: EasternAsian": "g.V().has('name','EasternAsianCulture').bothE('susceptible_to').as('e').bothV().as('v').select('v')",
     "Culture Biases > 5.5: EasternAsian": "g.V().has('name','EasternAsianCulture').bothE('susceptible_to').has('score', gt(5.5)).as('e').bothV().as('v').select('v')",
-    //"Overlapping Cognitive Biases for the 'Big Four (OWID)'": "g.V().has('name', within('AfricanCulture', 'AsianCulture', 'EuropeanCulture', 'NorthAmericanCulture', 'SouthAmericanCulture', 'OceanianCulture')).outE('susceptible_to').bothV()",
     //
     // Theory
     "Theory: CogVulns":                     "g.V().has('groups', 'Cognitive Vulnerability Theory')",
